@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LSG Playing XI Builder</title>
+
+<style>
+:root{
+  --blue:#0057D9;
+  --cyan:#1EC8FF;
+  --red:#D7263D;
+}
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--blue);
+  color:var(--red);
+}
+header{
+   background:var(--cyan);
+   color:var(--red);
+   padding:18px;
+   text-align:center;
+   font-size:26px;
+   font-weight:800;
+   position:relative;
+}
+#lsgLogo{
+  position:absolute;
+  top:10px;
+  left:16px;
+  height:48px;
+  opacity:.85;
+}
+.header-actions{
+  position:absolute;
+  right:20px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+
+#resetBtn,
+#captainBtn{
+  padding:6px 14px;
+  border:none;
+  border-radius:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+
+#captainBtn,#resetBtn{
+  background:var(--red);
+  color:var(--cyan);
+}
+
+#resetBtn:hover,
+#captainBtn:hover{
+  opacity:.9;
+}
+
+.main{
+   display:grid;
+   grid-template-columns:300px 1fr;
+   gap:20px;
+   padding:20px
+}
+.squad{
+  background:var(--cyan);
+  border-radius:14px;
+  padding:14px;
+  min-height:520px;
+  overflow-y:auto;
+}
+.squad h3{text-align:center;margin-top:0;color:var(--red)}
+.player{
+  padding:8px;
+  margin:6px 0;
+  background:var(--red);
+  border-radius:8px;
+  cursor:grab;
+  color:var(--cyan);
+}
+
+.player.used{
+  opacity:.35;
+  cursor:not-allowed;
+  filter:grayscale(100%);
+}
+
+.field{
+  display:grid;
+  grid-template-rows:repeat(3,1fr);
+  gap:20px;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.row-title{
+  grid-column:1/-1;
+  text-align:center;
+  color:var(--cyan);
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+.zone{
+  background:#0A1633;border-radius:14px;
+  min-height:170px;
+  display:flex;align-items:center;justify-content:center;
+  border:5px solid var(--red);padding:10px;
+  box-shadow:0 0 12px rgba(220,38,38,.35);
+}
+
+.zone.impact{
+  border:5px dashed var(--red);
+}
+
+.selected-player{
+  background:#E5E7EB;border-radius:12px;
+  padding:12px;width:100%;height:100%;
+  box-sizing:border-box;position:relative;
+  cursor:grab
+}
+
+.selected-player > *{position:relative;z-index:1}
+
+.selected-player img{
+  width:100%;height:120px;
+  object-fit:cover;object-position:center top;
+  border-radius:8px
+}
+.selected-player .name{
+  margin-top:8px;
+  color:var(--blue);
+  font-weight:700;
+  text-align:center;
+  letter-spacing:.6px;
+  transition:transform .2s,color .2s
+}
+.selected-player .role{
+  font-size:12px;
+  text-align:center;
+  margin-top:4px;
+  color:#000000;
+  transition:opacity .2s;
+}
+.selected-player:hover .name{
+  transform:scale(1.05);
+  color:var(--cyan);
+}
+.selected-player:hover .role{opacity:.85}
+.captain-badge{
+  position:absolute;top:6px;left:6px;
+  background:var(--blue);color:#fff;
+  font-weight:bold;font-size:12px;
+  padding:4px 8px;border-radius:6px
+}
+
+footer{
+  text-align:center;
+  padding:14px;
+  font-size:13px;
+  opacity:.9;
+}
+#xiCount{font-weight:bold}
+</style>
+</head>
+
+<body>
+<header>
+  <img id="lsgLogo" src="https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png" alt="LSG Logo">
+  LUCKNOW SUPER GIANTS PLAYING XII
+  <div class="header-actions">
+      <button id="captainBtn">SELECT CAPTAIN</button>
+      <button id="resetBtn">RESET TEAM</button>
+  </div>
+</header>
+
+
+<div class="main">
+
+<div class="squad" id="squadList">
+<h3 style="text-align:center">LSG SQUAD</h3>
+</div>
+
+<div class="field">
+  <div class="row">
+    <div class="row-title">TOP ORDER</div>
+    <div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone"></div>
+  </div>
+
+  <div class="row">
+    <div class="row-title">MIDDLE ORDER</div>
+    <div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone"></div>
+  </div>
+
+  <div class="row">
+    <div class="row-title">LOWER ORDER + IMPACT</div>
+    <div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone impact"></div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+<div id="xiCount">Selected: 0 / 11 + 1 Impact</div>
+</footer>
+
+<script>
+const PLACE="https://via.placeholder.com/150?text=LSG";
+let draggingCard=null;
+let selectingCaptain=false;
+const fallbackImg = PLACE;
+
+const squad=[
+["RISHABH PANT","WK-BATTER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/18.png"],
+["AIDEN MARKRAM","BATTER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/287.png"],
+["HIMMAT SINGH","BATTER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/203.png"],
+["MATTHEW BREETZKE","BATTER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/2805.png"],
+["MUKUL CHOUDHARY","WK-BATTER","IND",PLACE],
+["AKSHAT RAGHUWANSHI","BATTER","IND",PLACE],
+["JOSH INGLIS","WK-BATTER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/647.png"],
+["NICHOLAS POORAN","WK-BATTER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/136.png"],
+["MITCHELL MARSH","ALL-ROUNDER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/40.png"],
+["ABDUL SAMAD","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/525.png"],
+["SHAHBAZ AHAMAD","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/523.png"],
+["ARSHIN KULKARNI","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/2788.png"],
+["AYUSH BADONI","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/985.png"],
+["WANINDU HASARANGA","ALL-ROUNDER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/377.png"],
+["AVESH KHAN","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/109.png"],
+["M. SIDDHARTH","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/532.png"],
+["DIGVESH SINGH","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/3565.png"],
+["AKASH SINGH","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/535.png"],
+["PRINCE YADAV","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/1225.png"],
+["MAYANK YADAV","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2024/987.png"],
+["MOHSIN KHAN","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2024/541.png"],
+["MOHAMMAD SHAMI","BOWLER","IND","https://www.gujarattitansipl.com/static-assets/images/players/28994.png?v=4.14"],
+["ARJUN TENDULKAR","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/585.png"],
+["ANRICH NORTJE","BOWLER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/142.png"],
+["NAMAN TIWARI","BOWLER","IND",PLACE]
+].map(p=>({name:p[0],role:p[1],country:p[2],img:p[3],used:false}));
+
+const squadList=document.getElementById("squadList");
+const zones=[...document.querySelectorAll(".zone")];
+const captainBtn=document.getElementById("captainBtn");
+const xiCount=document.getElementById("xiCount");
+
+function createCard(p,idx){
+  const card=document.createElement("div");
+  card.className="selected-player";
+  card.dataset.idx=idx;
+  card.draggable=true;
+  card.innerHTML=`
+    <img src="${p.img||fallbackImg}">
+    <div class="name">${p.name}${p.country === "OS" ? " ✈️" : ""}</div>
+
+
+
+    <div class="role">${p.role}</div>
+  `;
+  card.onclick=()=>{
+    if(!selectingCaptain) return;
+    document.querySelectorAll(".captain-badge").forEach(b=>b.remove());
+    const b=document.createElement("div");
+    b.className="captain-badge";b.textContent="C";
+    card.appendChild(b);
+    selectingCaptain=false;
+    captainBtn.classList.remove("active");
+    saveTeam();
+  };
+  card.ondragstart=e=>{
+    draggingCard=card;
+    e.dataTransfer.setData("from","field");
+  };
+  return card;
+}
+
+function renderSquad(){
+  squadList.innerHTML="";
+  squad.forEach((p,i)=>{
+    const d=document.createElement("div");
+    d.className="player"+(p.used?" used":"");
+    d.textContent=p.name;
+    d.draggable=!p.used;
+    d.ondragstart=e=>{
+      e.dataTransfer.setData("from","squad");
+      e.dataTransfer.setData("idx",i);
+    };
+    squadList.appendChild(d);
+  });
+}
+
+function updateCount(){
+  xiCount.textContent=
+   `Selected: ${document.querySelectorAll(".selected-player").length} / 11 + 1 Impact`;
+}
+
+zones.forEach(z=>{
+  z.ondragover=e=>e.preventDefault();
+  z.ondrop=e=>{
+    e.preventDefault();
+    const from=e.dataTransfer.getData("from");
+    const idx=e.dataTransfer.getData("idx");
+
+    if(from==="squad"){
+      if(z.children.length||document.querySelectorAll(".selected-player").length>=12) return;
+      z.appendChild(createCard(squad[idx],idx));
+      squad[idx].used=true;
+    }
+
+    if(from==="field"&&draggingCard){
+      if(z.children.length){
+        const temp=z.firstChild;
+        z.replaceChild(draggingCard,temp);
+        temp.parentElement.appendChild(temp);
+      }else z.appendChild(draggingCard);
+    }
+
+    draggingCard=null;
+    renderSquad();updateCount();saveTeam();
+  };
+});
+
+squadList.ondragover=e=>e.preventDefault();
+squadList.ondrop=()=>{
+  if(!draggingCard) return;
+  const idx=draggingCard.dataset.idx;
+  draggingCard.remove();
+  squad[idx].used=false;
+  draggingCard=null;
+  renderSquad();updateCount();saveTeam();
+};
+
+captainBtn.onclick=()=>{
+  selectingCaptain=!selectingCaptain;
+  captainBtn.classList.toggle("active");
+};
+
+function saveTeam(){
+  const data=zones.map(z=>{
+    const c=z.querySelector(".selected-player");
+    if(!c) return null;
+    return {idx:c.dataset.idx,captain:!!c.querySelector(".captain-badge")};
+  });
+  localStorage.setItem("lsgTeam",JSON.stringify(data));
+}
+
+function loadTeam(){
+  const data=JSON.parse(localStorage.getItem("lsgTeam"));
+  if(!data) return;
+  data.forEach((d,i)=>{
+    if(!d) return;
+    const card=createCard(squad[d.idx],d.idx);
+    if(d.captain){
+      const b=document.createElement("div");
+      b.className="captain-badge";b.textContent="C";
+      card.appendChild(b);
+    }
+    zones[i].appendChild(card);
+    squad[d.idx].used=true;
+  });
+  renderSquad();updateCount();
+}
+
+renderSquad();
+loadTeam();
+const resetBtn = document.getElementById("resetBtn");
+
+resetBtn.onclick = () => {
+  // Remove all selected players from zones
+  zones.forEach(z => z.innerHTML = "");
+
+  // Reset squad usage
+  squad.forEach(p => p.used = false);
+
+  // Clear captain mode
+  selectingCaptain = false;
+  captainBtn.classList.remove("active");
+
+  // Clear storage
+  localStorage.removeItem("lsgTeam");
+
+  // Re-render UI
+  renderSquad();
+  updateCount();
+};
+
+</script>
+
+</body>
+</html>

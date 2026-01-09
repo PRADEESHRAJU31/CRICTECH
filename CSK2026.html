@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CSK Playing XI Builder</title>
+
+<style>
+:root{--yellow:#facc15;--blue:#1e40af}
+body{margin:0;font-family:Arial;background:#facc15;color:#111827}
+header{
+  background:#1e3a8a;color:#facc15;
+  padding:18px;text-align:center;
+  font-size:26px;font-weight:800;
+  position:relative
+}
+
+#cskLogo{
+  position:absolute;
+  top:10px;
+  left:16px;
+  height:48px;
+  opacity:.85;
+}
+
+.header-actions{
+  position:absolute;
+  right:20px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  gap:10px;
+}
+
+#resetBtn,
+#captainBtn{
+  padding:6px 14px;
+  border:none;
+  border-radius:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+
+#captainBtn,#resetBtn{
+  background:#facc15;
+  color:#1e3a8a;
+}
+
+#resetBtn:hover,
+#captainBtn:hover{
+  opacity:.9;
+}
+.main{display:grid;grid-template-columns:300px 1fr;gap:20px;padding:20px}
+
+.squad{
+  background:#1e3a8a;border-radius:14px;
+  padding:14px;min-height:520px;color:#facc15
+}
+.player{
+  padding:8px;margin:6px 0;
+  background:#facc15;border-radius:8px;
+  cursor:grab;color:#1e3a8a;font-weight:600
+}
+.player.used{opacity:.45;cursor:not-allowed}
+
+.field{display:grid;grid-template-rows:repeat(3,1fr);gap:20px}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.row-title{
+  grid-column:1/-1;text-align:center;
+  font-weight:bold;color:#1e3a8a
+}
+
+.zone{
+  background:#020617;border-radius:14px;
+  min-height:170px;
+  display:flex;align-items:center;justify-content:center;
+  border:5px solid #1e3a8a;padding:10px
+}
+.zone.impact{border:5px dashed #1e3a8a }
+
+.selected-player{
+  background:#fff;border-radius:12px;
+  padding:12px;width:100%;height:100%;
+  box-sizing:border-box;position:relative;
+  cursor:grab
+}
+.selected-player img{
+  width:100%;height:120px;
+  object-fit:cover;object-position:center top;
+  border-radius:8px
+}
+
+.selected-player .name{
+  margin-top:8px;
+  font-weight:700;
+  text-align:center;
+  letter-spacing:.6px;
+  transition:transform .2s,color .2s
+}
+.selected-player .role{
+  font-size:12px;
+  text-align:center;
+  margin-top:4px;
+  color:#475569;
+  transition:opacity .2s
+}
+.selected-player:hover .name{
+  transform:scale(1.05);
+  color:#1e3a8a
+}
+.selected-player:hover .role{opacity:.85}
+
+.captain-badge{
+  position:absolute;top:6px;left:6px;
+  background:#facc15;color:#fff;
+  font-weight:bold;font-size:12px;
+  padding:4px 8px;border-radius:6px
+}
+
+footer{text-align:center;padding:14px}
+#xiCount{font-weight:bold}
+</style>
+</head>
+
+<body>
+
+<header>
+  <img id="cskLogo" src="https://documents.iplt20.com/ipl/CSK/Logos/Logooutline/CSKoutline.png" alt="CSK Logo">
+  CHENNAI SUPER KINGS PLAYING XII
+  <div class="header-actions">
+       <button id="captainBtn">SELECT CAPTAIN</button>
+       <button id="resetBtn">RESET TEAM</button>
+  </div>
+</header>
+
+<div class="main">
+
+<div class="squad">
+<h3 style="text-align:center;margin-top:0">CSK SQUAD</h3>
+<div id="squadList"></div>
+</div>
+
+<div class="field">
+  <div class="row">
+    <div class="row-title">TOP ORDER</div>
+    <div class="zone"></div><div class="zone"></div>
+    <div class="zone"></div><div class="zone"></div>
+  </div>
+  <div class="row">
+    <div class="row-title">MIDDLE ORDER</div>
+    <div class="zone"></div><div class="zone"></div>
+    <div class="zone"></div><div class="zone"></div>
+  </div>
+  <div class="row">
+    <div class="row-title">LOWER ORDER + IMPACT</div>
+    <div class="zone"></div><div class="zone"></div>
+    <div class="zone"></div><div class="zone impact"></div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+<div id="xiCount">Selected: 0 / 11 + 1 Impact</div>
+</footer>
+
+<script>
+const fallbackImg="https://via.placeholder.com/120";
+let draggingCard=null;
+let selectingCaptain=false;
+
+/* FULL 25-MAN CSK SQUAD */
+const squad=[
+{name:"MS DHONI",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/57.png"},
+{name:"RUTURAJ GAIKWAD",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/102.png"},
+{name:"DEWALD BREVIS",role:"BATTER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/797.png"},
+{name:"AYUSH MHATRE",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/3497.png"},
+{name:"URVIL PATEL",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/1486.png"},
+{name:"SANJU SAMSON",role:"WK-BATTER",country:"IND",img:"https://wisden.com/static-assets/images/players/61837.png?v=23.27"},
+{name:"KARTHIK SHARMA",role:"WK-BATTER",country:"IND",img:"https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320,q_50/lsci/db/PICTURES/CMS/390800/390871.2.png"},
+{name:"SARFARAZ KHAN",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2023/139.png"},
+
+{name:"SHIVAM DUBE",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/211.png"},
+{name:"ANSHUL KAMBOJ",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/3106.png"},
+{name:"RAMAKRISHNA GHOSH",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/3559.png"},
+{name:"PRASHANT VEER",role:"ALL-ROUNDER",country:"IND",img:"https://noidakings.co.in/wp-content/uploads/2024/08/Prashant-Veer.webp"},
+{name:"AMAN KHAN",role:"ALL-ROUNDER",country:"IND",img:"https://assets.iplt20.com/ipl/IPLHeadshot2022/20581.png"},
+{name:"JAMIE OVERTON",role:"ALL-ROUNDER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/1216.png"},
+{name:"MATTHEW SHORT",role:"ALL-ROUNDER",country:"OS",img:"https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320,q_50/lsci/db/PICTURES/CMS/384200/384252.1.png"},
+{name:"ZAK FOULKES",role:"ALL-ROUNDER",country:"OS",img:"https://d13ir53smqqeyp.cloudfront.net/fc-player-images/86740.png"},
+
+{name:"KHALEEL AHMED",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/8.png"},
+{name:"NOOR AHMED",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/975.png"},
+{name:"MUKESH CHOUDHARY",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/970.png"},
+{name:"NATHAN ELLIS",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/633.png"},
+{name:"SHREYAS GOPAL",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/192.png"},
+{name:"GURJAPNEET SINGH",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/2256.png"},
+{name:"AKEAL HOSEIN",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2023/722.png"},
+{name:"RAHUL CHAHAR",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2024/171.png"},
+{name:"MATT HENRY",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2024/71.png"}
+];
+
+const squadList=document.getElementById("squadList");
+const zones=[...document.querySelectorAll(".zone")];
+const captainBtn=document.getElementById("captainBtn");
+const xiCount=document.getElementById("xiCount");
+
+function createCard(p,idx){
+  const card=document.createElement("div");
+  card.className="selected-player";
+  card.dataset.idx=idx;
+  card.draggable=true;
+  card.innerHTML=`
+    <img src="${p.img||fallbackImg}">
+    <div class="name">${p.name}${p.country==="OS"?" ✈️":""}</div>
+    <div class="role">${p.role}</div>
+  `;
+  card.onclick=()=>{
+    if(!selectingCaptain) return;
+    document.querySelectorAll(".captain-badge").forEach(b=>b.remove());
+    const b=document.createElement("div");
+    b.className="captain-badge";b.textContent="C";
+    card.appendChild(b);
+    selectingCaptain=false;
+    captainBtn.classList.remove("active");
+    saveTeam();
+  };
+  card.ondragstart=e=>{
+    draggingCard=card;
+    e.dataTransfer.setData("from","field");
+  };
+  return card;
+}
+
+function renderSquad(){
+  squadList.innerHTML="";
+  squad.forEach((p,i)=>{
+    const d=document.createElement("div");
+    d.className="player"+(p.used?" used":"");
+    d.textContent=p.name;
+    d.draggable=!p.used;
+    d.ondragstart=e=>{
+      e.dataTransfer.setData("from","squad");
+      e.dataTransfer.setData("idx",i);
+    };
+    squadList.appendChild(d);
+  });
+}
+
+function updateCount(){
+  xiCount.textContent=
+   `Selected: ${document.querySelectorAll(".selected-player").length} / 11 + 1 Impact`;
+}
+
+zones.forEach(z=>{
+  z.ondragover=e=>e.preventDefault();
+  z.ondrop=e=>{
+    e.preventDefault();
+    const from=e.dataTransfer.getData("from");
+    const idx=e.dataTransfer.getData("idx");
+
+    if(from==="squad"){
+      if(z.children.length||document.querySelectorAll(".selected-player").length>=12) return;
+      z.appendChild(createCard(squad[idx],idx));
+      squad[idx].used=true;
+    }
+
+    if(from==="field"&&draggingCard){
+      if(z.children.length){
+        const temp=z.firstChild;
+        z.replaceChild(draggingCard,temp);
+        temp.parentElement.appendChild(temp);
+      }else z.appendChild(draggingCard);
+    }
+
+    draggingCard=null;
+    renderSquad();updateCount();saveTeam();
+  };
+});
+
+squadList.ondragover=e=>e.preventDefault();
+squadList.ondrop=()=>{
+  if(!draggingCard) return;
+  const idx=draggingCard.dataset.idx;
+  draggingCard.remove();
+  squad[idx].used=false;
+  draggingCard=null;
+  renderSquad();updateCount();saveTeam();
+};
+
+captainBtn.onclick=()=>{
+  selectingCaptain=!selectingCaptain;
+  captainBtn.classList.toggle("active");
+};
+
+function saveTeam(){
+  const data=zones.map(z=>{
+    const c=z.querySelector(".selected-player");
+    if(!c) return null;
+    return {idx:c.dataset.idx,captain:!!c.querySelector(".captain-badge")};
+  });
+  localStorage.setItem("cskTeam",JSON.stringify(data));
+}
+
+function loadTeam(){
+  const data=JSON.parse(localStorage.getItem("cskTeam"));
+  if(!data) return;
+  data.forEach((d,i)=>{
+    if(!d) return;
+    const card=createCard(squad[d.idx],d.idx);
+    if(d.captain){
+      const b=document.createElement("div");
+      b.className="captain-badge";b.textContent="C";
+      card.appendChild(b);
+    }
+    zones[i].appendChild(card);
+    squad[d.idx].used=true;
+  });
+  renderSquad();updateCount();
+}
+
+renderSquad();
+loadTeam();
+const resetBtn = document.getElementById("resetBtn");
+
+resetBtn.onclick = () => {
+  // Remove all selected players from zones
+  zones.forEach(z => z.innerHTML = "");
+
+  // Reset squad usage
+  squad.forEach(p => p.used = false);
+
+  // Clear captain mode
+  selectingCaptain = false;
+  captainBtn.classList.remove("active");
+
+  // Clear storage
+  localStorage.removeItem("cskTeam");
+
+  // Re-render UI
+  renderSquad();
+  updateCount();
+};
+
+</script>
+
+</body>
+</html>

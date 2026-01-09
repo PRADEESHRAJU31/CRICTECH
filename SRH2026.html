@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SRH Playing XI Builder</title>
+
+<style>
+:root{
+  --orange:#F57C00;
+  --black:#020617;
+}
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--black);
+  color:var(--orange);
+}
+
+header{
+  background:var(--orange);
+  padding:18px;
+  text-align:center;
+  font-size:26px;
+  font-weight:800;
+  color:var(--black);
+  position:relative;
+}
+#srhLogo{
+  position:absolute;
+  top:10px;
+  left:16px;
+  height:48px;
+  opacity:.99;
+}
+.header-actions{
+  position:absolute;
+  right:20px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  gap:10px;
+}
+
+#resetBtn,
+#captainBtn{
+  padding:6px 14px;
+  border:none;
+  border-radius:8px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+
+#captainBtn,#resetBtn{
+  background:var(--black);
+  color:var(--orange);
+}
+
+#resetBtn:hover,
+#captainBtn:hover{
+  opacity:.9;
+}
+
+.main{
+  display:grid;
+  grid-template-columns:300px 1fr;
+  gap:20px;
+  padding:20px;
+}
+
+.squad{
+  background:var(--orange);
+  border-radius:14px;
+  padding:14px;
+  min-height:520px;
+  overflow-y:auto;
+}
+.squad h3{text-align:center;margin-top:0;color:var(--black)}
+.player{
+  padding:8px;
+  margin:6px 0;
+  background:var(--black);
+  border-radius:8px;
+  cursor:grab;
+  font-size:14px;
+  color:var(--orange);
+}
+
+.player.used{
+  opacity:.45;
+  cursor:not-allowed;
+  filter:grayscale(100%)
+}
+
+.field{
+  display:grid;
+  grid-template-rows:repeat(3,1fr);
+  gap:18px;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.row-title{
+  grid-column:1/-1;
+  text-align:center;
+  font-weight:bold;
+  color:var(--orange);
+  margin-bottom:4px;
+}
+
+.zone{
+  background:#020617;
+  border-radius:14px;
+  min-height:170px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:5px solid var(--orange);
+  padding:10px;
+  box-shadow:0 0 12px rgba(245,124,0,.35);
+}
+
+.zone.impact{
+  border:5px dashed var(--orange);
+}
+
+.selected-player{
+  background:#E5E7EB;border-radius:12px;
+  padding:12px;width:100%;height:100%;
+  box-sizing:border-box;position:relative;
+  cursor:grab
+}
+
+.selected-player > *{position:relative;z-index:1}
+
+.selected-player img{
+  width:100%;height:120px;
+  object-fit:cover;object-position:center top;
+  border-radius:8px
+}
+.selected-player .name{
+  margin-top:8px;
+  color:var(--orange);
+  font-weight:700;
+  text-align:center;
+  letter-spacing:.6px;
+  transition:transform .2s,color .2s
+}
+.selected-player .role{
+  font-size:12px;
+  text-align:center;
+  margin-top:4px;
+  color:#000000;
+  transition:opacity .2s
+}
+.selected-player:hover .name{
+  transform:scale(1.05);
+  color:var(--black);
+}
+.selected-player:hover .role{opacity:.85}
+.captain-badge{
+  position:absolute;top:6px;left:6px;
+  background:var(--orange);color:var(--black);
+  font-weight:bold;font-size:12px;
+  padding:4px 8px;border-radius:6px
+}
+
+footer{
+  text-align:center;
+  padding:14px;
+  font-size:13px;
+  opacity:.9;
+}
+
+#xiCount{font-weight:bold}
+</style>
+</head>
+
+<body>
+<header>
+  <img id="srhLogo" src="https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png" alt="SRH Logo">
+  SUNRISERS HYDERABAD PLAYING XII
+  <div class="header-actions">
+      <button id="captainBtn">SELECT CAPTAIN</button>
+      <button id="resetBtn">RESET TEAM</button>
+  </div>
+</header>
+
+<div class="main">
+
+<div class="squad" id="squadList">
+<h3 style="text-align:center">SRH Squad </h3>
+</div>
+
+<div class="field">
+  <div class="row">
+    <div class="row-title">TOP ORDER</div>
+    <div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone"></div>
+  </div>
+
+  <div class="row">
+    <div class="row-title">MIDDLE ORDER</div>
+    <div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone"></div>
+  </div>
+
+  <div class="row">
+    <div class="row-title">LOWER ORDER + IMPACT</div>
+    <div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone impact"></div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+<div id="count">Selected: 0 / 11 + 1 Impact</div>
+</footer>
+
+<script>
+const PLACE="https://via.placeholder.com/150?text=SRH";
+let draggingCard=null;
+let selectingCaptain=false;
+const fallbackImg = PLACE;
+
+const squad=[
+["ISHAN KISHAN","WK-BATTER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/164.png"],
+["ANIKET VERMA","BATTER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/3576.png"],
+["SMARAN RAVICHANDRAN","BATTER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/3752.png"],
+["HEINRICH KLAASEN","WK-BATTER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/202.png"],
+["TRAVIS HEAD","BATTER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/37.png"],
+["HARSHAL PATEL","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/114.png"],
+["KAMINDU MENDIS","ALL-ROUNDER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/627.png"],
+["HARSH DUBEY","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/1494.png"],
+["ABHISHEK SHARMA","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/212.png"],
+["NITISH KUMAR REDDY","ALL-ROUNDER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/1944.png"],
+["PAT CUMMINS","BOWLER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/33.png"],
+["ZEESHAN ANSARI","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/3575.png"],
+["JAYDEV UNADKAT","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2025/180.png"],
+["ESHAN MALINGA","BOWLER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/3339.png"],
+["SALIL ARORA","WK-BATTER","IND",PLACE],
+["BRYDON CARSE","ALL-ROUNDER","OS","https://www.sunrisershyderabad.in/uploads/image/SRH-674ee30cb43d39.77950345ji53f7zb.png"],
+["SHIVANG KUMAR","ALL-ROUNDER","IND",PLACE],
+["KRAINS FULETRA","ALL-ROUNDER","IND",PLACE],
+["LIAM LIVINGSTONE","ALL-ROUNDER","OS","https://documents.iplt20.com/ipl/IPLHeadshot2025/183.png"],
+["JACK EDWARDS","ALL-ROUNDER","OS","https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320,q_50/lsci/db/PICTURES/CMS/392000/392014.2.png"],
+["SAKIB HUSSAIN","BOWLER","IND",PLACE],
+["ONKAR TARMALE","BOWLER","IND",PLACE],
+["AMIT KUMAR","BOWLER","IND",PLACE],
+["PRAFUL HINGE","BOWLER","IND",PLACE],
+["SHIVAM MAVI","BOWLER","IND","https://documents.iplt20.com/ipl/IPLHeadshot2024/154.png"]
+].map(p=>({name:p[0],role:p[1],country:p[2],img:p[3],used:false}));
+const squadList=document.getElementById("squadList");
+const zones=[...document.querySelectorAll(".zone")];
+const captainBtn=document.getElementById("captainBtn");
+const xiCount=document.getElementById("count");
+
+function createCard(p,idx){
+  const card=document.createElement("div");
+  card.className="selected-player";
+  card.dataset.idx=idx;
+  card.draggable=true;
+  card.innerHTML=`
+    <img src="${p.img||fallbackImg}">
+    <div class="name">${p.name}${p.country==="OS"?" ✈️":""}</div>
+    <div class="role">${p.role}</div>
+  `;
+  card.onclick=()=>{
+    if(!selectingCaptain) return;
+    document.querySelectorAll(".captain-badge").forEach(b=>b.remove());
+    const b=document.createElement("div");
+    b.className="captain-badge";b.textContent="C";
+    card.appendChild(b);
+    selectingCaptain=false;
+    captainBtn.classList.remove("active");
+    saveTeam();
+  };
+  card.ondragstart=e=>{
+    draggingCard=card;
+    e.dataTransfer.setData("from","field");
+  };
+  return card;
+}
+
+function renderSquad(){
+  squadList.innerHTML="";
+  squad.forEach((p,i)=>{
+    const d=document.createElement("div");
+    d.className="player"+(p.used?" used":"");
+    d.textContent=p.name;
+    d.draggable=!p.used;
+    d.ondragstart=e=>{
+      e.dataTransfer.setData("from","squad");
+      e.dataTransfer.setData("idx",i);
+    };
+    squadList.appendChild(d);
+  });
+}
+
+function updateCount(){
+  xiCount.textContent =
+    `Selected: ${document.querySelectorAll(".selected-player").length} / 11 + 1 Impact`;
+}
+
+
+zones.forEach(z=>{
+  z.ondragover=e=>e.preventDefault();
+  z.ondrop=e=>{
+    e.preventDefault();
+    const from=e.dataTransfer.getData("from");
+    const idx=e.dataTransfer.getData("idx");
+
+    if(from==="squad"){
+      if(z.children.length||document.querySelectorAll(".selected-player").length>=12) return;
+      z.appendChild(createCard(squad[idx],idx));
+      squad[idx].used=true;
+    }
+
+    if(from==="field"&&draggingCard){
+      if(z.children.length){
+        const temp=z.firstChild;
+        z.replaceChild(draggingCard,temp);
+        temp.parentElement.appendChild(temp);
+      }else z.appendChild(draggingCard);
+    }
+
+    draggingCard=null;
+    renderSquad();updateCount();saveTeam();
+  };
+});
+
+squadList.ondragover=e=>e.preventDefault();
+squadList.ondrop=()=>{
+  if(!draggingCard) return;
+  const idx=draggingCard.dataset.idx;
+  draggingCard.remove();
+  squad[idx].used=false;
+  draggingCard=null;
+  renderSquad();updateCount();saveTeam();
+};
+
+captainBtn.onclick=()=>{
+  selectingCaptain=!selectingCaptain;
+  captainBtn.classList.toggle("active");
+};
+
+function saveTeam(){
+  const data=zones.map(z=>{
+    const c=z.querySelector(".selected-player");
+    if(!c) return null;
+    return {idx:c.dataset.idx,captain:!!c.querySelector(".captain-badge")};
+  });
+  localStorage.setItem("srhTeam",JSON.stringify(data));
+}
+
+function loadTeam(){
+  const data=JSON.parse(localStorage.getItem("srhTeam"));
+  if(!data) return;
+  data.forEach((d,i)=>{
+    if(!d) return;
+    const card=createCard(squad[d.idx],d.idx);
+    if(d.captain){
+      const b=document.createElement("div");
+      b.className="captain-badge";b.textContent="C";
+      card.appendChild(b);
+    }
+    zones[i].appendChild(card);
+    squad[d.idx].used=true;
+  });
+  renderSquad();updateCount();
+}
+
+renderSquad();
+loadTeam();
+const resetBtn = document.getElementById("resetBtn");
+
+resetBtn.onclick = () => {
+
+  // Clear all zones completely
+  zones.forEach(z => {
+    while (z.firstChild) z.removeChild(z.firstChild);
+  });
+
+  // Reset squad usage
+  squad.forEach(p => p.used = false);
+
+  // Remove captain badge state
+  selectingCaptain = false;
+  captainBtn.classList.remove("active");
+
+  // Reset dragging reference
+  draggingCard = null;
+
+  // Clear storage
+  localStorage.removeItem("srhTeam");
+
+  // Re-render
+  renderSquad();
+  updateCount();
+};
+
+</script>
+
+</body>
+</html>
