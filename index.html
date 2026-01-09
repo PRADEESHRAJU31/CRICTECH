@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>IPL 2026 Selector</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL 2026 Selector</title>
 
-  <style>
-  body{
+<style>
+body{
   margin:0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
   background:#0f172a;
   color:#fff;
+  animation:pageIn .4s ease;
+}
+
+@keyframes pageIn{
+  from{opacity:0; transform:translateY(10px)}
+  to{opacity:1; transform:none}
+}
+
+body.fade-out{
+  opacity:0;
+  transform:translateY(-10px);
+  transition:.3s ease;
 }
 
 /* HEADER */
@@ -25,22 +38,24 @@ header{
   letter-spacing:2px;
   color:#0f172a;
   text-transform:uppercase;
-  box-shadow:0 4px 18px rgba(0,0,0,0.15);
+  box-shadow:0 4px 18px rgba(0,0,0,.15);
+  text-align:center;
+  padding:0 16px;
 }
 
 header img{
   position:absolute;
   left:24px;
   height:65px;
-  opacity:0.85;
+  opacity:.85;
 }
 
-/* DASHBOARD GRID */
+/* GRID */
 .dashboard{
   max-width:1400px;
   margin:40px auto;
   display:grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:24px;
   padding:0 20px;
 }
@@ -52,17 +67,14 @@ header img{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
   cursor:pointer;
-  transition:transform 0.25s ease, box-shadow 0.25s ease;
-  box-shadow:0 6px 22px rgba(0,0,0,0.45);
-  position:relative;
-  overflow:hidden;
+  transition:.25s;
+  box-shadow:0 6px 22px rgba(0,0,0,.45);
 }
 
 .team-card:hover{
   transform:translateY(-6px) scale(1.03);
-  box-shadow:0 12px 32px rgba(0,0,0,0.65);
+  box-shadow:0 12px 32px rgba(0,0,0,.65);
 }
 
 .team-card img{
@@ -70,152 +82,117 @@ header img{
   height:110px;
   object-fit:contain;
   margin-bottom:12px;
-  filter:drop-shadow(0 6px 10px rgba(0,0,0,0.35));
-  max-width:100%;
 }
 
 .team-name{
-  text-align:center;
   font-size:16px;
   font-weight:bold;
-}
-
-footer{
   text-align:center;
-  padding:18px;
-  font-size:12px;
-  opacity:0.6;
 }
 
-/* ------------------- RESPONSIVE OVERRIDES ------------------- */
-
-/* Tablet screens */
-@media(max-width: 1024px){
-  .dashboard{
-    grid-template-columns: repeat(3, 1fr);
-    gap:20px;
-  }
-  header{
-    font-size:24px;
-  }
-  .team-card img{
-    width:90px;
-    height:90px;
-  }
+/* TABLET */
+@media(max-width:1024px){
+  .dashboard{grid-template-columns:repeat(3,1fr)}
+  header{font-size:24px}
 }
 
-/* Mobile screens */
-@media(max-width: 600px){
-  .dashboard{
-    grid-template-columns: repeat(2, 1fr);
-    gap:16px;
-    margin:20px auto;
-  }
+/* MOBILE */
+@media(max-width:600px){
   header{
-    height:80px;
+    height:auto;
     font-size:18px;
-    letter-spacing:1px;
+    padding:14px 12px 14px 60px;
   }
+
   header img{
-    height:45px;
+    height:42px;
     left:12px;
   }
-  .team-card{
-    padding:16px;
+
+  .dashboard{
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    padding:0 12px;
   }
+
   .team-card img{
     width:70px;
     height:70px;
   }
-  .team-name{
-    font-size:14px;
-  }
 }
 
-/* Extra small screens */
-@media(max-width: 400px){
-  .dashboard{
-    grid-template-columns: 1fr;
-  }
-  .team-card{
-    padding:14px;
-  }
-  .team-name{
-    font-size:13px;
-  }
+@media(max-width:400px){
+  .dashboard{grid-template-columns:1fr}
 }
-  </style>
+</style>
 </head>
 
 <body>
 
 <header>
-  <img src="https://images.seeklogo.com/logo-png/53/2/tata-ipl-logo-png_seeklogo-531750.png">
-  CRICTECH [IPL 2026 PLAYING XII SELECTOR] 
+<img src="https://images.seeklogo.com/logo-png/53/2/tata-ipl-logo-png_seeklogo-531750.png">
+CRICTECH [IPL 2026 PLAYING XII SELECTOR]
 </header>
 
 <div class="dashboard">
 
-  <div class="team-card" style="background:linear-gradient(135deg,#c62828,#1e2a44)" onclick="go('RCB2026.html')">
-    <img src="https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png">
-    <div class="team-name">Royal Challengers Bengaluru</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#c62828,#1e2a44)" onclick="go('RCB2026.html')">
+<img src="https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png">
+<div class="team-name">Royal Challengers Bengaluru</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#f9b233,#c79600)" onclick="go('CSK2026.html')">
-    <img src="https://documents.iplt20.com/ipl/CSK/Logos/Logooutline/CSKoutline.png">
-    <div class="team-name">Chennai Super Kings</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#f9b233,#c79600)" onclick="go('CSK2026.html')">
+<img src="https://documents.iplt20.com/ipl/CSK/Logos/Logooutline/CSKoutline.png">
+<div class="team-name">Chennai Super Kings</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#005daa,#003f7f)" onclick="go('MI2026.html')">
-    <img src="https://documents.iplt20.com/ipl/MI/Logos/Logooutline/MIoutline.png">
-    <div class="team-name">Mumbai Indians</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#005daa,#003f7f)" onclick="go('MI2026.html')">
+<img src="https://documents.iplt20.com/ipl/MI/Logos/Logooutline/MIoutline.png">
+<div class="team-name">Mumbai Indians</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#3a225d,#1b0f2e)" onclick="go('KKR2026.html')">
-    <img src="https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png">
-    <div class="team-name">Kolkata Knight Riders</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#3a225d,#1b0f2e)" onclick="go('KKR2026.html')">
+<img src="https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png">
+<div class="team-name">Kolkata Knight Riders</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#ea1a85,#9b1258)" onclick="go('RR2026.html')">
-    <img src="https://documents.iplt20.com/ipl/RR/Logos/Logooutline/RRoutline.png">
-    <div class="team-name">Rajasthan Royals</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#ea1a85,#9b1258)" onclick="go('RR2026.html')">
+<img src="https://documents.iplt20.com/ipl/RR/Logos/Logooutline/RRoutline.png">
+<div class="team-name">Rajasthan Royals</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#f26522,#b84512)" onclick="go('SRH2026.html')">
-    <img src="https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png">
-    <div class="team-name">Sunrisers Hyderabad</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#f26522,#b84512)" onclick="go('SRH2026.html')">
+<img src="https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png">
+<div class="team-name">Sunrisers Hyderabad</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#17479e,#0e2c63)" onclick="go('DC2026.html')">
-    <img src="https://brandlogovector.com/wp-content/uploads/2021/11/Delhi-Capitals-Logo-Small.png">
-    <div class="team-name">Delhi Capitals</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#17479e,#0e2c63)" onclick="go('DC2026.html')">
+<img src="https://brandlogovector.com/wp-content/uploads/2021/11/Delhi-Capitals-Logo-Small.png">
+<div class="team-name">Delhi Capitals</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#d71920,#8c0f14)" onclick="go('PBKS2026.html')">
-    <img src="https://documents.iplt20.com/ipl/PBKS/Logos/Logooutline/PBKSoutline.png">
-    <div class="team-name">Punjab Kings</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#d71920,#8c0f14)" onclick="go('PBKS2026.html')">
+<img src="https://documents.iplt20.com/ipl/PBKS/Logos/Logooutline/PBKSoutline.png">
+<div class="team-name">Punjab Kings</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#0b1c2d,#000814)" onclick="go('GT2026.html')">
-    <img src="https://documents.iplt20.com/ipl/GT/Logos/Logooutline/GToutline.png">
-    <div class="team-name">Gujarat Titans</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#0b1c2d,#000814)" onclick="go('GT2026.html')">
+<img src="https://documents.iplt20.com/ipl/GT/Logos/Logooutline/GToutline.png">
+<div class="team-name">Gujarat Titans</div>
+</div>
 
-  <div class="team-card" style="background:linear-gradient(135deg,#00b5ad,#007f79)" onclick="go('LSG2026.html')">
-    <img src="https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png">
-    <div class="team-name">Lucknow Super Giants</div>
-  </div>
+<div class="team-card" style="background:linear-gradient(135deg,#00b5ad,#007f79)" onclick="go('LSG2026.html')">
+<img src="https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png">
+<div class="team-name">Lucknow Super Giants</div>
+</div>
 
 </div>
 
-<footer>
-  
-</footer>
-
 <script>
-  function go(file){
-    window.location.href = file;
-  }
+function go(file){
+  document.body.classList.add("fade-out");
+  setTimeout(()=>location.href=file,300);
+}
 </script>
 
 </body>
