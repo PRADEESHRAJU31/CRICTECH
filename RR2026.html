@@ -217,26 +217,31 @@ const fallbackImg="https://via.placeholder.com/120";
 let draggingCard=null;
 let selectingCaptain=false;
 const squad=[
-{name:"SHUBHAM DUBEY",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/3112.png"},
-{name:"VAIBHAV SURYAVANSHI",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/3498.png"},
-{name:"LHUAN-DRE PRETORIUS",role:"BATTER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/2827.png"},
-{name:"SHIMRON HETMYER",role:"BATTER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/210.png"},
-{name:"YASHASVI JAISWAL",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/533.png"},
-{name:"DHRUV JUREL",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/1004.png"},
-{name:"RIYAN PARAG",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/189.png"},
-{name:"YUDHVIR SINGH CHARAK",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/587.png"},
-{name:"JOFRA ARCHER",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/181.png"},
-{name:"TUSHAR DESHPANDE",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/539.png"},
-{name:"KWENA MAPHAKA",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/801.png"},
-{name:"KULDEEP SEN",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2024/1005.png"},
-{name:"SANDEEP SHARMA",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2024/220.png"},
-{name:"NANDRE BURGER",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2024/2806.png"},
-{name:"DONOVAN FERREIRA",role:"WK-BATTER",country:"OS",img:"https://www.rajasthanroyals.com/static-assets/images/players/23487.png?v=6.48"},
-{name:"RAVINDRA JADEJA",role:"ALL-ROUNDER",country:"IND",img:"https://documents.bcci.tv/resizedimageskirti/9_compress.png"},
-{name:"SAM CURRAN",role:"ALL-ROUNDER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/138.png"},
-{name:"RAVI BISHNOI",role:"BOWLER",country:"IND",img:"https://www.iplbetonline.in/wp-content/uploads/2023/04/520-780x780.png"},
-{name:"VIGNESH PUTHUR",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2025/3566.png"},
-{name:"ADAM MILNE",role:"BOWLER",country:"OS",img:"https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_640,q_50/lsci/db/PICTURES/CMS/316600/316689.png"}
+{name:"SHUBHAM DUBEY",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3112.png"},
+{name:"VAIBHAV SURYAVANSHI",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3498.png"},
+{name:"LHUAN-DRE PRETORIUS",role:"BATTER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2827.png"},
+{name:"SHIMRON HETMYER",role:"BATTER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/210.png"},
+{name:"YASHASVI JAISWAL",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/533.png"},
+{name:"DHRUV JUREL",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1004.png"},
+{name:"RIYAN PARAG",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/189.png"},
+{name:"YUDHVIR SINGH CHARAK",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/587.png"},
+{name:"JOFRA ARCHER",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/181.png"},
+{name:"TUSHAR DESHPANDE",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/539.png"},
+{name:"KWENA MAPHAKA",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/801.png"},
+{name:"KULDEEP SEN",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1005.png"},
+{name:"SANDEEP SHARMA",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/220.png"},
+{name:"NANDRE BURGER",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2806.png"},
+{name:"DONOVAN FERREIRA",role:"WK-BATTER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2033.png"},
+{name:"RAVINDRA JADEJA",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/46.png"},
+{name:"DASUN SHANAKA",role:"ALL-ROUNDER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/375.png"},
+{name:"RAVI BISHNOI",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/520.png"},
+{name:"VIGNESH PUTHUR",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3566.png"},
+{name:"ADAM MILNE",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/157.png"}
+{name:"RAVI SINGH",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4550.png"},
+{name:"AMAN RAO PERALA",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4552.png"}
+{name:"SUSHANT MISHRA",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1016.png"}
+{name:"YASH RAJ PUNJA",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4553.png"}
+{name:"BRIJESH SHARMA",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4551.png"}
 ];
 
 const squadList=document.getElementById("squadList");
