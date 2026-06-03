@@ -3,205 +3,555 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPL 2026 Selector</title>
+<title>IPL 2026 Selector · CricTech</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:#0f172a;
-  color:#fff;
-  animation:pageIn .4s ease;
-}
-
-@keyframes pageIn{
-  from{opacity:0; transform:translateY(10px)}
-  to{opacity:1; transform:none}
-}
-
-body.fade-out{
-  opacity:0;
-  transform:translateY(-10px);
-  transition:.3s ease;
-}
-
-/* HEADER */
-header{
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100px;
-  background:linear-gradient(135deg,#f8fafc,#e2e8f0);
-  font-size:30px;
-  font-weight:900;
-  letter-spacing:2px;
-  color:#0f172a;
-  text-transform:uppercase;
-  box-shadow:0 4px 18px rgba(0,0,0,.15);
-  text-align:center;
-  padding:0 16px;
-}
-
-header img{
-  position:absolute;
-  left:24px;
-  height:65px;
-  opacity:.85;
-}
-
-/* GRID */
-.dashboard{
-  max-width:1400px;
-  margin:40px auto;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:24px;
-  padding:0 20px;
-}
-
-/* TEAM CARD */
-.team-card{
-  border-radius:16px;
-  padding:22px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  cursor:pointer;
-  transition:.25s;
-  box-shadow:0 6px 22px rgba(0,0,0,.45);
-}
-
-.team-card:hover{
-  transform:translateY(-6px) scale(1.03);
-  box-shadow:0 12px 32px rgba(0,0,0,.65);
-}
-
-.team-card img{
-  width:110px;
-  height:110px;
-  object-fit:contain;
-  margin-bottom:12px;
-}
-
-.team-name{
-  font-size:16px;
-  font-weight:bold;
-  text-align:center;
-}
-
-/* TABLET */
-@media(max-width:1024px){
-  .dashboard{grid-template-columns:repeat(3,1fr)}
-  header{font-size:24px}
-}
-
-/* MOBILE */
-@media(max-width:600px){
-  header{
-    height:auto;
-    font-size:18px;
-    padding:14px 12px 14px 60px;
+  :root {
+    --violet-deep:  #1a0533;
+    --violet-mid:   #2d0a5e;
+    --violet-core:  #5b1db5;
+    --violet-bright:#8b2fff;
+    --violet-light: #b06bff;
+    --violet-pale:  #d4a8ff;
+    --chrome-1:     #c0c8e0;
+    --chrome-2:     #dde3f0;
+    --chrome-3:     #f0f2f8;
+    --bg-deep:      #06000f;
+    --bg-mid:       #0d0120;
+    --glow-sm:      rgba(139,47,255,.35);
+    --glow-md:      rgba(139,47,255,.55);
   }
 
-  header img{
-    height:42px;
-    left:12px;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg-deep);
+    color: var(--chrome-3);
+    min-height: 100vh;
+    overflow-x: hidden;
+    animation: pageIn .5s ease both;
   }
 
-  .dashboard{
-    grid-template-columns:repeat(2,1fr);
-    gap:16px;
-    padding:0 12px;
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 75% 55% at 20% 8%,  rgba(91,29,181,.22) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 92%, rgba(139,47,255,.15) 0%, transparent 55%),
+      radial-gradient(ellipse 90% 70% at 50% 45%, rgba(13,1,32,.95)   0%, transparent 100%);
+    pointer-events: none; z-index: 0;
   }
 
-  .team-card img{
-    width:70px;
-    height:70px;
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(139,47,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139,47,255,.04) 1px, transparent 1px);
+    background-size: 46px 46px;
+    pointer-events: none; z-index: 0;
   }
+
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  body.fade-out { opacity: 0; transform: translateY(-12px); transition: .3s ease; }
+
+  /* ════════ HEADER ════════ */
+  header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100px;
+    padding: 14px 200px;
+    background: linear-gradient(160deg,
+      rgba(45,10,94,.85) 0%,
+      rgba(18,2,40,.92)  45%,
+      rgba(45,10,94,.75) 100%);
+    backdrop-filter: blur(22px);
+    border-bottom: 1px solid rgba(139,47,255,.3);
+    box-shadow: 0 6px 48px rgba(91,29,181,.35), 0 1px 0 rgba(176,107,255,.15) inset;
+  }
+
+  header::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--violet-core) 20%, var(--violet-bright) 50%, var(--violet-core) 80%, transparent 100%);
+    background-size: 300% 100%;
+    animation: headerShimmer 3.5s linear infinite;
+  }
+  @keyframes headerShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  header::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 190px;
+    background: repeating-linear-gradient(-18deg, transparent, transparent 12px, rgba(139,47,255,.06) 12px, rgba(139,47,255,.06) 13px);
+    pointer-events: none;
+  }
+
+  .header-title { text-align: center; line-height: 1.2; }
+  .header-title .label {
+    display: block;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(9px,1.5vw,12px); font-weight: 600;
+    letter-spacing: 6px; color: var(--violet-pale);
+    text-transform: uppercase; margin-bottom: 3px;
+  }
+  .header-title .main {
+    display: block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(15px,2.6vw,24px); font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase;
+    background: linear-gradient(90deg, var(--chrome-2) 0%, var(--chrome-3) 20%, var(--violet-light) 50%, var(--chrome-2) 80%, var(--violet-pale) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 16px var(--glow-sm));
+  }
+
+  .logo-slot { position: absolute; top: 50%; transform: translateY(-50%); display: flex; align-items: center; }
+  .logo-slot.left { left: 18px; }
+  .logo-slot img {
+    height: clamp(62px,10vw,88px); object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(139,47,255,.7)) drop-shadow(0 0 26px rgba(91,29,181,.5)) drop-shadow(0 2px 4px rgba(0,0,0,.8));
+    transition: filter .3s, transform .3s;
+  }
+  .logo-slot img:hover {
+    filter: drop-shadow(0 0 18px rgba(176,107,255,.95)) drop-shadow(0 0 42px rgba(139,47,255,.7)) drop-shadow(0 2px 4px rgba(0,0,0,.8));
+    transform: scale(1.06);
+  }
+
+  /* ════════ SECTION LABEL ════════ */
+  .section-label {
+    position: relative; z-index: 1;
+    text-align: center; margin: 36px 20px 0;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+  }
+  .section-label::before, .section-label::after {
+    content: ''; flex: 1; max-width: 200px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,47,255,.35));
+  }
+  .section-label::after { background: linear-gradient(90deg, rgba(139,47,255,.35), transparent); }
+  .section-label span {
+    display: inline-block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(8px,1.3vw,10px); letter-spacing: 5px;
+    text-transform: uppercase; color: var(--violet-pale);
+    padding: 7px 26px;
+    border: 1px solid rgba(139,47,255,.25); border-radius: 2px;
+    background: rgba(91,29,181,.1);
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  }
+
+  /* ════════ DASHBOARD ════════ */
+  .dashboard {
+    position: relative; z-index: 1;
+    max-width: 1380px; margin: 28px auto 60px;
+    display: grid; grid-template-columns: repeat(5,1fr);
+    gap: 20px; padding: 0 24px;
+  }
+
+  /* ════════ TEAM CARD ════════ */
+  .team-card {
+    position: relative;
+    border-radius: 14px;
+    padding: 28px 16px 22px;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+    /* use CSS vars for per-team glow */
+    --team-glow-rgb: 139,47,255;
+    --team-border: rgba(139,47,255,.15);
+    transition: transform .28s cubic-bezier(.23,1,.32,1), box-shadow .28s ease, border-color .28s;
+    overflow: hidden;
+    border: 1px solid var(--team-border);
+    animation: cardIn .5s cubic-bezier(.23,1,.32,1) both;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    touch-action: manipulation;
+  }
+  .team-card.tapped {
+  transform: scale(.97);
+  box-shadow: 0 8px 28px rgba(0,0,0,.6), 0 0 32px rgba(var(--team-glow-rgb),.6);
+  border-color: rgba(var(--team-glow-rgb),.7);
 }
+.team-card.tapped::after { opacity: 1; }
+.team-card.tapped img {
+  filter: drop-shadow(0 0 16px rgba(var(--team-glow-rgb),.8));
+  transform: scale(1.05);
+}
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(22px) scale(.96); }
+    to   { opacity: 1; transform: none; }
+  }
+  .team-card:nth-child(1)  { animation-delay: .05s; }
+  .team-card:nth-child(2)  { animation-delay: .10s; }
+  .team-card:nth-child(3)  { animation-delay: .15s; }
+  .team-card:nth-child(4)  { animation-delay: .20s; }
+  .team-card:nth-child(5)  { animation-delay: .25s; }
+  .team-card:nth-child(6)  { animation-delay: .30s; }
+  .team-card:nth-child(7)  { animation-delay: .35s; }
+  .team-card:nth-child(8)  { animation-delay: .40s; }
+  .team-card:nth-child(9)  { animation-delay: .45s; }
+  .team-card:nth-child(10) { animation-delay: .50s; }
 
-@media(max-width:400px){
-  .dashboard{grid-template-columns:1fr}
+  .team-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(6,0,15,.5); z-index: 0; transition: background .28s;
+  }
+
+  /* glow border using team color */
+  .team-card::after {
+    content: ''; position: absolute; inset: -1px;
+    border-radius: 14px;
+    background: linear-gradient(135deg,
+      rgba(var(--team-glow-rgb),1),
+      rgba(var(--team-glow-rgb),.6),
+      rgba(var(--team-glow-rgb),.8));
+    opacity: 0; transition: opacity .28s; z-index: -1;
+  }
+
+  .team-card:hover {
+    transform: translateY(-9px) scale(1.04);
+    box-shadow:
+      0 22px 52px rgba(0,0,0,.75),
+      0 0 40px rgba(var(--team-glow-rgb),.45),
+      0 0 80px rgba(var(--team-glow-rgb),.2);
+    border-color: rgba(var(--team-glow-rgb),.6);
+  }
+  .team-card:hover::before { background: rgba(6,0,15,.2); }
+  .team-card:hover::after  { opacity: 1; }
+
+  .streak {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(110deg,
+      transparent 25%,
+      rgba(var(--team-glow-rgb),.12) 45%,
+      rgba(var(--team-glow-rgb),.08) 50%,
+      transparent 75%);
+    background-size: 250% 100%;
+    opacity: 0; transition: opacity .2s;
+  }
+  .team-card:hover .streak {
+    opacity: 1;
+    animation: streakSlide .7s ease forwards;
+  }
+  @keyframes streakSlide {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+
+  .team-card img {
+    position: relative; z-index: 2;
+    width: clamp(68px,8.5vw,106px); height: clamp(68px,8.5vw,106px);
+    object-fit: contain; margin-bottom: 14px;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,.6));
+    transition: filter .28s, transform .28s;
+  }
+  .team-card:hover img {
+    filter:
+      drop-shadow(0 0 14px rgba(var(--team-glow-rgb),.7))
+      drop-shadow(0 0 32px rgba(var(--team-glow-rgb),.4));
+    transform: scale(1.1) translateY(-3px);
+  }
+
+  .team-name {
+    position: relative; z-index: 2;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(9px,1vw,11px); font-weight: 600;
+    text-align: center; letter-spacing: .5px;
+    background: linear-gradient(180deg, var(--chrome-3) 0%, var(--violet-pale) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    line-height: 1.4;
+  }
+
+  .card-corner {
+    position: absolute; z-index: 3; top: 0; right: 0;
+    width: 0; height: 0; border-style: solid;
+    border-width: 0 26px 26px 0;
+    border-color: transparent rgba(var(--team-glow-rgb),1) transparent transparent;
+    opacity: 0; transition: opacity .25s;
+    filter: drop-shadow(0 0 6px rgba(var(--team-glow-rgb),.7));
+  }
+  .team-card:hover .card-corner { opacity: 1; }
+
+  .card-dot {
+    position: absolute; z-index: 3; bottom: 10px; left: 12px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(var(--team-glow-rgb),1);
+    box-shadow: 0 0 8px rgba(var(--team-glow-rgb),1);
+    opacity: 0; transition: opacity .25s;
+  }
+  .team-card:hover .card-dot { opacity: 1; animation: dotPulse 1s ease infinite; }
+  @keyframes dotPulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(2); opacity: .4; }
+  }
+
+  /* ════════════════════════════
+     PER-TEAM GLOW COLORS
+     RCB  — red/crimson     #e8003d → 232,0,61
+     CSK  — gold/yellow     #f5a800 → 245,168,0
+     MI   — blue            #004ba0 → 0,100,220  (brighter for glow)
+     KKR  — gold on purple  #c8a84b → 200,168,75
+     RR   — pink/magenta    #e8006d → 232,0,109
+     SRH  — orange          #f26522 → 242,101,34
+     DC   — royal blue+red  #0033a0 → 30,120,255 (brighter)
+     PBKS — red             #ed1b24 → 237,27,36
+     GT   — navy/gold       #1c4b9c → 100,160,255 (lighter for glow)
+     LSG  — teal/cyan       #00b4d8 → 0,180,216
+  ════════════════════════════ */
+
+  /* footer */
+  footer {
+    position: relative; z-index: 1; text-align: center; padding: 22px;
+    font-family: 'Orbitron', sans-serif; font-size: 9px;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(176,107,255,.35);
+    border-top: 1px solid rgba(139,47,255,.1);
+  }
+
+  /* ════════ RESPONSIVE ════════ */
+
+  /* ── 1280px and below: 4 columns ── */
+  @media (max-width: 1280px) {
+    .dashboard { grid-template-columns: repeat(4,1fr); gap: 18px; }
+  }
+
+  /* ── 1024px tablet landscape ── */
+  @media (max-width: 1024px) {
+    .dashboard { grid-template-columns: repeat(4,1fr); gap: 16px; padding: 0 20px; }
+    header { padding: 14px 160px; min-height: 88px; }
+  }
+
+  /* ── 860px tablet portrait ── */
+  @media (max-width: 860px) {
+    .dashboard { grid-template-columns: repeat(3,1fr); gap: 16px; padding: 0 18px; }
+    header { padding: 14px 150px; min-height: 82px; }
+    .logo-slot img { height: clamp(48px,8vw,72px); }
+    .section-label { margin: 28px 16px 0; }
+    .section-label::before, .section-label::after { max-width: 120px; }
+  }
+
+  /* ── 640px large mobile / small tablet ── */
+  @media (max-width: 640px) {
+    header {
+      padding: 12px 16px 12px 110px; /* left room for logo */
+      min-height: 76px;
+      justify-content: flex-start;
+    }
+    header::before { width: 100px; }
+    .logo-slot.left { left: 10px; }
+    .logo-slot img { height: clamp(50px,13vw,68px); }
+    .header-title { text-align: left; }
+    .header-title .label { font-size: 9px; letter-spacing: 4px; }
+    .header-title .main  { font-size: clamp(12px,4.8vw,19px); letter-spacing: 1px; }
+
+    .dashboard { grid-template-columns: repeat(2,1fr); gap: 14px; padding: 0 14px; margin-top: 22px; }
+    .section-label { margin: 22px 14px 0; gap: 8px; }
+    .section-label span { font-size: 8px; letter-spacing: 3px; padding: 6px 14px; }
+    .section-label::before, .section-label::after { display: none; }
+
+    .team-card { padding: 22px 12px 18px; border-radius: 12px; }
+    .team-card img { width: clamp(60px,18vw,90px); height: clamp(60px,18vw,90px); margin-bottom: 10px; }
+    .team-name { font-size: clamp(8px,2.4vw,11px); }
+  }
+
+  /* ── 480px mobile ── */
+  @media (max-width: 480px) {
+    header {
+      padding: 10px 12px 10px 96px;
+      min-height: 68px;
+    }
+    .logo-slot img { height: 52px; }
+    .header-title .main { font-size: clamp(11px,5vw,17px); }
+    .header-title .label { display: none; } /* too cramped on tiny screens */
+
+    .dashboard { gap: 12px; padding: 0 12px; margin-bottom: 40px; }
+    .team-card { padding: 18px 10px 14px; }
+    .team-card img { width: clamp(52px,16vw,80px); height: clamp(52px,16vw,80px); }
+    .team-name { font-size: 9px; letter-spacing: 0; }
+    footer { font-size: 8px; letter-spacing: 2px; padding: 16px; }
+  }
+
+  /* ── 360px small mobile ── */
+  @media (max-width: 360px) {
+    header { padding: 10px 10px 10px 88px; }
+    .logo-slot img { height: 44px; }
+    .header-title .main { font-size: 11px; }
+    .dashboard { grid-template-columns: repeat(2,1fr); gap: 10px; padding: 0 10px; }
+    .team-card { padding: 16px 8px 12px; }
+    .team-card img { width: 48px; height: 48px; }
+    .team-name { font-size: 8px; }
+  }
+
+  /* ── wide screens: 5 columns, more breathing room ── */
+  @media (min-width: 1400px) {
+    .dashboard { grid-template-columns: repeat(5,1fr); gap: 24px; padding: 0 32px; }
+    .team-card { padding: 32px 20px 26px; }
+  }
+
+  /* ── touch devices: disable hover lift, use tap active state instead ── */
+  @media (hover: none) {
+  .team-card:active {
+    transform: scale(.97);
+    box-shadow: 0 8px 28px rgba(0,0,0,.6), 0 0 32px rgba(var(--team-glow-rgb),.6); /* stronger glow */
+    border-color: rgba(var(--team-glow-rgb),.7);
+  }
+  .team-card:active::after { opacity: 1; }
+  .team-card:active .streak { opacity: 1; } /* show streak on tap too */
+  .team-card:active img {
+    filter: drop-shadow(0 0 16px rgba(var(--team-glow-rgb),.8));
+    transform: scale(1.05); /* add this */
+  }
 }
 </style>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ABCD123XYZ"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
 
-gtag('config', 'G-J5KMCFX1CX');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J5KMCFX1CX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-J5KMCFX1CX');
+  </script>
 </head>
-
 <body>
 
 <header>
-<img src="https://images.seeklogo.com/logo-png/53/2/tata-ipl-logo-png_seeklogo-531750.png">
-CRICTECH [IPL 2026 PLAYING XII SELECTOR]
+  <div class="logo-slot left">
+    <img src="logo.png" alt="CricTech">
+  </div>
+  <div class="header-title">
+    <span class="label">CricTech Presents</span>
+    <span class="main">IPL 2026 · Playing XII Selector</span>
+  </div>
 </header>
+
+<div class="section-label">
+  <span>Select Your Team · Build Your XI</span>
+</div>
 
 <div class="dashboard">
 
-<div class="team-card" style="background:linear-gradient(135deg,#c62828,#1e2a44)" onclick="go('RCB2026.html')">
-<img src="https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png">
-<div class="team-name">Royal Challengers Bengaluru</div>
+  <!-- RCB — red crimson glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#3a0f12 0%,#1f0620 55%,#06000f 100%);
+              --team-glow-rgb:232,0,61; --team-border:rgba(232,0,61,.2);"
+       onclick="go('RCB2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png" alt="RCB">
+    <div class="team-name">Royal Challengers Bengaluru</div>
+  </div>
+
+  <!-- CSK — gold glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#3a2a06 0%,#1e1006 55%,#06000f 100%);
+              --team-glow-rgb:245,168,0; --team-border:rgba(245,168,0,.2);"
+       onclick="go('CSK2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/CSK/Logos/Logooutline/CSKoutline.png" alt="CSK">
+    <div class="team-name">Chennai Super Kings</div>
+  </div>
+
+  <!-- MI — blue glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#081e42 0%,#060e28 55%,#06000f 100%);
+              --team-glow-rgb:0,100,220; --team-border:rgba(0,100,220,.25);"
+       onclick="go('MI2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/MI/Logos/Logooutline/MIoutline.png" alt="MI">
+    <div class="team-name">Mumbai Indians</div>
+  </div>
+
+  <!-- KKR — gold glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#1e1040 0%,#10062a 55%,#06000f 100%);
+              --team-glow-rgb:200,168,75; --team-border:rgba(200,168,75,.2);"
+       onclick="go('KKR2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png" alt="KKR">
+    <div class="team-name">Kolkata Knight Riders</div>
+  </div>
+
+  <!-- RR — pink magenta glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#3a0828 0%,#200618 55%,#06000f 100%);
+              --team-glow-rgb:232,0,109; --team-border:rgba(232,0,109,.2);"
+       onclick="go('RR2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/RR/Logos/Logooutline/RRoutline.png" alt="RR">
+    <div class="team-name">Rajasthan Royals</div>
+  </div>
+
+  <!-- SRH — orange glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#3a1806 0%,#200c04 55%,#06000f 100%);
+              --team-glow-rgb:242,101,34; --team-border:rgba(242,101,34,.2);"
+       onclick="go('SRH2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png" alt="SRH">
+    <div class="team-name">Sunrisers Hyderabad</div>
+  </div>
+
+  <!-- DC — bright blue glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#0c1a3e 0%,#080e26 55%,#06000f 100%);
+              --team-glow-rgb:30,120,255; --team-border:rgba(30,120,255,.22);"
+       onclick="go('DC2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/DC/Logos/LogoOutline/DCoutline.png" alt="DC">
+    <div class="team-name">Delhi Capitals</div>
+  </div>
+
+  <!-- PBKS — red glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#3a0808 0%,#200606 55%,#06000f 100%);
+              --team-glow-rgb:237,27,36; --team-border:rgba(237,27,36,.2);"
+       onclick="go('PBKS2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/PBKS/Logos/Logooutline/PBKSoutline.png" alt="PBKS">
+    <div class="team-name">Punjab Kings</div>
+  </div>
+
+  <!-- GT — sky blue glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#0a1820 0%,#060e14 55%,#06000f 100%);
+              --team-glow-rgb:100,180,255; --team-border:rgba(100,180,255,.2);"
+       onclick="go('GT2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/GT/Logos/Logooutline/GToutline.png" alt="GT">
+    <div class="team-name">Gujarat Titans</div>
+  </div>
+
+  <!-- LSG — teal cyan glow -->
+  <div class="team-card"
+       style="background:linear-gradient(150deg,#082018 0%,#06140e 55%,#06000f 100%);
+              --team-glow-rgb:0,180,216; --team-border:rgba(0,180,216,.2);"
+       onclick="go('LSG2026.html')">
+    <div class="card-corner"></div><div class="streak"></div><div class="card-dot"></div>
+    <img src="https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png" alt="LSG">
+    <div class="team-name">Lucknow Super Giants</div>
+  </div>
+
 </div>
 
-<div class="team-card" style="background:linear-gradient(135deg,#f9b233,#c79600)" onclick="go('CSK2026.html')">
-<img src="https://documents.iplt20.com/ipl/CSK/Logos/Logooutline/CSKoutline.png">
-<div class="team-name">Chennai Super Kings</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#005daa,#003f7f)" onclick="go('MI2026.html')">
-<img src="https://documents.iplt20.com/ipl/MI/Logos/Logooutline/MIoutline.png">
-<div class="team-name">Mumbai Indians</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#3a225d,#1b0f2e)" onclick="go('KKR2026.html')">
-<img src="https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png">
-<div class="team-name">Kolkata Knight Riders</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#ea1a85,#9b1258)" onclick="go('RR2026.html')">
-<img src="https://documents.iplt20.com/ipl/RR/Logos/Logooutline/RRoutline.png">
-<div class="team-name">Rajasthan Royals</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#f26522,#b84512)" onclick="go('SRH2026.html')">
-<img src="https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png">
-<div class="team-name">Sunrisers Hyderabad</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#17479e,#0e2c63)" onclick="go('DC2026.html')">
-<img src="https://documents.iplt20.com/ipl/DC/Logos/LogoOutline/DCoutline.png">
-<div class="team-name">Delhi Capitals</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#d71920,#8c0f14)" onclick="go('PBKS2026.html')">
-<img src="https://documents.iplt20.com/ipl/PBKS/Logos/Logooutline/PBKSoutline.png">
-<div class="team-name">Punjab Kings</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#0b1c2d,#000814)" onclick="go('GT2026.html')">
-<img src="https://documents.iplt20.com/ipl/GT/Logos/Logooutline/GToutline.png">
-<div class="team-name">Gujarat Titans</div>
-</div>
-
-<div class="team-card" style="background:linear-gradient(135deg,#00b5ad,#007f79)" onclick="go('LSG2026.html')">
-<img src="https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png">
-<div class="team-name">Lucknow Super Giants</div>
-</div>
-
-</div>
+<footer>CricTech &nbsp;·&nbsp; IPL 2026 &nbsp;·&nbsp; All Rights Reserved</footer>
 
 <script>
-function go(file){
-  document.body.classList.add("fade-out");
-  setTimeout(()=>location.href=file,300);
-}
+  function go(file) {
+    document.body.classList.add('fade-out');
+    setTimeout(() => location.href = file, 300);
+  }
+  document.querySelectorAll('.team-card').forEach(card => {
+  card.addEventListener('touchstart', () => {
+    card.classList.add('tapped');
+    setTimeout(() => card.classList.remove('tapped'), 400);
+  }, { passive: true });
+});
 </script>
-
 </body>
 </html>
