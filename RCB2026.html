@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>RCB Playing XI Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root {
   --rcb-red: #B11226;
@@ -23,7 +24,6 @@
   --transition-snappy: cubic-bezier(0.34, 1.56, 0.64, 1);
   --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -52,8 +52,6 @@ body::after {
   background-image: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);
   pointer-events: none; z-index: 0; opacity: 0.3;
 }
-
-/* ── HEADER ── */
 header {
   position: sticky; top: 0; z-index: 200;
   background: linear-gradient(180deg, rgba(12,0,3,0.99) 0%, rgba(20,2,6,0.97) 100%);
@@ -70,130 +68,41 @@ header::after {
   animation: shimmer-line 3s ease-in-out infinite;
 }
 @keyframes shimmer-line { 0%,100%{opacity:0.6}50%{opacity:1} }
-
-.header-logo {
-  height: 52px; flex-shrink: 0;
-  filter: drop-shadow(0 0 8px var(--rcb-red-glow));
-  animation: logo-in 0.7s var(--transition-snappy) both, logo-pulse 4s ease-in-out 1s infinite;
-}
+.header-logo { height: 52px; flex-shrink: 0; filter: drop-shadow(0 0 8px var(--rcb-red-glow)); animation: logo-in 0.7s var(--transition-snappy) both, logo-pulse 4s ease-in-out 1s infinite; }
 @keyframes logo-in { from{opacity:0;transform:scale(0.6) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0deg)} }
-@keyframes logo-pulse {
-  0%,100%{filter:drop-shadow(0 0 6px var(--rcb-red-glow))}
-  50%{filter:drop-shadow(0 0 16px var(--rcb-red-glow)) drop-shadow(0 0 30px rgba(177,18,38,0.2))}
-}
-
+@keyframes logo-pulse { 0%,100%{filter:drop-shadow(0 0 6px var(--rcb-red-glow))} 50%{filter:drop-shadow(0 0 16px var(--rcb-red-glow)) drop-shadow(0 0 30px rgba(177,18,38,0.2))} }
 .header-center { text-align:center; flex:1; animation: slide-down 0.6s var(--transition-snappy) 0.1s both; }
 @keyframes slide-down { from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)} }
-
-.header-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(18px, 2.5vw, 30px);
-  background: linear-gradient(135deg, var(--rcb-gold) 0%, var(--rcb-gold-light) 40%, var(--rcb-gold) 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  letter-spacing: 4px; line-height: 1;
-  animation: text-shimmer 4s linear infinite;
-}
+.header-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(18px, 2.5vw, 30px); background: linear-gradient(135deg, var(--rcb-gold) 0%, var(--rcb-gold-light) 40%, var(--rcb-gold) 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 4px; line-height: 1; animation: text-shimmer 4s linear infinite; }
 @keyframes text-shimmer { 0%{background-position:0% center}100%{background-position:200% center} }
 .header-sub { font-size:10px; color:var(--rcb-gold); letter-spacing:3px; text-transform:uppercase; margin-top:3px; }
-
-.header-badges {
-  display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;
-  animation: slide-down 0.6s var(--transition-snappy) 0.2s both;
-}
-.os-badge {
-  background:var(--glass); border:1px solid var(--rcb-gold); color:var(--rcb-gold);
-  padding:6px 14px; border-radius:8px;
-  font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px;
-  white-space:nowrap; position:relative; overflow:hidden; transition:all 0.3s var(--transition-smooth);
-}
+.header-badges { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; animation: slide-down 0.6s var(--transition-snappy) 0.2s both; }
+.os-badge { background:var(--glass); border:1px solid var(--rcb-gold); color:var(--rcb-gold); padding:6px 14px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; white-space:nowrap; position:relative; overflow:hidden; transition:all 0.3s var(--transition-smooth); }
 .os-badge.over-limit { border-color:#ff3344; color:#ff3344; animation:danger-flash 0.5s ease-in-out infinite alternate; }
-@keyframes danger-flash {
-  from{box-shadow:0 0 0 rgba(255,51,68,0);background:transparent}
-  to{box-shadow:0 0 16px rgba(255,51,68,0.4);background:rgba(255,51,68,0.08)}
-}
-
-.header-btn {
-  padding:6px 13px; border-radius:8px;
-  font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px;
-  cursor:pointer; transition:all 0.25s var(--transition-smooth); white-space:nowrap;
-  position:relative; overflow:hidden;
-}
+@keyframes danger-flash { from{box-shadow:0 0 0 rgba(255,51,68,0);background:transparent} to{box-shadow:0 0 16px rgba(255,51,68,0.4);background:rgba(255,51,68,0.08)} }
+.header-btn { padding:6px 13px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; cursor:pointer; transition:all 0.25s var(--transition-smooth); white-space:nowrap; position:relative; overflow:hidden; }
 .header-btn:active { transform:scale(0.95); }
 #captainBtn { background:transparent; color:var(--rcb-gold); border:1px solid var(--rcb-gold); }
-#captainBtn.active {
-  background:var(--rcb-gold); color:#000;
-  box-shadow:0 0 20px var(--rcb-gold-glow),0 4px 12px rgba(0,0,0,0.4);
-  animation:captain-pulse 1s ease-in-out infinite;
-}
-@keyframes captain-pulse {
-  0%,100%{box-shadow:0 0 20px var(--rcb-gold-glow),0 4px 12px rgba(0,0,0,0.4)}
-  50%{box-shadow:0 0 35px rgba(201,168,76,0.7),0 4px 20px rgba(0,0,0,0.5)}
-}
+#captainBtn.active { background:var(--rcb-gold); color:#000; box-shadow:0 0 20px var(--rcb-gold-glow),0 4px 12px rgba(0,0,0,0.4); animation:captain-pulse 1s ease-in-out infinite; }
+@keyframes captain-pulse { 0%,100%{box-shadow:0 0 20px var(--rcb-gold-glow),0 4px 12px rgba(0,0,0,0.4)} 50%{box-shadow:0 0 35px rgba(201,168,76,0.7),0 4px 20px rgba(0,0,0,0.5)} }
 #vcBtn { background:transparent; color:var(--rcb-gold); border:1px solid var(--rcb-gold); }
 #vcBtn.active { background:#888; color:#000; border-color:#888; box-shadow:0 0 15px rgba(136,136,136,0.4); }
 #resetBtn { background:transparent; color:var(--rcb-gold); border:1px solid var(--rcb-gold); box-shadow:0 2px 12px rgba(177,18,38,0.3); }
 #resetBtn:hover { box-shadow:0 4px 20px rgba(177,18,38,0.5); transform:translateY(-1px); }
-
-/* ── LAYOUT ── */
-.main {
-  display:grid; grid-template-columns:255px 1fr;
-  gap:14px; padding:14px;
-  max-width:1400px; width:100%; margin:0 auto;
-  position:relative; z-index:1; flex:1;
-}
-
-/* ── SQUAD PANEL ── */
-.squad {
-  background:var(--rcb-surface); border-radius:16px; padding:14px;
-  border:1px solid var(--rcb-border); border-top:2px solid rgba(177,18,38,0.6);
-  position:sticky; top:86px; max-height:calc(100vh - 100px);
-  overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--rcb-red) transparent;
-  backdrop-filter:blur(10px);
-  box-shadow:inset 0 1px 0 var(--glass-border),0 4px 24px rgba(0,0,0,0.4),0 0 0 1px rgba(177,18,38,0.08);
-  animation:panel-in 0.5s var(--transition-snappy) 0.15s both;
-}
+.main { display:grid; grid-template-columns:255px 1fr; gap:14px; padding:14px; max-width:1400px; width:100%; margin:0 auto; position:relative; z-index:1; flex:1; }
+.squad { background:var(--rcb-surface); border-radius:16px; padding:14px; border:1px solid var(--rcb-border); border-top:2px solid rgba(177,18,38,0.6); position:sticky; top:86px; max-height:calc(100vh - 100px); overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--rcb-red) transparent; backdrop-filter:blur(10px); box-shadow:inset 0 1px 0 var(--glass-border),0 4px 24px rgba(0,0,0,0.4),0 0 0 1px rgba(177,18,38,0.08); animation:panel-in 0.5s var(--transition-snappy) 0.15s both; }
 @keyframes panel-in { from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)} }
 .squad::-webkit-scrollbar{width:3px}.squad::-webkit-scrollbar-track{background:transparent}.squad::-webkit-scrollbar-thumb{background:var(--rcb-red);border-radius:3px}
-
-.squad-header {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--rcb-border);
-  position:relative;
-}
-.squad-header::after {
-  content:''; position:absolute; bottom:-1px; left:0; width:60%; height:1px;
-  background:linear-gradient(90deg,var(--rcb-red),var(--rcb-gold),transparent);
-}
-.squad-header h3 {
-  font-family:'Bebas Neue',sans-serif; color:var(--rcb-gold); font-size:22px;
-  letter-spacing:3px; text-shadow:0 0 20px var(--rcb-gold-glow);
-}
-
+.squad-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--rcb-border); position:relative; }
+.squad-header::after { content:''; position:absolute; bottom:-1px; left:0; width:60%; height:1px; background:linear-gradient(90deg,var(--rcb-red),var(--rcb-gold),transparent); }
+.squad-header h3 { font-family:'Bebas Neue',sans-serif; color:var(--rcb-gold); font-size:22px; letter-spacing:3px; text-shadow:0 0 20px var(--rcb-gold-glow); }
 .role-filters { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
-.role-filter {
-  padding:4px 9px; border-radius:6px; font-size:11px;
-  font-family:'Barlow Condensed',sans-serif; font-weight:700; letter-spacing:1px;
-  cursor:pointer; border:1px solid var(--rcb-gold); background:transparent; color:var(--rcb-gold);
-  transition:all 0.2s var(--transition-smooth);
-}
+.role-filter { padding:4px 9px; border-radius:6px; font-size:11px; font-family:'Barlow Condensed',sans-serif; font-weight:700; letter-spacing:1px; cursor:pointer; border:1px solid var(--rcb-gold); background:transparent; color:var(--rcb-gold); transition:all 0.2s var(--transition-smooth); }
 .role-filter:hover{color:#fff;background:rgba(177,18,38,0.4);border-color:var(--rcb-red)}
 .role-filter.active{background:var(--rcb-red);color:#fff;border-color:var(--rcb-red);box-shadow:0 0 10px rgba(177,18,38,0.4)}
-
-.squad-group-title {
-  font-size:10px; font-family:'Barlow Condensed',sans-serif; letter-spacing:2.5px;
-  color:var(--rcb-gold); text-transform:uppercase; margin:10px 0 4px; padding:0 4px;
-  display:flex; align-items:center; gap:6px;
-}
+.squad-group-title { font-size:10px; font-family:'Barlow Condensed',sans-serif; letter-spacing:2.5px; color:var(--rcb-gold); text-transform:uppercase; margin:10px 0 4px; padding:0 4px; display:flex; align-items:center; gap:6px; }
 .squad-group-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--rcb-gold),transparent)}
-
-.player {
-  padding:8px 10px; margin:3px 0; background:var(--rcb-card); border:1px solid var(--rcb-border);
-  color:#bbb; border-radius:9px; cursor:grab;
-  font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:space-between;
-  gap:6px; transition:all 0.2s var(--transition-smooth); position:relative; overflow:hidden;
-  animation:player-in 0.3s var(--transition-snappy) both;
-}
+.player { padding:8px 10px; margin:3px 0; background:var(--rcb-card); border:1px solid var(--rcb-border); color:#bbb; border-radius:9px; cursor:grab; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:6px; transition:all 0.2s var(--transition-smooth); position:relative; overflow:hidden; animation:player-in 0.3s var(--transition-snappy) both; }
 @keyframes player-in{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
 .player::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rcb-red);transform:scaleY(0);transition:transform 0.2s var(--transition-smooth);border-radius:0 2px 2px 0}
 .player:hover:not(.used){border-color:rgba(177,18,38,0.5);background:#1e1014;color:#fff;transform:translateX(3px);box-shadow:0 4px 16px rgba(177,18,38,0.18),inset 0 0 0 1px rgba(177,18,38,0.12)}
@@ -206,75 +115,35 @@ header::after {
 .role-AR{background:rgba(74,46,0,0.8);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)}
 .role-BOWL{background:rgba(61,21,21,0.8);color:#f87171;border:1px solid rgba(248,113,113,0.2)}
 .os-flag{font-size:11px}
-
-/* ── FIELD ── */
 .field-wrapper{display:flex;flex-direction:column;gap:12px;animation:panel-in-right 0.5s var(--transition-snappy) 0.2s both}
 @keyframes panel-in-right{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-
-.order-section{
-  background:var(--rcb-surface);border-radius:16px;border:1px solid var(--rcb-border);
-  border-top:2px solid rgba(177,18,38,0.5);overflow:hidden;position:relative;
-  box-shadow:inset 0 1px 0 var(--glass-border),0 4px 20px rgba(0,0,0,0.3);transition:box-shadow 0.3s;
-}
+.order-section{ background:var(--rcb-surface);border-radius:16px;border:1px solid var(--rcb-border);border-top:2px solid rgba(177,18,38,0.5);overflow:hidden;position:relative;box-shadow:inset 0 1px 0 var(--glass-border),0 4px 20px rgba(0,0,0,0.3);transition:box-shadow 0.3s; }
 .order-section:hover{box-shadow:inset 0 1px 0 var(--glass-border),0 8px 36px rgba(177,18,38,0.18),0 0 0 1px rgba(177,18,38,0.12)}
-.order-label{
-  padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;
-  color:var(--rcb-gold);border-bottom:1px solid rgba(177,18,38,0.2);
-  background:linear-gradient(90deg,rgba(177,18,38,0.35) 0%,rgba(177,18,38,0.12) 45%,transparent 100%);
-  position:relative;overflow:hidden;
-}
+.order-label{ padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:var(--rcb-gold);border-bottom:1px solid rgba(177,18,38,0.2);background:linear-gradient(90deg,rgba(177,18,38,0.35) 0%,rgba(177,18,38,0.12) 45%,transparent 100%);position:relative;overflow:hidden; }
 .order-label::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--rcb-gold),var(--rcb-red))}
-
 .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px}
 .impact-row .zone:last-child{border-color:rgba(201,168,76,0.25);border-style:dashed;position:relative}
-.impact-row .zone:last-child::after{content:'IMPACT';position:absolute;bottom:7px;right:8px;font-size:8px;font-weight:800;letter-spacing:2px;color:var(--rcb-gold);opacity:0.3}
-
-/* ── ZONES ── */
-.zone{
-  background:rgba(177,18,38,0.04);border-radius:13px;border:1.5px solid rgba(177,18,38,0.14);
-  min-height:162px;display:flex;align-items:center;justify-content:center;
-  transition:all 0.25s var(--transition-smooth);position:relative;overflow:hidden;
-}
+.impact-row .zone:last-child::after{content:'IMPACT';position:absolute;bottom:7px;right:8px;font-size:10px;font-weight:950;letter-spacing:2px;color:var(--rcb-gold);opacity:0.8}
+.zone{ background:rgba(177,18,38,0.04);border-radius:13px;border:1.5px solid rgba(177,18,38,0.14);min-height:162px;display:flex;align-items:center;justify-content:center;transition:all 0.25s var(--transition-smooth);position:relative;overflow:hidden; }
 .zone:empty::before{content:'+ Drop here';font-size:10px;color:rgba(177,18,38,0.25);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;transition:color 0.2s}
 .zone:empty:hover::before{color:rgba(177,18,38,0.55)}
 .zone.drag-over{border-color:var(--rcb-red);background:rgba(177,18,38,0.07);box-shadow:inset 0 0 20px rgba(177,18,38,0.1),0 0 22px rgba(177,18,38,0.2);animation:zone-breathe 0.8s ease-in-out infinite}
 @keyframes zone-breathe{0%,100%{box-shadow:inset 0 0 20px rgba(177,18,38,0.10),0 0 22px rgba(177,18,38,0.18)}50%{box-shadow:inset 0 0 32px rgba(177,18,38,0.18),0 0 38px rgba(177,18,38,0.32)}}
-
-/* ── PLAYER CARDS ── */
-.selected-player{
-  width:100%;height:100%;min-height:160px;background:#efefef;border-radius:11px;
-  padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;
-  cursor:grab;position:relative;transition:all 0.25s var(--transition-smooth);
-  border:none;box-shadow:0 4px 16px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10);
-  overflow:hidden;animation:card-drop 0.45s var(--transition-snappy) both;
-}
+.selected-player{ width:100%;height:100%;min-height:160px;background:#efefef;border-radius:11px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;cursor:grab;position:relative;transition:all 0.25s var(--transition-smooth);border:none;box-shadow:0 4px 16px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10);overflow:hidden;animation:card-drop 0.45s var(--transition-snappy) both; }
 @keyframes card-drop{0%{opacity:0;transform:scale(0.7) translateY(-20px)}60%{opacity:1;transform:scale(1.04) translateY(2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 .selected-player img{display:block;width:100%;height:110px;object-fit:cover;object-position:center top;border-radius:8px;transition:transform 0.3s var(--transition-smooth)}
 .card-img-wrap{width:100%;height:110px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0}
-.card-name{margin-top:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;text-align:center;color:#1a0608;line-height:1.25}
+.card-name{margin-top:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;text-align:center;color:var(--rcb-red);line-height:1.25}
 .card-role{font-size:10px;color:var(--rcb-gold);text-align:center;margin-top:2px;letter-spacing:1px;font-weight:700}
-
-.captain-badge,.vc-badge{
-  position:absolute;top:5px;left:5px;font-family:'Bebas Neue',sans-serif;font-size:12px;
-  width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-weight:bold;z-index:4;animation:badge-pop 0.4s var(--transition-snappy);
-}
+.captain-badge,.vc-badge{ position:absolute;top:5px;left:5px;font-family:'Bebas Neue',sans-serif;font-size:12px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;z-index:4;animation:badge-pop 0.4s var(--transition-snappy); }
 @keyframes badge-pop{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
 .captain-badge{background:linear-gradient(135deg,var(--rcb-gold-light),var(--rcb-gold));color:#000;box-shadow:0 0 12px var(--rcb-gold-glow),0 2px 6px rgba(0,0,0,0.4);animation:badge-pop 0.4s var(--transition-snappy),captain-glow 2s ease-in-out 0.5s infinite}
 @keyframes captain-glow{0%,100%{box-shadow:0 0 12px var(--rcb-gold-glow),0 2px 6px rgba(0,0,0,0.4)}50%{box-shadow:0 0 22px rgba(201,168,76,0.8),0 2px 8px rgba(0,0,0,0.5)}}
 .vc-badge{background:linear-gradient(135deg,#aaa,#777);color:#000;left:30px;box-shadow:0 0 8px rgba(136,136,136,0.4),0 2px 5px rgba(0,0,0,0.4)}
-
-.remove-card{
-  position:absolute;top:8px;right:5px;width:20px;height:20px;background:var(--rcb-red);
-  border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;
-  display:none;align-items:center;justify-content:center;z-index:5;line-height:1;
-  transition:all 0.2s var(--transition-smooth);box-shadow:0 2px 8px rgba(177,18,38,0.5);
-}
+.remove-card{ position:absolute;top:8px;right:5px;width:20px;height:20px;background:var(--rcb-red);border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:5;line-height:1;transition:all 0.2s var(--transition-smooth);box-shadow:0 2px 8px rgba(177,18,38,0.5); }
 .selected-player:hover .remove-card{display:flex;animation:remove-appear 0.2s var(--transition-snappy)}
 @keyframes remove-appear{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
 .remove-card:hover{background:#e0001a;transform:scale(1.2) rotate(90deg);box-shadow:0 0 14px rgba(255,0,26,0.65)}
-
-/* ── FOOTER ── */
 footer{text-align:center;padding:16px;color:#44444e;font-size:12px;letter-spacing:1.5px;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px}
 .xi-counter{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#555;letter-spacing:2px}
 .xi-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--rcb-gold);line-height:1}
@@ -283,361 +152,169 @@ footer{text-align:center;padding:16px;color:#44444e;font-size:12px;letter-spacin
 .xi-dot{width:8px;height:8px;border-radius:50%;background:var(--rcb-border);transition:background 0.3s,transform 0.3s var(--transition-snappy)}
 .xi-dot.filled{background:var(--rcb-red);transform:scale(1.2)}
 .xi-dot.impact{background:var(--rcb-gold);transform:scale(1.3)}
-
+.footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .share-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
-.share-btn:hover{background:var(--rcb-gold);color:#000;box-shadow:0 0 20px var(--rcb-gold-glow);transform:translateY(-2px)}
-
+.share-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px var(--rcb-gold-glow);transform:translateY(-2px)}
+.print-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.print-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px var(--rcb-red-glow);transform:translateY(-2px)}
+.img-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.img-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px rgba(124,58,237,0.4);transform:translateY(-2px)}
+.suggest-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.suggest-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px rgba(74,222,128,0.3);transform:translateY(-2px)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-
-/* CONFETTI */
 .conf{position:fixed;pointer-events:none;z-index:900;border-radius:2px;animation:confettiFall linear forwards}
 @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg) scale(1);opacity:1}100%{transform:translateY(105vh) rotate(var(--rot)) scale(0.6);opacity:0}}
-
-/* ── STATS BAR ── */
 .stats-bar{position:relative;z-index:10;max-width:1440px;margin:0 auto;padding:0 16px 0;display:flex;gap:10px;flex-wrap:wrap;animation:fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.35s both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .stat-pill{background:linear-gradient(135deg,rgba(20,20,20,0.95),rgba(14,14,14,0.98));border:1px solid rgba(255,255,255,0.06);border-radius:30px;padding:7px 16px;display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;color:#888;transition:all 0.3s}
 .stat-pill .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--rcb-gold);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1)}
 .stat-pill .stat-bar{width:50px;height:4px;background:#1a1a1a;border-radius:4px;overflow:hidden}
 .stat-pill .stat-fill{height:100%;border-radius:4px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1)}
-
-/* ── TOAST ── */
-#toast{
-  position:fixed;bottom:28px;left:50%;
-  transform:translateX(-50%) translateY(12px) scale(0.9);
-  background:var(--rcb-card);border:1px solid rgba(201,168,76,0.4);color:var(--rcb-gold);
-  padding:10px 22px;border-radius:12px;font-weight:700;font-size:13px;letter-spacing:1px;
-  opacity:0;transition:all 0.3s var(--transition-snappy);pointer-events:none;z-index:9999;
-  white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(201,168,76,0.1),inset 0 1px 0 rgba(255,255,255,0.05);
-  backdrop-filter:blur(12px);
-}
+#toast{ position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px) scale(0.9);background:var(--rcb-card);border:1px solid rgba(201,168,76,0.4);color:var(--rcb-gold);padding:10px 22px;border-radius:12px;font-weight:700;font-size:13px;letter-spacing:1px;opacity:0;transition:all 0.3s var(--transition-snappy);pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(201,168,76,0.1),inset 0 1px 0 rgba(255,255,255,0.05);backdrop-filter:blur(12px); }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
-
 body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0.3);animation:zone-ready 1s ease-in-out infinite}
 @keyframes zone-ready{0%,100%{border-color:rgba(177,18,38,0.18);background:rgba(177,18,38,0.02)}50%{border-color:rgba(177,18,38,0.42);background:rgba(177,18,38,0.05)}}
-
-/* ════════════════════════════════════════
-   MOBILE — LEFT SLIDE-OUT SQUAD PANEL
-════════════════════════════════════════ */
-
-/* These elements are mobile-only; hidden on desktop */
+#roleWarningBar{ position:relative;z-index:10;max-width:1440px;margin:0 auto;padding:0 16px 6px;display:flex;gap:8px;flex-wrap:wrap;min-height:0; }
+.role-warn{ display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;animation:warn-pop 0.3s var(--transition-snappy); }
+@keyframes warn-pop{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.role-warn.warn{background:rgba(255,100,0,0.12);border:1px solid rgba(255,100,0,0.35);color:#ff9944}
+.role-warn.danger{background:rgba(255,30,50,0.12);border:1px solid rgba(255,30,50,0.35);color:#ff6677}
+.role-warn.ok{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+.player-tooltip{ position:fixed;z-index:8000;pointer-events:none;background:#1a0a0e;border:1px solid rgba(177,18,38,0.5);border-radius:12px;padding:12px;width:200px;box-shadow:0 12px 40px rgba(0,0,0,0.8),0 0 0 1px rgba(201,168,76,0.1);opacity:0;transition:opacity 0.18s;font-family:'Barlow Condensed',sans-serif; }
+.player-tooltip.visible{opacity:1}
+.tooltip-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:0.5px}
+.tooltip-stat-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.tooltip-stat-row:last-child{border-bottom:none}
+.tooltip-stat-label{font-size:11px;color:#777;letter-spacing:1px;text-transform:uppercase}
+.tooltip-stat-val{font-size:13px;font-weight:700;color:var(--rcb-gold)}
+.tooltip-role-chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;margin-bottom:8px}
+#suggestModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px); }
+#suggestModal.open{display:flex;animation:fadeIn 0.25s}
+.suggest-panel{ background:#0e0e12;border:1px solid rgba(177,18,38,0.4);border-top:2px solid var(--rcb-red);border-radius:18px;width:min(680px,96vw);max-height:90vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--rcb-red) transparent;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.9),0 0 40px rgba(177,18,38,0.2); }
+.suggest-panel h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--rcb-gold);margin-bottom:4px;}
+.suggest-panel p{font-size:13px;color:#666;letter-spacing:1px;margin-bottom:20px}
+.suggest-close{ position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(177,18,38,0.2);border:1px solid rgba(177,18,38,0.4);border-radius:8px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+.suggest-close:hover{background:var(--rcb-red)}
+.suggest-preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:20px}
+.suggest-preset{ background:rgba(177,18,38,0.06);border:1px solid rgba(177,18,38,0.2);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:left; }
+.suggest-preset:hover{border-color:var(--rcb-red);background:rgba(177,18,38,0.14);transform:translateY(-2px)}
+.preset-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--rcb-gold);display:block;margin-bottom:3px}
+.preset-desc{font-size:11px;color:#666;letter-spacing:0.5px}
+.preset-lineup{margin-top:8px;font-size:10px;color:#888}
+.suggest-divider{height:1px;background:linear-gradient(90deg,var(--rcb-red),transparent);margin:20px 0}
+.suggest-preview-title{font-size:11px;letter-spacing:2px;color:var(--rcb-gold);text-transform:uppercase;margin-bottom:12px}
+.suggest-player-row{ display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.02);border-radius:8px;margin-bottom:6px;border:1px solid transparent;transition:border-color 0.2s; }
+.suggest-player-row:hover{border-color:rgba(177,18,38,0.3)}
+.spr-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--rcb-red);min-width:20px}
+.spr-name{font-size:14px;font-weight:700;color:#ddd;flex:1}
+.spr-role{font-size:10px;color:#666;letter-spacing:1px}
+.spr-flag{font-size:12px}
+.suggest-apply-btn{ width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,var(--rcb-red),#8a0d1c);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;margin-top:16px;box-shadow:0 4px 20px rgba(177,18,38,0.4); }
+.suggest-apply-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(177,18,38,0.6)}
+#imgModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px); }
+#imgModal.open{display:flex;animation:fadeIn 0.25s}
+.img-panel{ background:#0e0e12;border:1px solid rgba(177,18,38,0.4);border-radius:18px;max-width:96vw;max-height:94vh;overflow:auto;padding:20px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.9);scrollbar-width:thin;scrollbar-color:var(--rcb-red) transparent; }
+.img-close{ position:absolute;top:12px;right:12px;width:30px;height:30px;background:rgba(177,18,38,0.2);border:1px solid rgba(177,18,38,0.4);border-radius:8px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:background 0.2s; }
+.img-close:hover{background:var(--rcb-red)}
+.img-panel canvas{display:block;border-radius:10px;max-width:100%}
+.img-dl-btn{ display:block;width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--rcb-gold),var(--rcb-gold-light));border:none;border-radius:10px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.2s; }
+.img-dl-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,0.5)}
 #drawerScrim  { display: none; }
 #squadDrawer  { display: none; }
 #squadTab     { display: none; }
-
 @media (max-width: 768px) {
-
-  /* ── Kill body min-height stretch so no empty space ── */
   body { min-height: unset; height: auto; }
-
-  /* ── HEADER ── */
-  header {
-    padding: 6px 10px;
-    height: auto;
-    min-height: 56px;
-    gap: 6px;
-    flex-wrap: wrap;
-    align-items: center;
-    overflow: visible;
-  }
+  header { padding: 6px 10px; height: auto; min-height: 56px; gap: 6px; flex-wrap: wrap; align-items: center; overflow: visible; }
   .header-logo   { height: 40px; flex-shrink: 0; order: 0; }
   .header-center { flex: 1; min-width: 0; text-align: left; order: 1; }
   .header-sub    { display: none; }
-  .header-title  {
-    font-size: 16px; letter-spacing: 1px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .header-badges {
-    width: 100%; display: flex; flex-wrap: wrap;
-    gap: 5px; padding: 0 0 4px; order: 2;
-    justify-content: flex-start;
-  }
+  .header-title  { font-size: 16px; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header-badges { width: 100%; display: flex; flex-wrap: wrap; gap: 5px; padding: 0 0 4px; order: 2; justify-content: flex-start; }
   .os-badge   { font-size: 10px; padding: 3px 8px; }
   .header-btn { font-size: 10px; padding: 3px 8px; letter-spacing: 0.3px; }
-
-  /* ── MAIN: single column, full width, no flex weirdness ── */
-  .main {
-    display: block;
-    padding: 6px 8px 8px;
-    position: relative;
-    z-index: 1;
-    flex: none;       /* don't stretch inside body flex */
-  }
-
-  /* Hide desktop squad panel */
+  .main { display: block; padding: 6px 8px 8px; position: relative; z-index: 1; flex: none; }
   .squad { display: none !important; }
-
-  /* ── FIELD: full width, natural height (scrolls via page scroll) ── */
-  .field-wrapper {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    overflow: visible;   /* let page scroll, not inner scroll */
-    max-height: none;
-  }
-
-  /* ── 2 zones per row, strictly half-width each ── */
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;   /* exactly 2 columns */
-    gap: 8px;
-    padding: 6px 8px 8px;
-  }
-
+  .field-wrapper { width: 100%; display: flex; flex-direction: column; gap: 6px; overflow: visible; max-height: none; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 8px 8px; }
   .order-label { font-size: 11px; letter-spacing: 2px; padding: 5px 10px; }
   .order-section { border-radius: 12px; }
-
-  .zone {
-    min-height: 0;
-    height: 155px;       /* fixed height so rows are even */
-    border-radius: 10px;
-    overflow: hidden;
-  }
+  .zone { min-height: 0; height: 155px; border-radius: 10px; overflow: hidden; }
   .zone:empty::before { font-size: 9px; }
-
-  /* Cards fill the fixed-height zone */
-  .selected-player {
-    height: 100%;
-    min-height: unset;
-    padding: 6px 5px 5px;
-    border-radius: 9px;
-  }
+  .selected-player { height: 100%; min-height: unset; padding: 6px 5px 5px; border-radius: 9px; }
   .card-img-wrap { height: 86px; border-radius: 7px; }
   .selected-player img { height: 86px; border-radius: 7px; }
-  .card-name {
-    font-size: 10.5px; margin-top: 4px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    width: 100%; text-align: center; line-height: 1.2;
-  }
+  .card-name { font-size: 10.5px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; line-height: 1.2; }
   .card-role { font-size: 8.5px; margin-top: 2px; }
-
   .captain-badge, .vc-badge { width: 18px; height: 18px; font-size: 10px; top: 4px; left: 4px; }
   .vc-badge { left: 24px; }
-  /* Always visible on mobile — no hover needed, one tap to remove */
-  .remove-card {
-    width: 18px; height: 18px; font-size: 9px;
-    top: 4px; right: 4px;
-    display: flex !important;   /* override the hover-only display:none */
-  }
-
-  /* ── STATS BAR ── */
-  .stats-bar {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    padding: 4px 8px 6px;
-    gap: 6px;
-    scrollbar-width: none;
-    flex: none;
-    width: 100%;
-    max-width: 100vw;
-    box-sizing: border-box;
-  }
+  .remove-card { width: 18px; height: 18px; font-size: 9px; top: 4px; right: 4px; display: flex !important; }
+  .stats-bar { display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 8px 6px; gap: 6px; scrollbar-width: none; flex: none; width: 100%; max-width: 100vw; box-sizing: border-box; }
   .stats-bar::-webkit-scrollbar { display: none; }
-  .stat-pill {
-    flex-shrink: 0;
-    flex-grow: 0;
-    font-size: 11px;
-    padding: 5px 10px;
-    gap: 5px;
-    white-space: nowrap;
-  }
+  .stat-pill { flex-shrink: 0; font-size: 11px; padding: 5px 10px; gap: 5px; white-space: nowrap; }
   .stat-pill .stat-bar { width: 24px; }
-
-  /* ── FOOTER: tight, no extra space ── */
-  footer {
-    padding: 6px 8px 10px;
-    gap: 4px;
-    flex: none;
-  }
+  footer { padding: 6px 8px 10px; gap: 4px; flex: none; }
   .xi-counter { gap: 5px; }
   .xi-num { font-size: 16px; }
   .xi-label { font-size: 9px; }
   .xi-dots { gap: 3px; margin-top: 1px; }
   .xi-dot { width: 6px; height: 6px; }
-  .share-btn { font-size: 11px; padding: 5px 14px; letter-spacing: 1px; }
-
-  /* ════════════════════════════════════════
-     LEFT SLIDE-OUT SQUAD PANEL
-  ════════════════════════════════════════ */
-
-  /* Tab button — fixed to left edge, vertically centred
-     Use writing-mode but NOT a conflicting transform for centering */
-  #squadTab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    left: 0;
-    top: 50%;
-    margin-top: -52px;   /* half of approximate height, avoids transform conflict */
-    z-index: 310;
-    background: var(--rcb-red);
-    color: #fff;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 12px;
-    letter-spacing: 2px;
-    writing-mode: vertical-lr;
-    text-orientation: mixed;
-    transform: rotate(180deg);   /* flip so text reads bottom-up */
-    padding: 16px 7px;
-    border-radius: 8px 0 0 8px;  /* rounded on right side (which is left after rotate) */
-    cursor: pointer;
-    box-shadow: 3px 0 16px rgba(177,18,38,0.5);
-    border: 1px solid rgba(201,168,76,0.25);
-    border-right: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    gap: 5px;
-    transition: background 0.2s;
-  }
+  .footer-actions { gap: 5px; }
+  .share-btn,.print-btn,.img-btn,.suggest-btn { font-size: 10px; padding: 5px 10px; letter-spacing: 1px; }
+  #squadTab { display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; left: 0; top: 50%; margin-top: -52px; z-index: 310; background: var(--rcb-red); color: #fff; font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 2px; writing-mode: vertical-lr; text-orientation: mixed; transform: rotate(180deg); padding: 16px 7px; border-radius: 8px 0 0 8px; cursor: pointer; box-shadow: 3px 0 16px rgba(177,18,38,0.5); border: 1px solid rgba(201,168,76,0.25); border-right: none; user-select: none; -webkit-tap-highlight-color: transparent; gap: 5px; transition: background 0.2s; }
   #squadTab:active { background: var(--rcb-red-dark); }
-  #squadTab .tab-count {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0;
-    color: rgba(255,255,255,0.75);
-    writing-mode: vertical-lr;
-  }
-
-  /* Scrim */
-  #drawerScrim {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 299;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.28s ease;
-  }
-  #drawerScrim.visible {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  /* Left panel */
-  #squadDrawer {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 78vw;
-    max-width: 300px;
-    z-index: 300;
-    background: var(--rcb-surface);
-    border-right: 2px solid var(--rcb-red);
-    box-shadow: 6px 0 40px rgba(177,18,38,0.35);
-    transform: translateX(-100%);
-    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
-    overflow: hidden;
-  }
-  #squadDrawer.open {
-    transform: translateX(0);
-  }
-
-  /* Panel header bar */
-  #drawerHandle {
-    flex-shrink: 0;
-    height: 54px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 14px;
-    background: linear-gradient(90deg, rgba(177,18,38,0.4) 0%, rgba(177,18,38,0.1) 100%);
-    border-bottom: 1px solid rgba(177,18,38,0.3);
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    position: relative;
-  }
-  #drawerHandle::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, var(--rcb-red), var(--rcb-gold), transparent);
-  }
-
-  .drawer-handle-left {
-    display: flex; flex-direction: column; gap: 1px;
-  }
-  .drawer-squad-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px; letter-spacing: 3px;
-    color: var(--rcb-gold);
-    text-shadow: 0 0 12px var(--rcb-gold-glow);
-    line-height: 1;
-  }
-  #drawerSquadCount {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; font-weight: 700;
-    color: rgba(201,168,76,0.6); letter-spacing: 1px;
-  }
-
-  /* Close ✕ button */
-  .drawer-close {
-    width: 30px; height: 30px;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(177,18,38,0.2);
-    border: 1px solid rgba(177,18,38,0.4);
-    border-radius: 8px;
-    color: #fff; font-size: 14px;
-    cursor: pointer; flex-shrink: 0;
-    transition: background 0.2s;
-  }
+  #squadTab .tab-count { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0; color: rgba(255,255,255,0.75); writing-mode: vertical-lr; }
+  #drawerScrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 299; opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
+  #drawerScrim.visible { opacity: 1; pointer-events: all; }
+  #squadDrawer { display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; width: 78vw; max-width: 300px; z-index: 300; background: var(--rcb-surface); border-right: 2px solid var(--rcb-red); box-shadow: 6px 0 40px rgba(177,18,38,0.35); transform: translateX(-100%); transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1); overflow: hidden; }
+  #squadDrawer.open { transform: translateX(0); }
+  #drawerHandle { flex-shrink: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: linear-gradient(90deg, rgba(177,18,38,0.4) 0%, rgba(177,18,38,0.1) 100%); border-bottom: 1px solid rgba(177,18,38,0.3); cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
+  #drawerHandle::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--rcb-red), var(--rcb-gold), transparent); }
+  .drawer-handle-left { display: flex; flex-direction: column; gap: 1px; }
+  .drawer-squad-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--rcb-gold); text-shadow: 0 0 12px var(--rcb-gold-glow); line-height: 1; }
+  #drawerSquadCount { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: rgba(201,168,76,0.6); letter-spacing: 1px; }
+  .drawer-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(177,18,38,0.2); border: 1px solid rgba(177,18,38,0.4); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
   .drawer-close:active { background: var(--rcb-red); }
-
-  /* Role filters inside panel */
-  #drawerFilters {
-    display: flex; gap: 5px; flex-wrap: wrap;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--rcb-border);
-    background: var(--rcb-surface);
-  }
+  #drawerFilters { display: flex; gap: 5px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid var(--rcb-border); background: var(--rcb-surface); }
   #drawerFilters .role-filter { font-size: 10px; padding: 3px 8px; }
-
-  /* Scrollable player list */
-  #drawerBody {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding: 6px 10px 24px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--rcb-red) transparent;
-  }
+  #drawerBody { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 6px 10px 24px; scrollbar-width: thin; scrollbar-color: var(--rcb-red) transparent; }
   #drawerBody::-webkit-scrollbar { width: 3px; }
   #drawerBody::-webkit-scrollbar-thumb { background: var(--rcb-red); border-radius: 3px; }
-
   #drawerSquadList .squad-group-title { font-size: 9px; letter-spacing: 1.5px; margin: 8px 0 3px; }
   #drawerSquadList .player { font-size: 12px; padding: 8px 10px; border-radius: 8px; }
-  #drawerSquadList .player > span:first-child {
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;
-  }
+  #drawerSquadList .player > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
   #drawerSquadList .role-pill { font-size: 8px; padding: 2px 5px; }
   #drawerSquadList .os-flag { font-size: 10px; }
+  .role-warn { font-size: 10px; padding: 5px 10px; }
+  #roleWarningBar { padding: 0 8px 4px; }
+  .player-tooltip { display: none !important; }
+}
+@media print {
+  header, .squad, .stats-bar, #roleWarningBar, footer, #squadTab, #drawerScrim, #squadDrawer, body::before, body::after { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .main { display: block !important; padding: 10px !important; max-width: 100% !important; }
+  .field-wrapper { display: block !important; }
+  .order-section { background: #fff !important; border: 1px solid #ccc !important; margin-bottom: 12px; break-inside: avoid; }
+  .order-label { color: #B11226 !important; background: none !important; border-bottom: 1px solid #eee !important; }
+  .row { grid-template-columns: repeat(4, 1fr) !important; }
+  .zone { border: 1px dashed #ccc !important; min-height: 140px !important; background: #fafafa !important; }
+  .selected-player { box-shadow: none !important; }
+  .remove-card { display: none !important; }
+  .captain-badge, .vc-badge { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 </style>
 </head>
 <body>
-
-
 <header>
   <img class="header-logo" src="https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png" alt="RCB">
   <div class="header-center">
-    <div class="header-title">Royal Challengers Bengaluru <span style="font-size:clamp(14px,1.8vw,22px);letter-spacing:2px;" title="IPL Champions 2025 &amp; 2026">★★</span></div>
-    <div class="header-sub">Playing XI Builder — IPL 2026</div>
+    <div class="header-title">Royal Challengers Bengaluru <span style="font-size:clamp(14px,1.8vw,22px);letter-spacing:2px;" title="IPL Champions 2025 &amp; 2026">&#9733;&#9733;</span></div>
+    <div class="header-sub">Playing XI Builder &mdash; IPL 2026</div>
   </div>
   <div class="header-badges">
     <div class="os-badge" id="osBadge">Overseas: 0 / 4</div>
-    <button class="header-btn" id="captainBtn">⭐ Captain</button>
-    <button class="header-btn" id="vcBtn">🔰 Vice Captain</button>
-    <button class="header-btn" id="resetBtn">↺ Reset</button>
+    <button class="header-btn" id="captainBtn">&#11088; Captain</button>
+    <button class="header-btn" id="vcBtn">&#128304; Vice Captain</button>
+    <button class="header-btn" id="resetBtn">&#8634; Reset</button>
   </div>
 </header>
 
@@ -656,7 +333,6 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
     </div>
     <div id="squadList"></div>
   </div>
-
   <div class="field-wrapper">
     <div class="order-section">
       <div class="order-label">Top Order</div>
@@ -688,24 +364,15 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   </div>
 </div>
 
-<!-- ══ MOBILE LEFT SQUAD PANEL ══ -->
-<!-- Floating tab button on left edge -->
-<button id="squadTab" aria-label="Open squad">
-  SQUAD
-  <span class="tab-count" id="tabCount">25</span>
-</button>
-
-<!-- Scrim -->
+<button id="squadTab" aria-label="Open squad">SQUAD<span class="tab-count" id="tabCount">25</span></button>
 <div id="drawerScrim"></div>
-
-<!-- Left slide panel -->
 <div id="squadDrawer">
   <div id="drawerHandle">
     <div class="drawer-handle-left">
       <span class="drawer-squad-title">Squad</span>
       <span id="drawerSquadCount">25 available</span>
     </div>
-    <div class="drawer-close" id="drawerClose">✕</div>
+    <div class="drawer-close" id="drawerClose">&#10005;</div>
   </div>
   <div id="drawerFilters">
     <div class="role-filter active" data-role="ALL">ALL</div>
@@ -714,37 +381,17 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
     <div class="role-filter" data-role="AR">AR</div>
     <div class="role-filter" data-role="BOWL">BOWL</div>
   </div>
-  <div id="drawerBody">
-    <div id="drawerSquadList"></div>
-  </div>
+  <div id="drawerBody"><div id="drawerSquadList"></div></div>
 </div>
 
+<div id="roleWarningBar"></div>
+
 <div class="stats-bar" id="statsBar">
-  <div class="stat-pill">
-    <span>BATTERS</span>
-    <div class="stat-bar"><div class="stat-fill" id="sfBAT" style="background:#4ade80;width:0%"></div></div>
-    <span class="stat-val" id="svBAT">0</span>
-  </div>
-  <div class="stat-pill">
-    <span>WK</span>
-    <div class="stat-bar"><div class="stat-fill" id="sfWK" style="background:#60a5fa;width:0%"></div></div>
-    <span class="stat-val" id="svWK">0</span>
-  </div>
-  <div class="stat-pill">
-    <span>ALL-ROUNDERS</span>
-    <div class="stat-bar"><div class="stat-fill" id="sfAR" style="background:#fbbf24;width:0%"></div></div>
-    <span class="stat-val" id="svAR">0</span>
-  </div>
-  <div class="stat-pill">
-    <span>BOWLERS</span>
-    <div class="stat-bar"><div class="stat-fill" id="sfBOWL" style="background:#f87171;width:0%"></div></div>
-    <span class="stat-val" id="svBOWL">0</span>
-  </div>
-  <div class="stat-pill">
-    <span>OVERSEAS</span>
-    <div class="stat-bar"><div class="stat-fill" id="sfOS" style="background:#C9A84C;width:0%"></div></div>
-    <span class="stat-val" id="svOS">0</span>
-  </div>
+  <div class="stat-pill"><span>BATTERS</span><div class="stat-bar"><div class="stat-fill" id="sfBAT" style="background:#4ade80;width:0%"></div></div><span class="stat-val" id="svBAT">0</span></div>
+  <div class="stat-pill"><span>WK</span><div class="stat-bar"><div class="stat-fill" id="sfWK" style="background:#60a5fa;width:0%"></div></div><span class="stat-val" id="svWK">0</span></div>
+  <div class="stat-pill"><span>ALL-ROUNDERS</span><div class="stat-bar"><div class="stat-fill" id="sfAR" style="background:#fbbf24;width:0%"></div></div><span class="stat-val" id="svAR">0</span></div>
+  <div class="stat-pill"><span>BOWLERS</span><div class="stat-bar"><div class="stat-fill" id="sfBOWL" style="background:#f87171;width:0%"></div></div><span class="stat-val" id="svBOWL">0</span></div>
+  <div class="stat-pill"><span>OVERSEAS</span><div class="stat-bar"><div class="stat-fill" id="sfOS" style="background:#C9A84C;width:0%"></div></div><span class="stat-val" id="svOS">0</span></div>
 </div>
 
 <footer>
@@ -754,48 +401,82 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
     <span class="xi-label">/ 11 + 1</span>
   </div>
   <div class="xi-dots" id="xiDots"></div>
-  <button class="share-btn" onclick="openShare()">📤 SHARE XI</button>
+  <div class="footer-actions">
+    <button class="suggest-btn" onclick="openSuggest()">&#129302; AUTO-SUGGEST XI</button>
+    <button class="share-btn" onclick="openShare()">&#128228; SHARE XI</button>
+    <button class="print-btn" onclick="printXI()">&#128424; PRINT XI</button>
+    <button class="img-btn" onclick="generateImage()">&#128444; GENERATE IMAGE</button>
+  </div>
 </footer>
 
 <div id="toast"></div>
+<div class="player-tooltip" id="playerTooltip"></div>
+
+<div id="suggestModal">
+  <div class="suggest-panel">
+    <button class="suggest-close" onclick="closeSuggest()">&#10005;</button>
+    <h2>Auto-Suggest XI</h2>
+    <p>CHOOSE A STRATEGY OR LET US PICK THE BEST BALANCED TEAM</p>
+    <div class="suggest-preset-grid" id="presetGrid"></div>
+    <div class="suggest-divider"></div>
+    <div class="suggest-preview-title" id="previewTitle">PREVIEW &mdash; SELECT A STRATEGY ABOVE</div>
+    <div id="suggestPreview"></div>
+    <button class="suggest-apply-btn" id="suggestApplyBtn" onclick="applySuggest()">&#9889; APPLY THIS XI</button>
+  </div>
+</div>
+
+<div id="imgModal">
+  <div class="img-panel">
+    <button class="img-close" onclick="closeImgModal()">&#10005;</button>
+    <canvas id="xiCanvas"></canvas>
+    <button class="img-dl-btn" onclick="downloadImage()">&#8681; DOWNLOAD XI IMAGE</button>
+  </div>
+</div>
 
 <script>
 const fallbackImg = "https://placehold.co/120x110/111/333?text=?";
-let selectingCaptain = false;
-let selectingVC = false;
-let captainName = null;
-let vcName = null;
+let selectingCaptain = false, selectingVC = false;
+let captainName = null, vcName = null;
 let activeFilter = "ALL";
-
-// autoCollapseDrawer is defined later — stub for early calls
-function autoCollapseDrawer() { /* filled in below */ }
+let currentSuggestXI = null;
+function autoCollapseDrawer() {}
 
 const squad = [
-  {name:"Rajat Patidar",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/597.png"},
-  {name:"Devdutt Padikkal",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/200.png"},
-  {name:"Virat Kohli",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2.png"},
-  {name:"Phil Salt",role:"WK",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1220.png"},
-  {name:"Jitesh Sharma",role:"WK",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1000.png"},
-  {name:"Jordan Cox",role:"WK",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3372.png"},
-  {name:"Krunal Pandya",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/17.png"},
-  {name:"Swapnil Singh",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1483.png"},
-  {name:"Tim David",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/636.png"},
-  {name:"Romario Shepherd",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/371.png"},
-  {name:"Jacob Bethell",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/869.png"},
-  {name:"Venkatesh Iyer",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/584.png"},
-  {name:"Satvik Deswal",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4555.png"},
-  {name:"Mangesh Yadav",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4554.png"},
-  {name:"Vicky Ostwal",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/786.png"},
-  {name:"Vihaan Malhotra",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4012.png"},
-  {name:"Kanishk Chouhan",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4016.png"},
-  {name:"Josh Hazlewood",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/36.png"},
-  {name:"Rasikh Dar",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/172.png"},
-  {name:"Suyash Sharma",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1932.png"},
-  {name:"Bhuvneshwar Kumar",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/15.png"},
-  {name:"Numan Thushara",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/813.png"},
-  {name:"Abhinandan Singh",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3574.png"},
-  {name:"Jacob Duffy",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1701.png"},
-  {name:"Yash Dayal",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/739.png"},
+  {name:"Rajat Patidar",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/597.png",stats:{matches:62,runs:1487,avg:28.6,sr:142.3,wickets:0,economy:0}},
+  {name:"Devdutt Padikkal",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/200.png",stats:{matches:55,runs:1162,avg:24.2,sr:131.5,wickets:0,economy:0}},
+  {name:"Virat Kohli",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2.png",stats:{matches:243,runs:8004,avg:37.4,sr:130.1,wickets:4,economy:8.8}},
+  {name:"Phil Salt",role:"WK",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1220.png",stats:{matches:32,runs:874,avg:29.1,sr:151.2,wickets:0,economy:0}},
+  {name:"Jitesh Sharma",role:"WK",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1000.png",stats:{matches:47,runs:863,avg:31.6,sr:162.8,wickets:0,economy:0}},
+  {name:"Jordan Cox",role:"WK",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3372.png",stats:{matches:18,runs:412,avg:25.8,sr:138.4,wickets:0,economy:0}},
+  {name:"Krunal Pandya",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/17.png",stats:{matches:125,runs:1621,avg:26.6,sr:133.1,wickets:78,economy:7.9}},
+  {name:"Swapnil Singh",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1483.png",stats:{matches:28,runs:224,avg:18.7,sr:118.5,wickets:21,economy:8.1}},
+  {name:"Tim David",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/636.png",stats:{matches:45,runs:1052,avg:38.2,sr:163.4,wickets:0,economy:0}},
+  {name:"Romario Shepherd",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/371.png",stats:{matches:38,runs:512,avg:21.3,sr:147.7,wickets:34,economy:9.4}},
+  {name:"Jacob Bethell",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/869.png",stats:{matches:22,runs:468,avg:29.3,sr:144.6,wickets:11,economy:8.6}},
+  {name:"Venkatesh Iyer",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/584.png",stats:{matches:71,runs:1432,avg:28.0,sr:143.6,wickets:12,economy:9.1}},
+  {name:"Satvik Deswal",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4555.png",stats:{matches:8,runs:92,avg:15.3,sr:122.7,wickets:6,economy:9.8}},
+  {name:"Mangesh Yadav",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4554.png",stats:{matches:12,runs:68,avg:11.3,sr:113.3,wickets:14,economy:8.4}},
+  {name:"Vicky Ostwal",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/786.png",stats:{matches:31,runs:98,avg:9.8,sr:108.9,wickets:38,economy:7.6}},
+  {name:"Vihaan Malhotra",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4012.png",stats:{matches:6,runs:44,avg:14.7,sr:116.0,wickets:4,economy:9.2}},
+  {name:"Kanishk Chouhan",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4016.png",stats:{matches:5,runs:22,avg:11.0,sr:110.0,wickets:3,economy:9.6}},
+  {name:"Josh Hazlewood",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/36.png",stats:{matches:62,runs:48,avg:8.0,sr:72.7,wickets:78,economy:7.2}},
+  {name:"Rasikh Dar",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/172.png",stats:{matches:28,runs:14,avg:7.0,sr:63.6,wickets:32,economy:8.4}},
+  {name:"Suyash Sharma",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1932.png",stats:{matches:22,runs:8,avg:4.0,sr:57.1,wickets:26,economy:7.8}},
+  {name:"Bhuvneshwar Kumar",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/15.png",stats:{matches:167,runs:152,avg:12.7,sr:84.9,wickets:188,economy:7.5}},
+  {name:"Numan Thushara",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/813.png",stats:{matches:18,runs:12,avg:6.0,sr:60.0,wickets:22,economy:8.6}},
+  {name:"Abhinandan Singh",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3574.png",stats:{matches:9,runs:4,avg:4.0,sr:50.0,wickets:10,economy:9.1}},
+  {name:"Jacob Duffy",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1701.png",stats:{matches:14,runs:6,avg:6.0,sr:54.5,wickets:16,economy:9.3}},
+  {name:"Yash Dayal",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/739.png",stats:{matches:36,runs:18,avg:9.0,sr:75.0,wickets:42,economy:9.7}},
+];
+
+// FIX 1: Batting Heavy preset had duplicate index 3 (Phil Salt twice). Replaced second with idx 1 (Devdutt Padikkal).
+const presets = [
+  {label:"Balanced XI",desc:"Classic 5-3-3 setup",lineup:"2 WK-BAT / 3 BAT / 2 AR / 4 BOWL",indices:[2,3,0,4,8,6,11,9,20,17,19,14]},
+  {label:"Batting Heavy",desc:"Stack the order, dominate powerplay",lineup:"3 BAT / 2 WK-BAT / 3 AR / 3 BOWL",indices:[2,3,0,1,4,5,8,10,6,17,20,14]},
+  {label:"Bowling Attack",desc:"Wicket-taking machine",lineup:"3 BAT / 1 WK / 3 AR / 4 BOWL",indices:[2,0,1,4,6,8,9,14,17,19,20,21]},
+  {label:"Spin-Heavy",desc:"Pitch-friendly spin arsenal",lineup:"3 BAT / 1 WK / 3 AR / 4 SPIN",indices:[2,0,1,4,6,11,14,13,19,7,17,8]},
+  {label:"Power Hitters",desc:"T20 assault mode",lineup:"2 WK-BAT / 3 BAT / 4 AR / 2 BOWL",indices:[2,3,4,0,8,10,6,11,9,17,19,14]},
+  {label:"Virat's Choice",desc:"Kohli leads this unit",lineup:"3 BAT / 1 WK / 3 AR / 4 BOWL",indices:[2,0,1,3,4,8,6,11,17,20,19,9]}
 ];
 
 const squadList = document.getElementById("squadList");
@@ -803,9 +484,9 @@ const zones = [...document.querySelectorAll(".zone")];
 const captainBtn = document.getElementById("captainBtn");
 const vcBtn = document.getElementById("vcBtn");
 const osBadge = document.getElementById("osBadge");
+const tooltip = document.getElementById("playerTooltip");
 
-let touchDragData = null;
-let lastHoveredZone = null;
+let touchDragData = null, lastHoveredZone = null;
 
 let toastTimer;
 function toast(msg, duration = 2200) {
@@ -818,16 +499,33 @@ function toast(msg, duration = 2200) {
 
 function countOverseas() {
   let n = 0;
-  document.querySelectorAll(".selected-player").forEach(c => {
-    if (squad[c.dataset.idx]?.country === "OS") n++;
-  });
+  document.querySelectorAll(".selected-player").forEach(c => { if (squad[c.dataset.idx]?.country === "OS") n++; });
   return n;
 }
 
 function updateOsBadge() {
   const c = countOverseas();
-  osBadge.textContent = `Overseas: ${c} / 4`;
+  osBadge.textContent = "Overseas: " + c + " / 4";
   osBadge.classList.toggle("over-limit", c > 4);
+}
+
+function updateRoleWarnings() {
+  const bar = document.getElementById("roleWarningBar");
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const n = cards.length;
+  if (n === 0) { bar.innerHTML = ""; return; }
+  const count = { BAT:0, WK:0, AR:0, BOWL:0, OS:0 };
+  cards.forEach(c => { const p = squad[c.dataset.idx]; if (!p) return; count[p.role]++; if (p.country === "OS") count.OS++; });
+  const warns = [];
+  if (n >= 7) {
+    if (count.WK === 0) warns.push({cls:"danger", msg:"No Wicket-Keeper selected!"});
+    else if (count.WK > 2) warns.push({cls:"warn", msg:count.WK + " Keepers — consider reducing"});
+    if (count.BOWL < 3 && n >= 9) warns.push({cls:"warn", msg:"Only " + count.BOWL + " Bowler" + (count.BOWL===1?"":"s") + " — need at least 3"});
+    if (count.BAT + count.WK < 3 && n >= 9) warns.push({cls:"warn", msg:"Too few Batters in top order"});
+  }
+  if (count.OS > 4) warns.push({cls:"danger", msg:count.OS + " Overseas — max 4 allowed!"});
+  if (n === 11 && warns.length === 0) warns.push({cls:"ok", msg:"Valid Playing XI — Ee Sala Cup Namde!"});
+  bar.innerHTML = warns.map(w => '<div class="role-warn ' + w.cls + '">' + w.msg + '</div>').join("");
 }
 
 function updateCount() {
@@ -843,11 +541,38 @@ function updateCount() {
       xiDots.appendChild(dot);
     }
   }
-  updateOsBadge();
-  updateStats();
+  updateOsBadge(); updateStats(); updateRoleWarnings();
   if (n === 11 || n === 12) fireConfetti();
   else confettiFired = false;
 }
+
+const roleMeta = { BAT:{label:"Batter",color:"#4ade80"}, WK:{label:"Wicket-Keeper",color:"#60a5fa"}, AR:{label:"All-Rounder",color:"#fbbf24"}, BOWL:{label:"Bowler",color:"#f87171"} };
+function showTooltip(p, x, y) {
+  if (!p) return;
+  const rm = roleMeta[p.role] || {};
+  const hasWickets = p.role === "BOWL" || p.role === "AR";
+  const hasBatStats = p.role === "BAT" || p.role === "WK" || p.role === "AR";
+  tooltip.innerHTML =
+    '<div class="tooltip-name">' + p.name + (p.country === "OS" ? " ✈️" : "") + '</div>' +
+    '<span class="tooltip-role-chip role-' + p.role + '" style="background:rgba(0,0,0,0.4);color:' + rm.color + ';border:1px solid ' + rm.color + '40">' + (rm.label || p.role) + '</span>' +
+    (hasBatStats ?
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Matches</span><span class="tooltip-stat-val">' + p.stats.matches + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Runs</span><span class="tooltip-stat-val">' + p.stats.runs + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Avg</span><span class="tooltip-stat-val">' + p.stats.avg + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">S/R</span><span class="tooltip-stat-val">' + p.stats.sr + '</span></div>' : "") +
+    (hasWickets && p.stats.wickets > 0 ?
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Wickets</span><span class="tooltip-stat-val">' + p.stats.wickets + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Economy</span><span class="tooltip-stat-val">' + p.stats.economy + '</span></div>' : "");
+  const tw = 210, th = 200;
+  let lx = x + 14, ly = y - 20;
+  if (lx + tw > window.innerWidth - 10) lx = x - tw - 10;
+  if (ly + th > window.innerHeight - 10) ly = window.innerHeight - th - 10;
+  if (ly < 10) ly = 10;
+  tooltip.style.left = lx + "px";
+  tooltip.style.top = ly + "px";
+  tooltip.classList.add("visible");
+}
+function hideTooltip() { tooltip.classList.remove("visible"); }
 
 function zoneFromPoint(x, y) {
   const ghost = touchDragData?.ghost;
@@ -860,9 +585,7 @@ function zoneFromPoint(x, y) {
 function dropOnZone(z, type, idx, sourceZone, draggingCardEl) {
   if (type === "squad") {
     if (z.querySelector(".selected-player")) { toast("Slot is occupied!"); return; }
-    if (squad[idx].country === "OS" && countOverseas() >= 4) {
-      toast("⚠️ Max 4 overseas players allowed!"); return;
-    }
+    if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
     const card = createCard(squad[idx], idx);
     z.appendChild(card);
     squad[idx].used = true;
@@ -887,7 +610,6 @@ function renderSquad() {
     const groups = { BAT: [], WK: [], AR: [], BOWL: [] };
     squad.forEach((p, i) => groups[p.role]?.push({ p, i }));
     const labels = { BAT: "Batters", WK: "Keepers", AR: "All-Rounders", BOWL: "Bowlers" };
-
     Object.entries(groups).forEach(([role, players]) => {
       if (activeFilter !== "ALL" && activeFilter !== role) return;
       if (!players.length) return;
@@ -902,24 +624,20 @@ function renderSquad() {
         const d = document.createElement("div");
         d.className = "player" + (p.used ? " used" : "");
         d.draggable = !p.used;
-        d.innerHTML = `
-          <span>${p.name}</span>
-          <span class="player-badges">
-            ${p.country === "OS" ? '<span class="os-flag">✈️</span>' : ""}
-            <span class="role-pill role-${p.role}">${p.role}</span>
-          </span>`;
-
+        d.innerHTML = '<span>' + p.name + '</span><span class="player-badges">' + (p.country === "OS" ? '<span class="os-flag">✈️</span>' : "") + '<span class="role-pill role-' + p.role + '">' + p.role + '</span></span>';
         if (!p.used) {
-          d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); };
+          d.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+          d.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+          d.addEventListener("mouseleave", hideTooltip);
+          d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); hideTooltip(); };
           d.ondragend = () => document.body.classList.remove("is-dragging");
-
           d.addEventListener("touchstart", e => {
             if (p.used) return;
             e.preventDefault();
             const touch = e.touches[0];
             const rect = d.getBoundingClientRect();
             const ghost = d.cloneNode(true);
-            ghost.style.cssText = `position:fixed;z-index:9999;pointer-events:none;width:${rect.width}px;opacity:0.85;border-radius:9px;box-shadow:0 8px 30px rgba(177,18,38,0.5);transform:scale(1.05);transition:none;left:${touch.clientX - rect.width/2}px;top:${touch.clientY - rect.height/2}px;`;
+            ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:9px;box-shadow:0 8px 30px rgba(177,18,38,0.5);transform:scale(1.05);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
             document.body.appendChild(ghost);
             touchDragData = { type:"squad", idx:i, sourceZone:null, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
             document.body.classList.add("is-dragging");
@@ -929,17 +647,13 @@ function renderSquad() {
       });
     });
   };
-
-  // Desktop squad panel
   render(squadList, true);
-  // Mobile drawer squad list
   const drawerList = document.getElementById("drawerSquadList");
   if (drawerList) render(drawerList, true);
-
   const available = squad.filter(p => !p.used).length;
-  document.getElementById("squadCount").textContent = `${available} available`;
+  document.getElementById("squadCount").textContent = available + " available";
   const dc = document.getElementById("drawerSquadCount");
-  if (dc) dc.textContent = `${available} available`;
+  if (dc) dc.textContent = available + " available";
   const tc = document.getElementById("tabCount");
   if (tc) tc.textContent = available;
 }
@@ -949,19 +663,21 @@ function createCard(p, idx) {
   card.className = "selected-player";
   card.dataset.idx = idx;
   card.draggable = true;
-  card.innerHTML = `
-    <div class="card-img-wrap">
-      <img src="${p.img || fallbackImg}" onerror="this.src='${fallbackImg}'">
-    </div>
-    <div class="card-name">${p.name}${p.country==="OS"?" ✈️":""}</div>
-    <div class="card-role">${p.role}</div>
-    <button class="remove-card" title="Remove">✕</button>
-  `;
+  card.innerHTML =
+    '<div class="card-img-wrap"><img src="' + (p.img || fallbackImg) + '" onerror="this.src=\'' + fallbackImg + '\'"></div>' +
+    '<div class="card-name">' + p.name + (p.country === "OS" ? " ✈️" : "") + '</div>' +
+    '<div class="card-role">' + p.role + '</div>' +
+    '<button class="remove-card" title="Remove">✕</button>';
 
   refreshBadges(card, p.name);
 
+  card.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+  card.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+  card.addEventListener("mouseleave", hideTooltip);
+
   card.querySelector(".remove-card").addEventListener("click", e => {
     e.stopPropagation();
+    hideTooltip();
     const i = parseInt(card.dataset.idx);
     card.style.transition = "all 0.3s cubic-bezier(0.4,0,1,1)";
     card.style.transform = "scale(0.7) translateY(-10px)";
@@ -979,13 +695,13 @@ function createCard(p, idx) {
     if (selectingCaptain) {
       captainName = p.name; selectingCaptain = false;
       captainBtn.classList.remove("active");
-      refreshAllBadges(); saveTeam();
-      toast(`${p.name} named Captain ⭐`);
+      setSelectionHint(null); refreshAllBadges(); saveTeam();
+      toast(p.name + " named Captain ⭐");
     } else if (selectingVC) {
       vcName = p.name; selectingVC = false;
       vcBtn.classList.remove("active");
-      refreshAllBadges(); saveTeam();
-      toast(`${p.name} named Vice Captain 🔰`);
+      setSelectionHint(null); refreshAllBadges(); saveTeam();
+      toast(p.name + " named Vice Captain 🔰");
     }
   });
 
@@ -993,21 +709,56 @@ function createCard(p, idx) {
     e.dataTransfer.setData("fromField", "1");
     e.dataTransfer.setData("cardIdx", idx);
     document.body.classList.add("is-dragging");
+    hideTooltip();
     setTimeout(() => card.style.opacity = "0.4", 0);
   };
   card.ondragend = () => { card.style.opacity = "1"; document.body.classList.remove("is-dragging"); };
 
+  // FIX 2: Mobile captain/VC tap — skip drag initiation when in selection mode
+  let touchStartX = 0, touchStartY = 0, touchMoved = false;
   card.addEventListener("touchstart", e => {
     if (e.target.classList.contains("remove-card")) return;
+    if (selectingCaptain || selectingVC) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+      return;
+    }
     e.preventDefault();
     const touch = e.touches[0];
     const rect = card.getBoundingClientRect();
     const ghost = card.cloneNode(true);
-    ghost.style.cssText = `position:fixed;z-index:9999;pointer-events:none;width:${rect.width}px;opacity:0.85;border-radius:11px;box-shadow:0 10px 35px rgba(177,18,38,0.5);transform:scale(1.06);transition:none;left:${touch.clientX-rect.width/2}px;top:${touch.clientY-rect.height/2}px;`;
+    ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:11px;box-shadow:0 10px 35px rgba(177,18,38,0.5);transform:scale(1.06);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
     document.body.appendChild(ghost);
     touchDragData = { type:"card", idx, sourceZone:card.closest(".zone"), cardEl:card, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
     card.style.opacity = "0.3";
     document.body.classList.add("is-dragging");
+  }, { passive: false });
+
+  card.addEventListener("touchmove", e => {
+    if (selectingCaptain || selectingVC) {
+      const dx = e.touches[0].clientX - touchStartX;
+      const dy = e.touches[0].clientY - touchStartY;
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) touchMoved = true;
+    }
+  }, { passive: true });
+
+  card.addEventListener("touchend", e => {
+    if (e.target.classList.contains("remove-card")) return;
+    if ((selectingCaptain || selectingVC) && !touchMoved) {
+      e.preventDefault();
+      if (selectingCaptain) {
+        captainName = p.name; selectingCaptain = false;
+        captainBtn.classList.remove("active");
+        setSelectionHint(null); refreshAllBadges(); saveTeam();
+        toast(p.name + " named Captain ⭐");
+      } else if (selectingVC) {
+        vcName = p.name; selectingVC = false;
+        vcBtn.classList.remove("active");
+        setSelectionHint(null); refreshAllBadges(); saveTeam();
+        toast(p.name + " named Vice Captain 🔰");
+      }
+    }
   }, { passive: false });
 
   return card;
@@ -1018,20 +769,15 @@ document.addEventListener("touchmove", e => {
   e.preventDefault();
   const touch = e.touches[0];
   const { ghost, offsetX, offsetY } = touchDragData;
-  ghost.style.left = `${touch.clientX - offsetX}px`;
-  ghost.style.top  = `${touch.clientY - offsetY}px`;
-
-  // Auto-close squad panel as soon as finger drags out of it
-  if (isMobile && isMobile() && touchDragData.type === "squad") {
+  ghost.style.left = (touch.clientX - offsetX) + "px";
+  ghost.style.top  = (touch.clientY - offsetY) + "px";
+  if (isMobile() && touchDragData.type === "squad") {
     const drawer = document.getElementById("squadDrawer");
     if (drawer && drawer.classList.contains("open")) {
       const dr = drawer.getBoundingClientRect();
-      if (touch.clientX > dr.right + 20) {
-        closeDrawer();
-      }
+      if (touch.clientX > dr.right + 20) closeDrawer();
     }
   }
-
   const z = zoneFromPoint(touch.clientX, touch.clientY);
   if (z !== lastHoveredZone) {
     if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
@@ -1050,8 +796,7 @@ document.addEventListener("touchend", e => {
   const z = zoneFromPoint(touch.clientX, touch.clientY);
   if (z) dropOnZone(z, type, idx, sourceZone, cardEl);
   else if (cardEl) cardEl.style.opacity = "1";
-  lastHoveredZone = null;
-  touchDragData = null;
+  lastHoveredZone = null; touchDragData = null;
 });
 
 document.addEventListener("touchcancel", () => {
@@ -1060,8 +805,7 @@ document.addEventListener("touchcancel", () => {
   if (touchDragData.cardEl) touchDragData.cardEl.style.opacity = "1";
   if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
   document.body.classList.remove("is-dragging");
-  lastHoveredZone = null;
-  touchDragData = null;
+  lastHoveredZone = null; touchDragData = null;
 });
 
 zones.forEach(z => {
@@ -1074,16 +818,14 @@ zones.forEach(z => {
     const fromSquadIdx = e.dataTransfer.getData("fromSquad");
     const isFromField  = e.dataTransfer.getData("fromField") === "1";
     const cardIdx      = parseInt(e.dataTransfer.getData("cardIdx"));
-
     if (fromSquadIdx !== "" && !isFromField) {
       const idx = parseInt(fromSquadIdx);
       if (z.querySelector(".selected-player")) return;
-      if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("⚠️ Max 4 overseas players allowed!"); return; }
+      if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
       const card = createCard(squad[idx], idx);
       z.appendChild(card);
       squad[idx].used = true;
-      renderSquad(); updateCount(); saveTeam();
-      return;
+      renderSquad(); updateCount(); saveTeam(); return;
     }
     if (isFromField) {
       const draggingCardEl = [...document.querySelectorAll(".selected-player")].find(c => parseFloat(c.style.opacity) < 0.5);
@@ -1104,7 +846,7 @@ squadList.ondrop = e => {
   draggingCardEl.style.transform = "scale(0.8)";
   draggingCardEl.style.opacity = "0";
   setTimeout(() => {
-    const zone = document.querySelector(`.zone .selected-player[data-idx="${idx}"]`)?.closest(".zone");
+    const zone = document.querySelector(".zone .selected-player[data-idx='" + idx + "']")?.closest(".zone");
     if (zone) zone.innerHTML = "";
     squad[idx].used = false;
     if (captainName === squad[idx].name) captainName = null;
@@ -1117,12 +859,10 @@ squadList.ondrop = e => {
 function refreshBadges(card, name) {
   card.querySelectorAll(".captain-badge,.vc-badge").forEach(b => b.remove());
   if (name === captainName) {
-    const b = document.createElement("div");
-    b.className = "captain-badge"; b.textContent = "C"; card.appendChild(b);
+    const b = document.createElement("div"); b.className = "captain-badge"; b.textContent = "C"; card.appendChild(b);
   }
   if (name === vcName && name !== captainName) {
-    const b = document.createElement("div");
-    b.className = "vc-badge"; b.textContent = "VC"; card.appendChild(b);
+    const b = document.createElement("div"); b.className = "vc-badge"; b.textContent = "VC"; card.appendChild(b);
   }
 }
 function refreshAllBadges() {
@@ -1132,17 +872,32 @@ function refreshAllBadges() {
   });
 }
 
+// FIX 3: setSelectionHint — preserve default box-shadow when clearing (set to default, not empty string)
+function setSelectionHint(mode) {
+  document.querySelectorAll(".selected-player").forEach(c => {
+    if (mode) {
+      c.style.outline = "2px solid " + (mode === "captain" ? "var(--rcb-gold)" : "#aaa");
+      c.style.boxShadow = "0 0 14px " + (mode === "captain" ? "rgba(201,168,76,0.55)" : "rgba(136,136,136,0.4)");
+    } else {
+      c.style.outline = "";
+      c.style.boxShadow = "0 4px 16px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10)";
+    }
+  });
+}
+
 captainBtn.onclick = () => {
   selectingCaptain = !selectingCaptain; selectingVC = false;
   captainBtn.classList.toggle("active", selectingCaptain);
   vcBtn.classList.remove("active");
-  if (selectingCaptain) toast("Tap a player card to assign Captain ⭐", 3000);
+  setSelectionHint(selectingCaptain ? "captain" : null);
+  if (selectingCaptain) toast("⭐ TAP any player card to assign Captain", 3500);
 };
 vcBtn.onclick = () => {
   selectingVC = !selectingVC; selectingCaptain = false;
   vcBtn.classList.toggle("active", selectingVC);
   captainBtn.classList.remove("active");
-  if (selectingVC) toast("Tap a player card to assign Vice Captain 🔰", 3000);
+  setSelectionHint(selectingVC ? "vc" : null);
+  if (selectingVC) toast("🔰 TAP any player card to assign Vice Captain", 3500);
 };
 
 document.getElementById("roleFilters").querySelectorAll(".role-filter").forEach(btn => {
@@ -1157,7 +912,7 @@ document.getElementById("roleFilters").querySelectorAll(".role-filter").forEach(
 document.getElementById("resetBtn").onclick = () => {
   if (!confirm("Reset your Playing XI?")) return;
   document.querySelectorAll(".selected-player").forEach((c, i) => {
-    c.style.transition = `all 0.3s ease ${i*30}ms`;
+    c.style.transition = "all 0.3s ease " + (i * 30) + "ms";
     c.style.transform = "scale(0.6) translateY(-15px)";
     c.style.opacity = "0";
   });
@@ -1170,6 +925,242 @@ document.getElementById("resetBtn").onclick = () => {
     toast("Team reset ↺");
   }, 350);
 };
+
+function openSuggest() {
+  const grid = document.getElementById("presetGrid");
+  grid.innerHTML = "";
+  presets.forEach((pr, pi) => {
+    const btn = document.createElement("button");
+    btn.className = "suggest-preset";
+    btn.innerHTML = '<span class="preset-label">' + pr.label + '</span><span class="preset-desc">' + pr.desc + '</span><div class="preset-lineup">' + pr.lineup + '</div>';
+    btn.onclick = () => previewSuggest(pi);
+    grid.appendChild(btn);
+  });
+  document.getElementById("suggestModal").classList.add("open");
+  previewSuggest(0);
+}
+function closeSuggest() { document.getElementById("suggestModal").classList.remove("open"); }
+
+function previewSuggest(pi) {
+  const pr = presets[pi];
+  currentSuggestXI = pr;
+  document.getElementById("previewTitle").textContent = "PREVIEW — " + pr.label.toUpperCase() + " XI";
+  const container = document.getElementById("suggestPreview");
+  container.innerHTML = "";
+  pr.indices.forEach((idx, i) => {
+    const p = squad[idx];
+    if (!p) return;
+    const row = document.createElement("div");
+    row.className = "suggest-player-row";
+    row.innerHTML = '<span class="spr-num">' + (i+1) + '</span><span class="spr-name">' + p.name + '</span><span class="spr-role">' + p.role + '</span>' + (p.country === "OS" ? '<span class="spr-flag">✈️</span>' : "");
+    container.appendChild(row);
+  });
+  document.querySelectorAll(".suggest-preset").forEach((b, j) => {
+    b.style.borderColor = j === pi ? "var(--rcb-red)" : "";
+    b.style.background = j === pi ? "rgba(177,18,38,0.14)" : "";
+  });
+}
+
+function applySuggest() {
+  if (!currentSuggestXI) return;
+  document.querySelectorAll(".zone").forEach(z => z.innerHTML = "");
+  squad.forEach(p => p.used = false);
+  captainName = null; vcName = null;
+  currentSuggestXI.indices.forEach((idx, pos) => {
+    const p = squad[idx];
+    if (!p) return;
+    const zone = document.querySelector(".zone[data-pos='" + pos + "']");
+    if (!zone) return;
+    const card = createCard(p, idx);
+    zone.appendChild(card);
+    p.used = true;
+  });
+  const viratInXI = currentSuggestXI.indices.includes(2);
+  captainName = viratInXI ? squad[2].name : squad[currentSuggestXI.indices[0]]?.name;
+  const nonCaptain = currentSuggestXI.indices.find(i => squad[i]?.name !== captainName);
+  vcName = nonCaptain !== undefined ? squad[nonCaptain]?.name : null;
+  refreshAllBadges();
+  renderSquad(); updateCount(); saveTeam();
+  closeSuggest();
+  toast("🤖 " + currentSuggestXI.label + " XI applied! ⚡", 2500);
+}
+
+function printXI() {
+  const n = document.querySelectorAll(".selected-player").length;
+  if (!n) { toast("Select players first! 🏏", 2000); return; }
+  window.print();
+}
+
+// FIX 4: generateImage — moved name/role text drawing INSIDE img.onload so it renders on top of the image
+function generateImage() {
+  const n = document.querySelectorAll(".selected-player").length;
+  if (!n) { toast("Select players first to generate image! 🏏", 2000); return; }
+  toast("Generating XI image… 🖼️", 2000);
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const canvas = document.getElementById("xiCanvas");
+  const ctx = canvas.getContext("2d");
+  const COLS = 4, CW = 160, CH = 190, PAD = 16, HEADER = 80, FOOTER_H = 50;
+  const ROWS = Math.ceil(cards.length / COLS);
+  const W = COLS * CW + (COLS + 1) * PAD;
+  const H = HEADER + ROWS * CH + (ROWS + 1) * PAD + FOOTER_H;
+  canvas.width = W; canvas.height = H;
+
+  ctx.fillStyle = "#080808";
+  ctx.fillRect(0, 0, W, H);
+
+  const hg = ctx.createLinearGradient(0, 0, W, 0);
+  hg.addColorStop(0, "rgba(177,18,38,0.6)");
+  hg.addColorStop(0.5, "rgba(201,168,76,0.3)");
+  hg.addColorStop(1, "rgba(177,18,38,0.6)");
+  ctx.fillStyle = hg;
+  ctx.fillRect(0, 0, W, HEADER);
+
+  ctx.font = "bold 22px 'Bebas Neue', sans-serif";
+  ctx.fillStyle = "#C9A84C";
+  ctx.textAlign = "center";
+  ctx.fillText("ROYAL CHALLENGERS BENGALURU", W / 2, 34);
+  ctx.font = "14px 'Barlow Condensed', sans-serif";
+  ctx.fillStyle = "#888";
+  ctx.fillText("IPL 2026 — PLAYING XI", W / 2, 56);
+
+  ctx.strokeStyle = "#C9A84C";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, HEADER - 1); ctx.lineTo(W, HEADER - 1); ctx.stroke();
+
+  const rc = { BAT:"#4ade80", WK:"#60a5fa", AR:"#fbbf24", BOWL:"#f87171" };
+
+  const imgPromises = cards.map((card, i) => {
+    return new Promise(resolve => {
+      const col = i % COLS;
+      const row = Math.floor(i / COLS);
+      const x = PAD + col * (CW + PAD);
+      const y = HEADER + PAD + row * (CH + PAD);
+      const p = squad[card.dataset.idx];
+
+      // Card background
+      ctx.fillStyle = "#efefef";
+      roundRect(ctx, x, y, CW, CH, 10); ctx.fill();
+
+      // Role stripe
+      ctx.fillStyle = rc[p?.role] || "#888";
+      roundRect(ctx, x, y + CH - 22, CW, 22, [0, 0, 10, 10]); ctx.fill();
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        // Draw image clipped to card area
+        ctx.save();
+        roundRect(ctx, x + 6, y + 6, CW - 12, CH - 36, 8);
+        ctx.clip();
+        ctx.drawImage(img, x + 6, y + 6, CW - 12, CH - 36);
+        ctx.restore();
+
+        // FIX: Draw text AFTER image so it renders on top
+        // C/VC badge
+        if (p?.name === captainName) {
+          ctx.fillStyle = "#C9A84C";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("C", x + 15, y + 19);
+        } else if (p?.name === vcName) {
+          ctx.fillStyle = "#888";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("VC", x + 15, y + 19);
+        }
+        // Player name — drawn on the white stripe area below image
+        const name = p?.name || "Player";
+        ctx.fillStyle = "#1a0608";
+        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "\u2026" : name, x + CW / 2, y + CH - 26);
+        // Role text on colour stripe
+        ctx.fillStyle = "#1a0608";
+        ctx.font = "bold 9px sans-serif";
+        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
+
+        resolve();
+      };
+      img.onerror = () => {
+        // Even on error, still draw name/role
+        if (p?.name === captainName) {
+          ctx.fillStyle = "#C9A84C";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("C", x + 15, y + 19);
+        } else if (p?.name === vcName) {
+          ctx.fillStyle = "#888";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("VC", x + 15, y + 19);
+        }
+        const name = p?.name || "Player";
+        ctx.fillStyle = "#1a0608";
+        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "\u2026" : name, x + CW / 2, y + CH - 26);
+        ctx.fillStyle = "#1a0608";
+        ctx.font = "bold 9px sans-serif";
+        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
+        resolve();
+      };
+      img.src = p?.img || fallbackImg;
+    });
+  });
+
+  Promise.all(imgPromises).then(() => {
+    ctx.fillStyle = "#333";
+    ctx.font = "11px 'Barlow Condensed', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Ee Sala Cup Namde! — RCB XI Builder IPL 2026", W / 2, H - 16);
+    document.getElementById("imgModal").classList.add("open");
+  });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  if (typeof r === "number") r = [r, r, r, r];
+  ctx.beginPath();
+  ctx.moveTo(x + r[0], y);
+  ctx.lineTo(x + w - r[1], y); ctx.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+  ctx.lineTo(x + w, y + h - r[2]); ctx.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+  ctx.lineTo(x + r[3], y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+  ctx.lineTo(x, y + r[0]); ctx.quadraticCurveTo(x, y, x + r[0], y);
+  ctx.closePath();
+}
+
+function closeImgModal() { document.getElementById("imgModal").classList.remove("open"); }
+function downloadImage() {
+  const canvas = document.getElementById("xiCanvas");
+  const a = document.createElement("a");
+  a.download = "RCB-XI-IPL2026.png";
+  a.href = canvas.toDataURL("image/png");
+  a.click();
+  toast("Image downloaded! 📥", 2000);
+}
+
+function openShare() {
+  const cards = [...document.querySelectorAll(".selected-player")];
+  if (!cards.length) { toast("Pick some players first! 🏏", 2000); return; }
+  const lines = ["🏏 My RCB Playing XI — IPL 2026\n"];
+  cards.forEach((card, i) => {
+    const p = squad[card.dataset.idx];
+    if (!p) return;
+    lines.push((i+1) + ". " + p.name + (p.name === captainName ? " (C)" : "") + (p.name === vcName ? " (VC)" : "") + " [" + p.role + "]" + (p.country === "OS" ? " ✈️" : ""));
+  });
+  lines.push("\nOverseas: " + countOverseas() + "/4");
+  lines.push("Ee Sala Cup Namde! 🔴⚫");
+  const text = lines.join("\n");
+  if (navigator.share) navigator.share({ title:"My RCB XI", text }).catch(()=>{});
+  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast("XI copied to clipboard! 📋", 2500)).catch(() => fallbackShare(text));
+  else fallbackShare(text);
+}
+function fallbackShare(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); toast("XI copied! 📋", 2500); } catch(e) { toast("Could not copy!", 2500); }
+  document.body.removeChild(ta);
+}
 
 function saveTeam() {
   const slots = [];
@@ -1190,7 +1181,7 @@ function loadTeam() {
       if (idx === null || idx === undefined) return;
       const p = squad[idx];
       if (!p || p.used) return;
-      const zone = document.querySelector(`.zone[data-pos="${pos}"]`);
+      const zone = document.querySelector(".zone[data-pos='" + pos + "']");
       if (!zone) return;
       const card = createCard(p, idx);
       zone.appendChild(card);
@@ -1200,41 +1191,14 @@ function loadTeam() {
   } catch(e) { localStorage.removeItem("rcbPlayingXI"); }
 }
 
-function openShare() {
-  const cards = [...document.querySelectorAll(".selected-player")];
-  if (!cards.length) { toast("Pick some players first! 🏏", 2000); return; }
-  const lines = ["🏏 My RCB Playing XI — IPL 2026\n"];
-  cards.forEach((card, i) => {
-    const p = squad[card.dataset.idx];
-    if (!p) return;
-    lines.push(`${i+1}. ${p.name}${p.name===captainName?" (C)":""} ${p.name===vcName?" (VC)":""} [${p.role}]${p.country==="OS"?" ✈️":""}`);
-  });
-  lines.push(`\nOverseas: ${countOverseas()}/4`);
-  lines.push("Ee Sala Cup Namde! 🔴⚫");
-  const text = lines.join("\n");
-  if (navigator.share) { navigator.share({ title:"My RCB XI", text }).catch(()=>{}); }
-  else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => toast("XI copied to clipboard! 📋", 2500)).catch(() => fallbackShare(text)); }
-  else fallbackShare(text);
-}
-
-function fallbackShare(text) {
-  const ta = document.createElement("textarea");
-  ta.value = text; ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand("copy"); toast("XI copied to clipboard! 📋", 2500); } catch(e) { toast("Could not copy — try manually!", 2500); }
-  document.body.removeChild(ta);
-}
-
 let confettiFired = false;
 function fireConfetti() {
-  if (confettiFired) return;
-  confettiFired = true;
+  if (confettiFired) return; confettiFired = true;
   const colors = ['#D4A017','#F0C040','#C1121F','#fff','#fbbf24','#f87171'];
   for (let i = 0; i < 90; i++) {
-    const c = document.createElement("div");
-    c.className = "conf";
+    const c = document.createElement("div"); c.className = "conf";
     const size = Math.random()*10+4;
-    c.style.cssText = `left:${Math.random()*100}vw;top:-20px;width:${size}px;height:${size*(Math.random()>0.5?1:2.5)}px;background:${colors[Math.floor(Math.random()*colors.length)]};--rot:${(Math.random()-0.5)*720}deg;animation-duration:${Math.random()*2+1.5}s;animation-delay:${Math.random()*0.8}s;opacity:0.9;border-radius:${Math.random()>0.5?"50%":"2px"};`;
+    c.style.cssText = "left:" + (Math.random()*100) + "vw;top:-20px;width:" + size + "px;height:" + (size*(Math.random()>0.5?1:2.5)) + "px;background:" + colors[Math.floor(Math.random()*colors.length)] + ";--rot:" + ((Math.random()-0.5)*720) + "deg;animation-duration:" + (Math.random()*2+1.5) + "s;animation-delay:" + (Math.random()*0.8) + "s;opacity:0.9;border-radius:" + (Math.random()>0.5?"50%":"2px") + ";";
     document.body.appendChild(c);
     setTimeout(() => c.remove(), 3500);
   }
@@ -1244,49 +1208,27 @@ function fireConfetti() {
 function updateStats() {
   const cards = [...document.querySelectorAll(".selected-player")];
   const count = { BAT:0, WK:0, AR:0, BOWL:0, OS:0 };
-  cards.forEach(card => {
-    const p = squad[card.dataset.idx];
-    if (!p) return;
-    count[p.role]++;
-    if (p.country === "OS") count.OS++;
-  });
+  cards.forEach(card => { const p = squad[card.dataset.idx]; if (!p) return; count[p.role]++; if (p.country === "OS") count.OS++; });
   const set = (id, val, max) => {
-    const el  = document.getElementById("sv" + id);
-    const bar = document.getElementById("sf" + id);
-    if (el)  el.textContent = val;
-    if (bar) bar.style.width = Math.min(100, (val/max)*100) + "%";
+    const el = document.getElementById("sv"+id);
+    const bar = document.getElementById("sf"+id);
+    if (el) el.textContent = val;
+    if (bar) bar.style.width = Math.min(100, (val/max)*100)+"%";
   };
-  set("BAT", count.BAT, 6); set("WK", count.WK, 3);
-  set("AR", count.AR, 6);   set("BOWL", count.BOWL, 6);
-  set("OS", count.OS, 4);
+  set("BAT",count.BAT,6); set("WK",count.WK,3); set("AR",count.AR,6); set("BOWL",count.BOWL,6); set("OS",count.OS,4);
 }
 
-/* ══════════════════════════════════════════
-   MOBILE LEFT PANEL LOGIC
-══════════════════════════════════════════ */
 const isMobile = () => window.innerWidth <= 768;
-
 const squadDrawer  = document.getElementById("squadDrawer");
 const drawerScrim  = document.getElementById("drawerScrim");
 const squadTab     = document.getElementById("squadTab");
 const drawerClose  = document.getElementById("drawerClose");
-
-function openDrawer() {
-  if (!isMobile()) return;
-  squadDrawer.classList.add("open");
-  drawerScrim.classList.add("visible");
-}
-
-function closeDrawer() {
-  squadDrawer.classList.remove("open");
-  drawerScrim.classList.remove("visible");
-}
-
-if (squadTab)    squadTab.addEventListener("click", openDrawer);
+function openDrawer() { if (!isMobile()) return; squadDrawer.classList.add("open"); drawerScrim.classList.add("visible"); }
+function closeDrawer() { squadDrawer.classList.remove("open"); drawerScrim.classList.remove("visible"); }
+if (squadTab) squadTab.addEventListener("click", openDrawer);
 if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
 if (drawerScrim) drawerScrim.addEventListener("click", closeDrawer);
 
-// Drawer role filters
 document.getElementById("drawerFilters").querySelectorAll(".role-filter").forEach(btn => {
   btn.addEventListener("click", () => {
     activeFilter = btn.dataset.role;
@@ -1297,11 +1239,10 @@ document.getElementById("drawerFilters").querySelectorAll(".role-filter").forEac
   });
 });
 
-// Auto-close drawer when a player touch-drag starts (finger moves out of panel)
-// Implemented via touchmove detection in the global handler above — see autoCollapseDrawer
-autoCollapseDrawer = function() {
-  if (isMobile()) closeDrawer();
-};
+autoCollapseDrawer = function() { if (isMobile()) closeDrawer(); };
+
+document.getElementById("suggestModal").addEventListener("click", function(e) { if (e.target === this) closeSuggest(); });
+document.getElementById("imgModal").addEventListener("click", function(e) { if (e.target === this) closeImgModal(); });
 
 renderSquad();
 loadTeam();
