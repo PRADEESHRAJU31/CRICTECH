@@ -247,6 +247,7 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   .card-role { font-size: 8.5px; margin-top: 2px; }
   .captain-badge, .vc-badge { width: 18px; height: 18px; font-size: 10px; top: 4px; left: 4px; }
   .vc-badge { left: 24px; }
+  /* FIX 1: Always show remove button on mobile (no hover state on touch screens) */
   .remove-card { width: 18px; height: 18px; font-size: 9px; top: 4px; right: 4px; display: flex !important; }
   .stats-bar { display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 8px 6px; gap: 6px; scrollbar-width: none; flex: none; width: 100%; max-width: 100vw; box-sizing: border-box; }
   .stats-bar::-webkit-scrollbar { display: none; }
@@ -260,12 +261,61 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   .xi-dot { width: 6px; height: 6px; }
   .footer-actions { gap: 5px; }
   .share-btn,.print-btn,.img-btn,.suggest-btn { font-size: 10px; padding: 5px 10px; letter-spacing: 1px; }
-  #squadTab { display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; left: 0; top: 50%; margin-top: -52px; z-index: 310; background: var(--rcb-red); color: #fff; font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 2px; writing-mode: vertical-lr; text-orientation: mixed; transform: rotate(180deg); padding: 16px 7px; border-radius: 8px 0 0 8px; cursor: pointer; box-shadow: 3px 0 16px rgba(177,18,38,0.5); border: 1px solid rgba(201,168,76,0.25); border-right: none; user-select: none; -webkit-tap-highlight-color: transparent; gap: 5px; transition: background 0.2s; }
-  #squadTab:active { background: var(--rcb-red-dark); }
+
+  /* FIX 3: Squad tab — hidden when drawer is open, visible only when closed */
+  #squadTab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    left: 0;
+    top: 50%;
+    margin-top: -52px;
+    z-index: 310;
+    background: var(--rcb-red);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    padding: 16px 7px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    box-shadow: 3px 0 16px rgba(177,18,38,0.5);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-right: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    gap: 5px;
+    transition: transform 0.32s cubic-bezier(0.32,0.72,0,1), opacity 0.25s ease, left 0.32s cubic-bezier(0.32,0.72,0,1);
+  }
+  /* FIX 3: Slide the tab out of view when drawer is open */
+  #squadTab.drawer-open {
+    left: -60px;
+    opacity: 0;
+    pointer-events: none;
+  }
   #squadTab .tab-count { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0; color: rgba(255,255,255,0.75); writing-mode: vertical-lr; }
   #drawerScrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 299; opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
   #drawerScrim.visible { opacity: 1; pointer-events: all; }
-  #squadDrawer { display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; width: 78vw; max-width: 300px; z-index: 300; background: var(--rcb-surface); border-right: 2px solid var(--rcb-red); box-shadow: 6px 0 40px rgba(177,18,38,0.35); transform: translateX(-100%); transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1); overflow: hidden; }
+  #squadDrawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 78vw;
+    max-width: 300px;
+    z-index: 300;
+    background: var(--rcb-surface);
+    border-right: 2px solid var(--rcb-red);
+    box-shadow: 6px 0 40px rgba(177,18,38,0.35);
+    transform: translateX(-100%);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+  }
   #squadDrawer.open { transform: translateX(0); }
   #drawerHandle { flex-shrink: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: linear-gradient(90deg, rgba(177,18,38,0.4) 0%, rgba(177,18,38,0.1) 100%); border-bottom: 1px solid rgba(177,18,38,0.3); cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
   #drawerHandle::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--rcb-red), var(--rcb-gold), transparent); }
@@ -274,18 +324,31 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   #drawerSquadCount { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: rgba(201,168,76,0.6); letter-spacing: 1px; }
   .drawer-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(177,18,38,0.2); border: 1px solid rgba(177,18,38,0.4); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
   .drawer-close:active { background: var(--rcb-red); }
-  #drawerFilters { display: flex; gap: 5px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid var(--rcb-border); background: var(--rcb-surface); }
+  /* FIX 2: Drawer body needs overflow-y:scroll with touch-action to allow scrolling */
+  #drawerFilters { display: flex; gap: 5px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid var(--rcb-border); background: var(--rcb-surface); flex-shrink: 0; }
   #drawerFilters .role-filter { font-size: 10px; padding: 3px 8px; }
-  #drawerBody { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 6px 10px 24px; scrollbar-width: thin; scrollbar-color: var(--rcb-red) transparent; }
+  #drawerBody {
+    flex: 1;
+    overflow-y: scroll; /* scroll (not auto) ensures iOS momentum scrolling works */
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 10px 24px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rcb-red) transparent;
+    /* FIX 2: Allow native scroll on the drawer body */
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
   #drawerBody::-webkit-scrollbar { width: 3px; }
   #drawerBody::-webkit-scrollbar-thumb { background: var(--rcb-red); border-radius: 3px; }
   #drawerSquadList .squad-group-title { font-size: 9px; letter-spacing: 1.5px; margin: 8px 0 3px; }
-  #drawerSquadList .player { font-size: 12px; padding: 8px 10px; border-radius: 8px; }
+  #drawerSquadList .player { font-size: 12px; padding: 8px 10px; border-radius: 8px; min-height: 44px; }
   #drawerSquadList .player > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
   #drawerSquadList .role-pill { font-size: 8px; padding: 2px 5px; }
   #drawerSquadList .os-flag { font-size: 10px; }
   .role-warn { font-size: 10px; padding: 5px 10px; }
   #roleWarningBar { padding: 0 8px 4px; }
+  /* FIX 1: Completely disable tooltips on touch devices */
   .player-tooltip { display: none !important; }
 }
 @media print {
@@ -469,7 +532,6 @@ const squad = [
   {name:"Yash Dayal",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/739.png",stats:{matches:36,runs:18,avg:9.0,sr:75.0,wickets:42,economy:9.7}},
 ];
 
-// FIX 1: Batting Heavy preset had duplicate index 3 (Phil Salt twice). Replaced second with idx 1 (Devdutt Padikkal).
 const presets = [
   {label:"Balanced XI",desc:"Classic 5-3-3 setup",lineup:"2 WK-BAT / 3 BAT / 2 AR / 4 BOWL",indices:[2,3,0,4,8,6,11,9,20,17,19,14]},
   {label:"Batting Heavy",desc:"Stack the order, dominate powerplay",lineup:"3 BAT / 2 WK-BAT / 3 AR / 3 BOWL",indices:[2,3,0,1,4,5,8,10,6,17,20,14]},
@@ -547,7 +609,10 @@ function updateCount() {
 }
 
 const roleMeta = { BAT:{label:"Batter",color:"#4ade80"}, WK:{label:"Wicket-Keeper",color:"#60a5fa"}, AR:{label:"All-Rounder",color:"#fbbf24"}, BOWL:{label:"Bowler",color:"#f87171"} };
+
 function showTooltip(p, x, y) {
+  // FIX 1: Never show tooltip on touch/mobile devices
+  if (isMobile()) return;
   if (!p) return;
   const rm = roleMeta[p.role] || {};
   const hasWickets = p.role === "BOWL" || p.role === "AR";
@@ -626,22 +691,63 @@ function renderSquad() {
         d.draggable = !p.used;
         d.innerHTML = '<span>' + p.name + '</span><span class="player-badges">' + (p.country === "OS" ? '<span class="os-flag">✈️</span>' : "") + '<span class="role-pill role-' + p.role + '">' + p.role + '</span></span>';
         if (!p.used) {
-          d.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
-          d.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
-          d.addEventListener("mouseleave", hideTooltip);
+          // FIX 1: Only attach mouse tooltip listeners on non-mobile
+          if (!isMobile()) {
+            d.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+            d.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+            d.addEventListener("mouseleave", hideTooltip);
+          }
           d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); hideTooltip(); };
           d.ondragend = () => document.body.classList.remove("is-dragging");
+
+          // FIX 2: Touch drag on squad player rows — use a delay to distinguish tap vs drag,
+          // so that a downward swipe scrolls the drawer rather than starting a drag immediately.
+          let touchTimer = null;
+          let touchStartX = 0, touchStartY = 0;
+          let touchScrolling = false;
+
           d.addEventListener("touchstart", e => {
             if (p.used) return;
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = d.getBoundingClientRect();
-            const ghost = d.cloneNode(true);
-            ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:9px;box-shadow:0 8px 30px rgba(177,18,38,0.5);transform:scale(1.05);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
-            document.body.appendChild(ghost);
-            touchDragData = { type:"squad", idx:i, sourceZone:null, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
-            document.body.classList.add("is-dragging");
-          }, { passive: false });
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchScrolling = false;
+
+            // Start a short timer — if finger moves vertically before it fires, we treat it as scroll
+            touchTimer = setTimeout(() => {
+              if (touchScrolling) return; // was a scroll, abort drag
+              // Confirmed drag intent — initiate ghost drag
+              e.preventDefault();
+              const touch = e.touches[0];
+              const rect = d.getBoundingClientRect();
+              const ghost = d.cloneNode(true);
+              ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:9px;box-shadow:0 8px 30px rgba(177,18,38,0.5);transform:scale(1.05);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
+              document.body.appendChild(ghost);
+              touchDragData = { type:"squad", idx:i, sourceZone:null, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
+              document.body.classList.add("is-dragging");
+            }, 180); // 180ms hold to start drag
+          }, { passive: true }); // passive:true lets scroll happen naturally
+
+          d.addEventListener("touchmove", e => {
+            if (!touchTimer && !touchDragData) return;
+            const dx = Math.abs(e.touches[0].clientX - touchStartX);
+            const dy = Math.abs(e.touches[0].clientY - touchStartY);
+            // If moving mostly vertically before drag started, cancel drag initiation
+            if (!touchDragData && dy > dx && dy > 6) {
+              touchScrolling = true;
+              clearTimeout(touchTimer);
+              touchTimer = null;
+            }
+          }, { passive: true });
+
+          d.addEventListener("touchend", e => {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+          }, { passive: true });
+
+          d.addEventListener("touchcancel", () => {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+          });
         }
         container.appendChild(d);
       });
@@ -671,9 +777,12 @@ function createCard(p, idx) {
 
   refreshBadges(card, p.name);
 
-  card.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
-  card.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
-  card.addEventListener("mouseleave", hideTooltip);
+  // FIX 1: Only attach mouse tooltip listeners on non-mobile
+  if (!isMobile()) {
+    card.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+    card.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+    card.addEventListener("mouseleave", hideTooltip);
+  }
 
   card.querySelector(".remove-card").addEventListener("click", e => {
     e.stopPropagation();
@@ -714,7 +823,6 @@ function createCard(p, idx) {
   };
   card.ondragend = () => { card.style.opacity = "1"; document.body.classList.remove("is-dragging"); };
 
-  // FIX 2: Mobile captain/VC tap — skip drag initiation when in selection mode
   let touchStartX = 0, touchStartY = 0, touchMoved = false;
   card.addEventListener("touchstart", e => {
     if (e.target.classList.contains("remove-card")) return;
@@ -872,7 +980,6 @@ function refreshAllBadges() {
   });
 }
 
-// FIX 3: setSelectionHint — preserve default box-shadow when clearing (set to default, not empty string)
 function setSelectionHint(mode) {
   document.querySelectorAll(".selected-player").forEach(c => {
     if (mode) {
@@ -991,7 +1098,6 @@ function printXI() {
   window.print();
 }
 
-// FIX 4: generateImage — moved name/role text drawing INSIDE img.onload so it renders on top of the image
 function generateImage() {
   const n = document.querySelectorAll(".selected-player").length;
   if (!n) { toast("Select players first to generate image! 🏏", 2000); return; }
@@ -1037,26 +1143,21 @@ function generateImage() {
       const y = HEADER + PAD + row * (CH + PAD);
       const p = squad[card.dataset.idx];
 
-      // Card background
       ctx.fillStyle = "#efefef";
       roundRect(ctx, x, y, CW, CH, 10); ctx.fill();
 
-      // Role stripe
       ctx.fillStyle = rc[p?.role] || "#888";
       roundRect(ctx, x, y + CH - 22, CW, 22, [0, 0, 10, 10]); ctx.fill();
 
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.onload = () => {
-        // Draw image clipped to card area
         ctx.save();
         roundRect(ctx, x + 6, y + 6, CW - 12, CH - 36, 8);
         ctx.clip();
         ctx.drawImage(img, x + 6, y + 6, CW - 12, CH - 36);
         ctx.restore();
 
-        // FIX: Draw text AFTER image so it renders on top
-        // C/VC badge
         if (p?.name === captainName) {
           ctx.fillStyle = "#C9A84C";
           ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
@@ -1068,13 +1169,11 @@ function generateImage() {
           ctx.fillStyle = "#000"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
           ctx.fillText("VC", x + 15, y + 19);
         }
-        // Player name — drawn on the white stripe area below image
         const name = p?.name || "Player";
         ctx.fillStyle = "#1a0608";
         ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(name.length > 16 ? name.slice(0, 15) + "\u2026" : name, x + CW / 2, y + CH - 26);
-        // Role text on colour stripe
         ctx.fillStyle = "#1a0608";
         ctx.font = "bold 9px sans-serif";
         ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
@@ -1082,7 +1181,6 @@ function generateImage() {
         resolve();
       };
       img.onerror = () => {
-        // Even on error, still draw name/role
         if (p?.name === captainName) {
           ctx.fillStyle = "#C9A84C";
           ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
@@ -1219,12 +1317,26 @@ function updateStats() {
 }
 
 const isMobile = () => window.innerWidth <= 768;
+
 const squadDrawer  = document.getElementById("squadDrawer");
 const drawerScrim  = document.getElementById("drawerScrim");
 const squadTab     = document.getElementById("squadTab");
 const drawerClose  = document.getElementById("drawerClose");
-function openDrawer() { if (!isMobile()) return; squadDrawer.classList.add("open"); drawerScrim.classList.add("visible"); }
-function closeDrawer() { squadDrawer.classList.remove("open"); drawerScrim.classList.remove("visible"); }
+
+function openDrawer() {
+  if (!isMobile()) return;
+  squadDrawer.classList.add("open");
+  drawerScrim.classList.add("visible");
+  // FIX 3: Hide the squad tab when drawer is open so it doesn't cover player names
+  squadTab.classList.add("drawer-open");
+}
+function closeDrawer() {
+  squadDrawer.classList.remove("open");
+  drawerScrim.classList.remove("visible");
+  // FIX 3: Restore squad tab when drawer closes
+  squadTab.classList.remove("drawer-open");
+}
+
 if (squadTab) squadTab.addEventListener("click", openDrawer);
 if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
 if (drawerScrim) drawerScrim.addEventListener("click", closeDrawer);
