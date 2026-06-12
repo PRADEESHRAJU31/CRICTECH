@@ -1,348 +1,1341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>CSK Playing XI Builder</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root{--yellow:#facc15;--blue:#1e40af}
-body{margin:0;font-family:Arial;background:#facc15;color:#111827}
-header{
-  background:#1e3a8a;color:#facc15;
-  padding:18px;text-align:center;
-  font-size:26px;font-weight:800;
-  position:relative
+:root {
+  --csk-yellow: #facc15;
+  --csk-yellow-dark: #d4a90f;
+  --csk-yellow-glow: rgba(250,204,21,0.45);
+  --csk-blue: #1e3a8a;
+  --csk-blue-light: #2c4fb8;
+  --csk-blue-glow: rgba(30,58,138,0.35);
+  --csk-bg: #fffbeb;
+  --csk-surface: #1e3a8a;
+  --csk-card: #fff;
+  --csk-border: #2c4fb8;
+  --glass: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.1);
+  --transition-snappy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Barlow Condensed', sans-serif;
+  background: var(--csk-yellow);
+  min-height: 100vh;
+  color: #111827;
+  overflow-x: hidden;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 90% 65% at 10% -5%,  rgba(30,58,138,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 105%, rgba(30,58,138,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,  rgba(250,204,21,0.10) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+header {
+  position: sticky; top: 0; z-index: 200;
+  background: linear-gradient(180deg, #1e3a8a 0%, #16306e 100%);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid rgba(250,204,21,0.35);
+  padding: 0 20px; height: 72px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(30,58,138,0.3);
+}
+header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,transparent 0%,var(--csk-yellow) 10%,#fff7c2 35%,var(--csk-yellow) 50%,#fff7c2 65%,var(--csk-yellow) 90%,transparent 100%);
+  animation: shimmer-line 3s ease-in-out infinite;
+}
+@keyframes shimmer-line { 0%,100%{opacity:0.6}50%{opacity:1} }
+.header-logo { height: 52px; flex-shrink: 0; filter: drop-shadow(0 0 8px var(--csk-yellow-glow)); animation: logo-in 0.7s var(--transition-snappy) both, logo-pulse 4s ease-in-out 1s infinite; }
+@keyframes logo-in { from{opacity:0;transform:scale(0.6) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0deg)} }
+@keyframes logo-pulse { 0%,100%{filter:drop-shadow(0 0 6px var(--csk-yellow-glow))} 50%{filter:drop-shadow(0 0 16px var(--csk-yellow-glow)) drop-shadow(0 0 30px rgba(250,204,21,0.2))} }
+.header-center { text-align:center; flex:1; animation: slide-down 0.6s var(--transition-snappy) 0.1s both; }
+@keyframes slide-down { from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)} }
+.header-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(18px, 2.5vw, 30px); background: linear-gradient(135deg, var(--csk-yellow) 0%, #fff7c2 40%, var(--csk-yellow) 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 4px; line-height: 1; animation: text-shimmer 4s linear infinite; }
+@keyframes text-shimmer { 0%{background-position:0% center}100%{background-position:200% center} }
+.header-sub { font-size:10px; color:var(--csk-yellow); letter-spacing:3px; text-transform:uppercase; margin-top:3px; }
+.header-badges { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; animation: slide-down 0.6s var(--transition-snappy) 0.2s both; }
+.os-badge { background:var(--glass); border:1px solid var(--csk-yellow); color:var(--csk-yellow); padding:6px 14px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; white-space:nowrap; position:relative; overflow:hidden; transition:all 0.3s var(--transition-smooth); }
+.os-badge.over-limit { border-color:#ff5566; color:#ff8899; animation:danger-flash 0.5s ease-in-out infinite alternate; }
+@keyframes danger-flash { from{box-shadow:0 0 0 rgba(255,85,102,0);background:transparent} to{box-shadow:0 0 16px rgba(255,85,102,0.4);background:rgba(255,85,102,0.1)} }
+.header-btn { padding:6px 13px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; cursor:pointer; transition:all 0.25s var(--transition-smooth); white-space:nowrap; position:relative; overflow:hidden; }
+.header-btn:active { transform:scale(0.95); }
+#captainBtn { background:transparent; color:var(--csk-yellow); border:1px solid var(--csk-yellow); }
+#captainBtn.active { background:var(--csk-yellow); color:#1e3a8a; box-shadow:0 0 20px var(--csk-yellow-glow),0 4px 12px rgba(0,0,0,0.4); animation:captain-pulse 1s ease-in-out infinite; }
+@keyframes captain-pulse { 0%,100%{box-shadow:0 0 20px var(--csk-yellow-glow),0 4px 12px rgba(0,0,0,0.4)} 50%{box-shadow:0 0 35px rgba(250,204,21,0.7),0 4px 20px rgba(0,0,0,0.5)} }
+#vcBtn { background:transparent; color:var(--csk-yellow); border:1px solid var(--csk-yellow); }
+#vcBtn.active { background:#cbd5e1; color:#1e3a8a; border-color:#cbd5e1; box-shadow:0 0 15px rgba(203,213,225,0.4); }
+#resetBtn { background:transparent; color:var(--csk-yellow); border:1px solid var(--csk-yellow); box-shadow:0 2px 12px rgba(250,204,21,0.2); }
+#resetBtn:hover { box-shadow:0 4px 20px rgba(250,204,21,0.4); transform:translateY(-1px); }
+.main { display:grid; grid-template-columns:255px 1fr; gap:14px; padding:14px; max-width:1400px; width:100%; margin:0 auto; position:relative; z-index:1; flex:1; }
+.squad { background:var(--csk-surface); border-radius:16px; padding:14px; border:1px solid var(--csk-border); border-top:2px solid rgba(250,204,21,0.6); position:sticky; top:86px; max-height:calc(100vh - 100px); overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--csk-yellow) transparent; backdrop-filter:blur(10px); box-shadow:inset 0 1px 0 var(--glass-border),0 4px 24px rgba(0,0,0,0.25),0 0 0 1px rgba(250,204,21,0.08); animation:panel-in 0.5s var(--transition-snappy) 0.15s both; color:var(--csk-yellow); }
+@keyframes panel-in { from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)} }
+.squad::-webkit-scrollbar{width:3px}.squad::-webkit-scrollbar-track{background:transparent}.squad::-webkit-scrollbar-thumb{background:var(--csk-yellow);border-radius:3px}
+.squad-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid rgba(250,204,21,0.2); position:relative; }
+.squad-header::after { content:''; position:absolute; bottom:-1px; left:0; width:60%; height:1px; background:linear-gradient(90deg,var(--csk-yellow),#fff7c2,transparent); }
+.squad-header h3 { font-family:'Bebas Neue',sans-serif; color:var(--csk-yellow); font-size:22px; letter-spacing:3px; text-shadow:0 0 20px var(--csk-yellow-glow); }
+.role-filters { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
+.role-filter { padding:4px 9px; border-radius:6px; font-size:11px; font-family:'Barlow Condensed',sans-serif; font-weight:700; letter-spacing:1px; cursor:pointer; border:1px solid var(--csk-yellow); background:transparent; color:var(--csk-yellow); transition:all 0.2s var(--transition-smooth); }
+.role-filter:hover{color:#1e3a8a;background:rgba(250,204,21,0.4);border-color:var(--csk-yellow)}
+.role-filter.active{background:var(--csk-yellow);color:#1e3a8a;border-color:var(--csk-yellow);box-shadow:0 0 10px rgba(250,204,21,0.4)}
+.squad-group-title { font-size:10px; font-family:'Barlow Condensed',sans-serif; letter-spacing:2.5px; color:var(--csk-yellow); text-transform:uppercase; margin:10px 0 4px; padding:0 4px; display:flex; align-items:center; gap:6px; }
+.squad-group-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--csk-yellow),transparent)}
+.player { padding:8px 10px; margin:3px 0; background:var(--csk-yellow); border:1px solid rgba(0,0,0,0.05); color:#1e3a8a; border-radius:9px; cursor:grab; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:6px; transition:all 0.2s var(--transition-smooth); position:relative; overflow:hidden; animation:player-in 0.3s var(--transition-snappy) both; }
+@keyframes player-in{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.player::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#1e3a8a;transform:scaleY(0);transition:transform 0.2s var(--transition-smooth);border-radius:0 2px 2px 0}
+.player:hover:not(.used){border-color:#1e3a8a;background:#fff7c2;color:#1e3a8a;transform:translateX(3px);box-shadow:0 4px 16px rgba(30,58,138,0.18),inset 0 0 0 1px rgba(30,58,138,0.12)}
+.player:hover:not(.used)::before{transform:scaleY(1)}
+.player.used{opacity:0.35;cursor:not-allowed;filter:grayscale(0.5)}
+.player-badges{display:flex;gap:3px;flex-shrink:0;align-items:center}
+.role-pill{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.5px;padding:2px 5px;border-radius:4px}
+.role-BAT{background:var(--csk-blue);color:var(--csk-yellow);border:1px solid rgba(21,128,61,0.25)}
+.role-WK{background:var(--csk-blue);color:var(--csk-yellow);border:1px solid rgba(30,64,175,0.25)}
+.role-AR{background:var(--csk-blue);color:var(--csk-yellow);border:1px solid rgba(146,64,14,0.25)}
+.role-BOWL{background:var(--csk-blue);color:var(--csk-yellow);border:1px solid rgba(153,27,27,0.25)}
+.os-flag{font-size:11px;opacity:2.5}
+.field-wrapper{display:flex;flex-direction:column;gap:12px;animation:panel-in-right 0.5s var(--transition-snappy) 0.2s both}
+@keyframes panel-in-right{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.order-section{ background:var(--csk-surface);border-radius:16px;border:1px solid var(--csk-border);border-top:2px solid rgba(250,204,21,0.5);overflow:hidden;position:relative;box-shadow:inset 0 1px 0 var(--glass-border),0 4px 20px rgba(0,0,0,0.2);transition:box-shadow 0.3s; }
+.order-section:hover{box-shadow:inset 0 1px 0 var(--glass-border),0 8px 36px rgba(250,204,21,0.18),0 0 0 1px rgba(250,204,21,0.12)}
+.order-label{ padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:var(--csk-yellow);border-bottom:1px solid rgba(250,204,21,0.2);background:linear-gradient(90deg,rgba(250,204,21,0.18) 0%,rgba(250,204,21,0.06) 45%,transparent 100%);position:relative;overflow:hidden; }
+.order-label::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--csk-yellow),#fff7c2)}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px}
+.impact-row .zone:last-child{border-color:rgba(250,204,21,0.4);border-style:dashed;position:relative}
+.impact-row .zone:last-child::after{content:'IMPACT';position:absolute;bottom:7px;right:8px;font-size:10px;font-weight:950;letter-spacing:2px;color:var(--csk-yellow);opacity:0.8}
+.zone{ background:rgba(250,204,21,0.05);border-radius:13px;border:1.5px solid rgba(250,204,21,0.2);min-height:162px;display:flex;align-items:center;justify-content:center;transition:all 0.25s var(--transition-smooth);position:relative;overflow:hidden; }
+.zone:empty::before{content:'+ Drop here';font-size:10px;color:rgba(250,204,21,0.35);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;transition:color 0.2s}
+.zone:empty:hover::before{color:rgba(250,204,21,0.65)}
+.zone.drag-over{border-color:var(--csk-yellow);background:rgba(250,204,21,0.1);box-shadow:inset 0 0 20px rgba(250,204,21,0.12),0 0 22px rgba(250,204,21,0.25);animation:zone-breathe 0.8s ease-in-out infinite}
+@keyframes zone-breathe{0%,100%{box-shadow:inset 0 0 20px rgba(250,204,21,0.10),0 0 22px rgba(250,204,21,0.18)}50%{box-shadow:inset 0 0 32px rgba(250,204,21,0.18),0 0 38px rgba(250,204,21,0.32)}}
+.selected-player{ width:100%;height:100%;min-height:160px;background:#fff;border-radius:11px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;cursor:grab;position:relative;transition:all 0.25s var(--transition-smooth);border:none;box-shadow:0 4px 16px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10);overflow:hidden;animation:card-drop 0.45s var(--transition-snappy) both; }
+@keyframes card-drop{0%{opacity:0;transform:scale(0.7) translateY(-20px)}60%{opacity:1;transform:scale(1.04) translateY(2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.selected-player img{display:block;width:100%;height:110px;object-fit:cover;object-position:center top;border-radius:8px;transition:transform 0.3s var(--transition-smooth)}
+.card-img-wrap{width:100%;height:110px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0}
+.card-name{margin-top:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;text-align:center;color:#1e3a8a;line-height:1.25}
+.card-role{font-size:10px;color:var(--csk-yellow-dark);text-align:center;margin-top:2px;letter-spacing:1px;font-weight:700}
+.captain-badge,.vc-badge{ position:absolute;top:5px;left:5px;font-family:'Bebas Neue',sans-serif;font-size:12px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;z-index:4;animation:badge-pop 0.4s var(--transition-snappy); }
+@keyframes badge-pop{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
+.captain-badge{background:linear-gradient(135deg,#fff7c2,var(--csk-yellow));color:#1e3a8a;box-shadow:0 0 12px var(--csk-yellow-glow),0 2px 6px rgba(0,0,0,0.4);animation:badge-pop 0.4s var(--transition-snappy),captain-glow 2s ease-in-out 0.5s infinite}
+@keyframes captain-glow{0%,100%{box-shadow:0 0 12px var(--csk-yellow-glow),0 2px 6px rgba(0,0,0,0.4)}50%{box-shadow:0 0 22px rgba(250,204,21,0.8),0 2px 8px rgba(0,0,0,0.5)}}
+.vc-badge{background:linear-gradient(135deg,#cbd5e1,#94a3b8);color:#1e3a8a;left:30px;box-shadow:0 0 8px rgba(148,163,184,0.4),0 2px 5px rgba(0,0,0,0.4)}
+.remove-card{ position:absolute;top:8px;right:5px;width:20px;height:20px;background:#1e3a8a;border:none;border-radius:50%;color:#facc15;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:5;line-height:1;transition:all 0.2s var(--transition-smooth);box-shadow:0 2px 8px rgba(30,58,138,0.5); }
+.selected-player:hover .remove-card{display:flex;animation:remove-appear 0.2s var(--transition-snappy)}
+@keyframes remove-appear{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+.remove-card:hover{background:#0f1f4d;transform:scale(1.2) rotate(90deg);box-shadow:0 0 14px rgba(15,31,77,0.65)}
+footer{text-align:center;padding:16px;color:#7a6315;font-size:12px;letter-spacing:1.5px;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px}
+.xi-counter{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#7a6315;letter-spacing:2px}
+.xi-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#1e3a8a;line-height:1}
+.xi-label{font-size:12px;text-transform:uppercase}
+.xi-dots{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;justify-content:center}
+.xi-dot{width:8px;height:8px;border-radius:50%;background:rgba(30,58,138,0.15);transition:background 0.3s,transform 0.3s var(--transition-snappy)}
+.xi-dot.filled{background:#1e3a8a;transform:scale(1.2)}
+.xi-dot.impact{background:var(--csk-yellow-dark);transform:scale(1.3)}
+.footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.share-btn{padding:9px 24px;background:transparent;border:1px solid #1e3a8a;color:#1e3a8a;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.share-btn:hover{background:#1e3a8a;color:var(--csk-yellow);box-shadow:0 0 20px rgba(30,58,138,0.3);transform:translateY(-2px)}
+.print-btn{padding:9px 24px;background:transparent;border:1px solid #1e3a8a;color:#1e3a8a;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.print-btn:hover{background:#1e3a8a;color:var(--csk-yellow);box-shadow:0 0 20px rgba(30,58,138,0.3);transform:translateY(-2px)}
+.img-btn{padding:9px 24px;background:transparent;border:1px solid #1e3a8a;color:#1e3a8a;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.img-btn:hover{background:#1e3a8a;color:var(--csk-yellow);box-shadow:0 0 20px rgba(30,58,138,0.3);transform:translateY(-2px)}
+.suggest-btn{padding:9px 24px;background:transparent;border:1px solid #1e3a8a;color:#1e3a8a;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.suggest-btn:hover{background:#1e3a8a;color:var(--csk-yellow);box-shadow:0 0 20px rgba(30,58,138,0.3);transform:translateY(-2px)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.conf{position:fixed;pointer-events:none;z-index:900;border-radius:2px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg) scale(1);opacity:1}100%{transform:translateY(105vh) rotate(var(--rot)) scale(0.6);opacity:0}}
+.stats-bar{position:relative;z-index:10;max-width:1440px;margin:0 auto;padding:0 16px 0;display:flex;gap:10px;flex-wrap:wrap;animation:fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.35s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.stat-pill{background:linear-gradient(135deg,rgba(30,58,138,0.95),rgba(22,48,110,0.98));border:1px solid rgba(250,204,21,0.15);border-radius:30px;padding:7px 16px;display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;color:#cbd5e1;transition:all 0.3s}
+.stat-pill .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--csk-yellow);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.stat-pill .stat-bar{width:50px;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden}
+.stat-pill .stat-fill{height:100%;border-radius:4px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+#toast{ position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px) scale(0.9);background:#1e3a8a;border:1px solid rgba(250,204,21,0.4);color:var(--csk-yellow);padding:10px 22px;border-radius:12px;font-weight:700;font-size:13px;letter-spacing:1px;opacity:0;transition:all 0.3s var(--transition-snappy);pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(250,204,21,0.1),inset 0 1px 0 rgba(255,255,255,0.05);backdrop-filter:blur(12px); }
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(250,204,21,0.4);animation:zone-ready 1s ease-in-out infinite}
+@keyframes zone-ready{0%,100%{border-color:rgba(250,204,21,0.2);background:rgba(250,204,21,0.03)}50%{border-color:rgba(250,204,21,0.5);background:rgba(250,204,21,0.08)}}
+#roleWarningBar{ position:relative;z-index:10;max-width:1440px;margin:0 auto;padding:0 16px 6px;display:flex;gap:8px;flex-wrap:wrap;min-height:0; }
+.role-warn{ display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;animation:warn-pop 0.3s var(--transition-snappy); }
+@keyframes warn-pop{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.role-warn.warn{background:rgba(217,119,6,0.12);border:1px solid rgba(217,119,6,0.35);color:#92400e}
+.role-warn.danger{background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.35);color:#991b1b}
+.role-warn.ok{background:rgba(21,128,61,0.10);border:1px solid rgba(21,128,61,0.3);color:#15803d}
+.player-tooltip{ position:fixed;z-index:8000;pointer-events:none;background:#1e3a8a;border:1px solid rgba(250,204,21,0.5);border-radius:12px;padding:12px;width:200px;box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(250,204,21,0.1);opacity:0;transition:opacity 0.18s;font-family:'Barlow Condensed',sans-serif; }
+.player-tooltip.visible{opacity:1}
+.tooltip-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:0.5px}
+.tooltip-stat-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
+.tooltip-stat-row:last-child{border-bottom:none}
+.tooltip-stat-label{font-size:11px;color:#93a5d8;letter-spacing:1px;text-transform:uppercase}
+.tooltip-stat-val{font-size:13px;font-weight:700;color:var(--csk-yellow)}
+.tooltip-role-chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;margin-bottom:8px}
+#suggestModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px); }
+#suggestModal.open{display:flex;animation:fadeIn 0.25s}
+.suggest-panel{ background:#1e3a8a;border:1px solid rgba(250,204,21,0.4);border-top:2px solid var(--csk-yellow);border-radius:18px;width:min(680px,96vw);max-height:90vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--csk-yellow) transparent;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 40px rgba(250,204,21,0.2); color:#fff; }
+.suggest-panel h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--csk-yellow);margin-bottom:4px;}
+.suggest-panel p{font-size:13px;color:#93a5d8;letter-spacing:1px;margin-bottom:20px}
+.suggest-close{ position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(250,204,21,0.15);border:1px solid rgba(250,204,21,0.4);border-radius:8px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+.suggest-close:hover{background:var(--csk-yellow);color:#1e3a8a}
+.suggest-preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:20px}
+.suggest-preset{ background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:left; }
+.suggest-preset:hover{border-color:var(--csk-yellow);background:rgba(250,204,21,0.18);transform:translateY(-2px)}
+.preset-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--csk-yellow);display:block;margin-bottom:3px}
+.preset-desc{font-size:11px;color:#93a5d8;letter-spacing:0.5px}
+.preset-lineup{margin-top:8px;font-size:10px;color:#7c8fc9}
+.suggest-divider{height:1px;background:linear-gradient(90deg,var(--csk-yellow),transparent);margin:20px 0}
+.suggest-preview-title{font-size:11px;letter-spacing:2px;color:var(--csk-yellow);text-transform:uppercase;margin-bottom:12px}
+.suggest-player-row{ display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:6px;border:1px solid transparent;transition:border-color 0.2s; }
+.suggest-player-row:hover{border-color:rgba(250,204,21,0.3)}
+.spr-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--csk-yellow);min-width:20px}
+.spr-name{font-size:14px;font-weight:700;color:#fff;flex:1}
+.spr-role{font-size:10px;color:#93a5d8;letter-spacing:1px}
+.spr-flag{font-size:12px}
+.suggest-apply-btn{ width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,var(--csk-yellow),var(--csk-yellow-dark));border:none;color:#1e3a8a;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;margin-top:16px;box-shadow:0 4px 20px rgba(250,204,21,0.4); }
+.suggest-apply-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(250,204,21,0.6)}
+#imgModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px); }
+#imgModal.open{display:flex;animation:fadeIn 0.25s}
+.img-panel{ background:#1e3a8a;border:1px solid rgba(250,204,21,0.4);border-radius:18px;max-width:96vw;max-height:94vh;overflow:auto;padding:20px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);scrollbar-width:thin;scrollbar-color:var(--csk-yellow) transparent; }
+.img-close{ position:absolute;top:12px;right:12px;width:30px;height:30px;background:rgba(250,204,21,0.15);border:1px solid rgba(250,204,21,0.4);border-radius:8px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:background 0.2s; }
+.img-close:hover{background:var(--csk-yellow);color:#1e3a8a}
+.img-panel canvas{display:block;border-radius:10px;max-width:100%}
+.img-dl-btn{ display:block;width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--csk-yellow),#fff7c2);border:none;border-radius:10px;color:#1e3a8a;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.2s; }
+.img-dl-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(250,204,21,0.5)}
+#drawerScrim  { display: none; }
+#squadDrawer  { display: none; }
+#squadTab     { display: none; }
+@media (max-width: 768px) {
+  body { min-height: unset; height: auto; }
+  header { padding: 6px 10px; height: auto; min-height: 56px; gap: 6px; flex-wrap: wrap; align-items: center; overflow: visible; }
+  .header-logo   { height: 40px; flex-shrink: 0; order: 0; }
+  .header-center { flex: 1; min-width: 0; text-align: left; order: 1; }
+  .header-sub    { display: none; }
+  .header-title  { font-size: 16px; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header-badges { width: 100%; display: flex; flex-wrap: wrap; gap: 5px; padding: 0 0 4px; order: 2; justify-content: flex-start; }
+  .os-badge   { font-size: 10px; padding: 3px 8px; }
+  .header-btn { font-size: 10px; padding: 3px 8px; letter-spacing: 0.3px; }
+  .main { display: block; padding: 6px 8px 8px; position: relative; z-index: 1; flex: none; }
+  .squad { display: none !important; }
+  .field-wrapper { width: 100%; display: flex; flex-direction: column; gap: 6px; overflow: visible; max-height: none; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 8px 8px; }
+  .order-label { font-size: 11px; letter-spacing: 2px; padding: 5px 10px; }
+  .order-section { border-radius: 12px; }
+  .zone { min-height: 0; height: 155px; border-radius: 10px; overflow: hidden; }
+  .zone:empty::before { font-size: 9px; }
+  .selected-player { height: 100%; min-height: unset; padding: 6px 5px 5px; border-radius: 9px; }
+  .card-img-wrap { height: 86px; border-radius: 7px; }
+  .selected-player img { height: 86px; border-radius: 7px; }
+  .card-name { font-size: 10.5px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; line-height: 1.2; }
+  .card-role { font-size: 8.5px; margin-top: 2px; }
+  .captain-badge, .vc-badge { width: 18px; height: 18px; font-size: 10px; top: 4px; left: 4px; }
+  .vc-badge { left: 24px; }
+  /* FIX 1: Always show remove button on mobile — no hover state on touch */
+  .remove-card { width: 18px; height: 18px; font-size: 9px; top: 4px; right: 4px; display: flex !important; }
+  .stats-bar { display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 8px 6px; gap: 6px; scrollbar-width: none; flex: none; width: 100%; max-width: 100vw; box-sizing: border-box; }
+  .stats-bar::-webkit-scrollbar { display: none; }
+  .stat-pill { flex-shrink: 0; font-size: 11px; padding: 5px 10px; gap: 5px; white-space: nowrap; }
+  .stat-pill .stat-bar { width: 24px; }
+  footer { padding: 6px 8px 10px; gap: 4px; flex: none; }
+  .xi-counter { gap: 5px; }
+  .xi-num { font-size: 16px; }
+  .xi-label { font-size: 9px; }
+  .xi-dots { gap: 3px; margin-top: 1px; }
+  .xi-dot { width: 6px; height: 6px; }
+  .footer-actions { gap: 5px; }
+  .share-btn,.print-btn,.img-btn,.suggest-btn { font-size: 10px; padding: 5px 10px; letter-spacing: 1px; background: var(--csk-blue); color: var(--csk-yellow); }
 
-#cskLogo{
-  position:absolute;
-  top:10px;
-  left:16px;
-  height:48px;
-  opacity:.85;
+  /* FIX 3: Squad tab — slides out when drawer is open so it never overlaps player names */
+  #squadTab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    left: 0;
+    top: 50%;
+    margin-top: -52px;
+    z-index: 310;
+    background: #1e3a8a;
+    color: var(--csk-yellow);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    padding: 16px 7px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    box-shadow: 3px 0 16px rgba(30,58,138,0.5);
+    border: 1px solid rgba(250,204,21,0.25);
+    border-right: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    gap: 5px;
+    /* Transition covers both normal bg hover AND the drawer-open slide-out */
+    transition: background 0.2s, left 0.32s cubic-bezier(0.32,0.72,0,1), opacity 0.25s ease;
+  }
+  #squadTab:active { background: #16306e; }
+  /* FIX 3: Hide tab when drawer is open */
+  #squadTab.drawer-open {
+    left: -60px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #squadTab .tab-count { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0; color: rgba(250,204,21,0.75); writing-mode: vertical-lr; }
+  #drawerScrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 299; opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
+  #drawerScrim.visible { opacity: 1; pointer-events: all; }
+  #squadDrawer { display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; width: 78vw; max-width: 300px; z-index: 300; background: var(--csk-surface); border-right: 2px solid var(--csk-yellow); box-shadow: 6px 0 40px rgba(30,58,138,0.35); transform: translateX(-100%); transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1); overflow: hidden; }
+  #squadDrawer.open { transform: translateX(0); }
+  #drawerHandle { flex-shrink: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: linear-gradient(90deg, rgba(250,204,21,0.25) 0%, rgba(250,204,21,0.05) 100%); border-bottom: 1px solid rgba(250,204,21,0.3); cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
+  #drawerHandle::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--csk-yellow), #fff7c2, transparent); }
+  .drawer-handle-left { display: flex; flex-direction: column; gap: 1px; }
+  .drawer-squad-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--csk-yellow); text-shadow: 0 0 12px var(--csk-yellow-glow); line-height: 1; }
+  #drawerSquadCount { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: rgba(250,204,21,0.6); letter-spacing: 1px; }
+  .drawer-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(250,204,21,0.15); border: 1px solid rgba(250,204,21,0.4); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+  .drawer-close:active { background: var(--csk-yellow); color: #1e3a8a; }
+  /* FIX 2: drawerFilters must not shrink — keeps it pinned above scroll area */
+  #drawerFilters { display: flex; gap: 5px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid rgba(250,204,21,0.15); background: var(--csk-surface); flex-shrink: 0; }
+  #drawerFilters .role-filter { font-size: 10px; padding: 3px 8px; }
+  /* FIX 2: overflow-y:scroll (not auto) + touch-action:pan-y for iOS native scroll */
+  #drawerBody {
+    flex: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 10px 24px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--csk-yellow) transparent;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+  #drawerBody::-webkit-scrollbar { width: 3px; }
+  #drawerBody::-webkit-scrollbar-thumb { background: var(--csk-yellow); border-radius: 3px; }
+  #drawerSquadList .squad-group-title { font-size: 9px; letter-spacing: 1.5px; margin: 8px 0 3px; }
+  #drawerSquadList .player { font-size: 12px; padding: 8px 10px; border-radius: 8px; min-height: 44px; }
+  #drawerSquadList .player > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+  #drawerSquadList .role-pill { font-size: 8px; padding: 2px 5px; }
+  #drawerSquadList .os-flag { font-size: 10px; }
+  .role-warn { font-size: 10px; padding: 5px 10px; }
+  #roleWarningBar { padding: 0 8px 4px; }
+  /* FIX 1: Disable tooltips entirely on touch devices */
+  .player-tooltip { display: none !important; }
 }
-
-.header-actions{
-  position:absolute;
-  right:20px;
-  top:50%;
-  transform:translateY(-50%);
-  display:flex;
-  gap:10px;
+@media print {
+  header, .squad, .stats-bar, #roleWarningBar, footer, #squadTab, #drawerScrim, #squadDrawer, body::before, body::after { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .main { display: block !important; padding: 10px !important; max-width: 100% !important; }
+  .field-wrapper { display: block !important; }
+  .order-section { background: #fff !important; border: 1px solid #ccc !important; margin-bottom: 12px; break-inside: avoid; }
+  .order-label { color: #1e3a8a !important; background: none !important; border-bottom: 1px solid #eee !important; }
+  .row { grid-template-columns: repeat(4, 1fr) !important; }
+  .zone { border: 1px dashed #ccc !important; min-height: 140px !important; background: #fafafa !important; }
+  .selected-player { box-shadow: none !important; }
+  .remove-card { display: none !important; }
+  .captain-badge, .vc-badge { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
-
-#resetBtn,
-#captainBtn{
-  padding:6px 14px;
-  border:none;
-  border-radius:8px;
-  font-weight:800;
-  cursor:pointer;
-}
-
-
-#captainBtn,#resetBtn{
-  background:#facc15;
-  color:#1e3a8a;
-}
-
-#resetBtn:hover,
-#captainBtn:hover{
-  opacity:.9;
-}
-.main{display:grid;grid-template-columns:300px 1fr;gap:20px;padding:20px}
-
-.squad{
-  background:#1e3a8a;border-radius:14px;
-  padding:14px;min-height:520px;color:#facc15
-}
-.player{
-  padding:8px;margin:6px 0;
-  background:#facc15;border-radius:8px;
-  cursor:grab;color:#1e3a8a;font-weight:600
-}
-.player.used{opacity:.45;cursor:not-allowed}
-
-.field{display:grid;grid-template-rows:repeat(3,1fr);gap:20px}
-.row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.row-title{
-  grid-column:1/-1;text-align:center;
-  font-weight:bold;color:#1e3a8a
-}
-
-.zone{
-  background:#020617;border-radius:14px;
-  min-height:170px;
-  display:flex;align-items:center;justify-content:center;
-  border:5px solid #1e3a8a;padding:10px
-}
-.zone.impact{border:5px dashed #1e3a8a }
-
-.selected-player{
-  background:#fff;border-radius:12px;
-  padding:12px;width:100%;height:100%;
-  box-sizing:border-box;position:relative;
-  cursor:grab
-}
-.selected-player img{
-  width:100%;height:120px;
-  object-fit:cover;object-position:center top;
-  border-radius:8px
-}
-
-.selected-player .name{
-  margin-top:8px;
-  font-weight:700;
-  text-align:center;
-  letter-spacing:.6px;
-  transition:transform .2s,color .2s
-}
-.selected-player .role{
-  font-size:12px;
-  text-align:center;
-  margin-top:4px;
-  color:#475569;
-  transition:opacity .2s
-}
-.selected-player:hover .name{
-  transform:scale(1.05);
-  color:#1e3a8a
-}
-.selected-player:hover .role{opacity:.85}
-
-.captain-badge{
-  position:absolute;top:6px;left:6px;
-  background:#facc15;color:#fff;
-  font-weight:bold;font-size:12px;
-  padding:4px 8px;border-radius:6px
-}
-
-footer{text-align:center;padding:14px}
-#xiCount{font-weight:bold}
 </style>
 </head>
-
 <body>
-
 <header>
-  <img id="cskLogo" src="https://documents.iplt20.com/ipl/CSK/Logos/Logooutline/CSKoutline.png" alt="CSK Logo">
-  CHENNAI SUPER KINGS PLAYING XII
-  <div class="header-actions">
-       <button id="captainBtn">SELECT CAPTAIN</button>
-       <button id="resetBtn">RESET TEAM</button>
+  <img class="header-logo" src="https://documents.iplt20.com/ipl/CSK/Logos/Logooutline/CSKoutline.png" alt="CSK">
+  <div class="header-center">
+    <div class="header-title">Chennai Super Kings <span style="font-size:clamp(14px,1.8vw,22px);letter-spacing:2px;" title="IPL Champions">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+    <div class="header-sub">Playing XI Builder &mdash; IPL 2026</div>
+  </div>
+  <div class="header-badges">
+    <div class="os-badge" id="osBadge">Overseas: 0 / 4</div>
+    <button class="header-btn" id="captainBtn">&#11088; Captain</button>
+    <button class="header-btn" id="vcBtn">&#128304; Vice Captain</button>
+    <button class="header-btn" id="resetBtn">&#8634; Reset</button>
   </div>
 </header>
 
 <div class="main">
-
-<div class="squad">
-<h3 style="text-align:center;margin-top:0">CSK SQUAD</h3>
-<div id="squadList"></div>
+  <div class="squad">
+    <div class="squad-header">
+      <h3>Squad</h3>
+      <span id="squadCount" style="color:var(--csk-yellow);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;">25 players</span>
+    </div>
+    <div class="role-filters" id="roleFilters">
+      <div class="role-filter active" data-role="ALL">ALL</div>
+      <div class="role-filter" data-role="BAT">BAT</div>
+      <div class="role-filter" data-role="WK">WK</div>
+      <div class="role-filter" data-role="AR">AR</div>
+      <div class="role-filter" data-role="BOWL">BOWL</div>
+    </div>
+    <div id="squadList"></div>
+  </div>
+  <div class="field-wrapper">
+    <div class="order-section">
+      <div class="order-label">Top Order</div>
+      <div class="row" id="row-top">
+        <div class="zone" data-pos="0"></div>
+        <div class="zone" data-pos="1"></div>
+        <div class="zone" data-pos="2"></div>
+        <div class="zone" data-pos="3"></div>
+      </div>
+    </div>
+    <div class="order-section">
+      <div class="order-label">Middle Order</div>
+      <div class="row" id="row-mid">
+        <div class="zone" data-pos="4"></div>
+        <div class="zone" data-pos="5"></div>
+        <div class="zone" data-pos="6"></div>
+        <div class="zone" data-pos="7"></div>
+      </div>
+    </div>
+    <div class="order-section">
+      <div class="order-label">Lower Order + Impact Player</div>
+      <div class="row impact-row" id="row-low">
+        <div class="zone" data-pos="8"></div>
+        <div class="zone" data-pos="9"></div>
+        <div class="zone" data-pos="10"></div>
+        <div class="zone" data-pos="11" title="Impact Player slot"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="field">
-  <div class="row">
-    <div class="row-title">TOP ORDER</div>
-    <div class="zone"></div><div class="zone"></div>
-    <div class="zone"></div><div class="zone"></div>
+<button id="squadTab" aria-label="Open squad">SQUAD<span class="tab-count" id="tabCount">25</span></button>
+<div id="drawerScrim"></div>
+<div id="squadDrawer">
+  <div id="drawerHandle">
+    <div class="drawer-handle-left">
+      <span class="drawer-squad-title">Squad</span>
+      <span id="drawerSquadCount">25 available</span>
+    </div>
+    <div class="drawer-close" id="drawerClose">&#10005;</div>
   </div>
-  <div class="row">
-    <div class="row-title">MIDDLE ORDER</div>
-    <div class="zone"></div><div class="zone"></div>
-    <div class="zone"></div><div class="zone"></div>
+  <div id="drawerFilters">
+    <div class="role-filter active" data-role="ALL">ALL</div>
+    <div class="role-filter" data-role="BAT">BAT</div>
+    <div class="role-filter" data-role="WK">WK</div>
+    <div class="role-filter" data-role="AR">AR</div>
+    <div class="role-filter" data-role="BOWL">BOWL</div>
   </div>
-  <div class="row">
-    <div class="row-title">LOWER ORDER + IMPACT</div>
-    <div class="zone"></div><div class="zone"></div>
-    <div class="zone"></div><div class="zone impact"></div>
-  </div>
+  <div id="drawerBody"><div id="drawerSquadList"></div></div>
 </div>
 
+<div id="roleWarningBar"></div>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat-pill"><span>BATTERS</span><div class="stat-bar"><div class="stat-fill" id="sfBAT" style="background:#4ade80;width:0%"></div></div><span class="stat-val" id="svBAT">0</span></div>
+  <div class="stat-pill"><span>WK</span><div class="stat-bar"><div class="stat-fill" id="sfWK" style="background:#60a5fa;width:0%"></div></div><span class="stat-val" id="svWK">0</span></div>
+  <div class="stat-pill"><span>ALL-ROUNDERS</span><div class="stat-bar"><div class="stat-fill" id="sfAR" style="background:#fbbf24;width:0%"></div></div><span class="stat-val" id="svAR">0</span></div>
+  <div class="stat-pill"><span>BOWLERS</span><div class="stat-bar"><div class="stat-fill" id="sfBOWL" style="background:#f87171;width:0%"></div></div><span class="stat-val" id="svBOWL">0</span></div>
+  <div class="stat-pill"><span>OVERSEAS</span><div class="stat-bar"><div class="stat-fill" id="sfOS" style="background:#facc15;width:0%"></div></div><span class="stat-val" id="svOS">0</span></div>
 </div>
 
 <footer>
-<div id="xiCount">Selected: 0 / 11 + 1 Impact</div>
+  <div class="xi-counter">
+    <span class="xi-label">SELECTED</span>
+    <span class="xi-num" id="xiNum">0</span>
+    <span class="xi-label">/ 11 + 1</span>
+  </div>
+  <div class="xi-dots" id="xiDots"></div>
+  <div class="footer-actions">
+    <button class="suggest-btn" onclick="openSuggest()">AUTO-SUGGEST XI</button>
+    <button class="share-btn" onclick="openShare()">SHARE XI</button>
+    <button class="print-btn" onclick="printXI()">PRINT XI</button>
+    <button class="img-btn" onclick="generateImage()">GENERATE IMAGE</button>
+  </div>
 </footer>
 
+<div id="toast"></div>
+<div class="player-tooltip" id="playerTooltip"></div>
+
+<div id="suggestModal">
+  <div class="suggest-panel">
+    <button class="suggest-close" onclick="closeSuggest()">&#10005;</button>
+    <h2>Auto-Suggest XI</h2>
+    <p>CHOOSE A STRATEGY OR LET US PICK THE BEST BALANCED TEAM</p>
+    <div class="suggest-preset-grid" id="presetGrid"></div>
+    <div class="suggest-divider"></div>
+    <div class="suggest-preview-title" id="previewTitle">PREVIEW &mdash; SELECT A STRATEGY ABOVE</div>
+    <div id="suggestPreview"></div>
+    <button class="suggest-apply-btn" id="suggestApplyBtn" onclick="applySuggest()">&#9889; APPLY THIS XI</button>
+  </div>
+</div>
+
+<div id="imgModal">
+  <div class="img-panel">
+    <button class="img-close" onclick="closeImgModal()">&#10005;</button>
+    <canvas id="xiCanvas"></canvas>
+    <button class="img-dl-btn" onclick="downloadImage()">&#8681; DOWNLOAD XI IMAGE</button>
+  </div>
+</div>
+
 <script>
-const fallbackImg="https://via.placeholder.com/120";
-let draggingCard=null;
-let selectingCaptain=false;
+const fallbackImg = "https://placehold.co/120x110/1e3a8a/facc15?text=?";
+let selectingCaptain = false, selectingVC = false;
+let captainName = null, vcName = null;
+let activeFilter = "ALL";
+let currentSuggestXI = null;
+function autoCollapseDrawer() {}
 
-/* FULL 25-MAN CSK SQUAD */
-const squad=[
-{name:"MS DHONI",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/57.png"},
-{name:"RUTURAJ GAIKWAD",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/102.png"},
-{name:"DEWALD BREVIS",role:"BATTER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/797.png"},
-{name:"AYUSH MHATRE",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3497.png"},
-{name:"URVIL PATEL",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1486.png"},
-{name:"SANJU SAMSON",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/190.png"},
-{name:"KARTHIK SHARMA",role:"WK-BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4540.png"},
-{name:"SARFARAZ KHAN",role:"BATTER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/139.png"},
-
-{name:"SHIVAM DUBE",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/211.png"},
-{name:"ANSHUL KAMBOJ",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3106.png"},
-{name:"RAMAKRISHNA GHOSH",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3559.png"},
-{name:"PRASHANT VEER",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4541.png"},
-{name:"AMAN KHAN",role:"ALL-ROUNDER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/979.png"},
-{name:"JAMIE OVERTON",role:"ALL-ROUNDER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1216.png"},
-{name:"MATTHEW SHORT",role:"ALL-ROUNDER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2032.png"},
-{name:"ZAK FOULKES",role:"ALL-ROUNDER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3493.png"},
-
-{name:"KHALEEL AHMED",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/8.png"},
-{name:"NOOR AHMED",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/975.png"},
-{name:"MUKESH CHOUDHARY",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/970.png"},
-{name:"SPENCER JOHNSON",role:"BOWLER",country:"OS",img:""},
-{name:"SHREYAS GOPAL",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/192.png"},
-{name:"GURJAPNEET SINGH",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2256.png"},
-{name:"AKEAL HOSEIN",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/722.png"},
-{name:"RAHUL CHAHAR",role:"BOWLER",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/171.png"},
-{name:"MATT HENRY",role:"BOWLER",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/71.png"}
+const squad = [
+  {name:"MS Dhoni",role:"WK",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/57.png",stats:{matches:264,runs:5243,avg:38.1,sr:135.9,wickets:0,economy:0}},
+  {name:"Ruturaj Gaikwad",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/102.png",stats:{matches:78,runs:2932,avg:42.5,sr:136.7,wickets:0,economy:0}},
+  {name:"Dewald Brevis",role:"BAT",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/797.png",stats:{matches:14,runs:312,avg:26.0,sr:148.6,wickets:0,economy:0}},
+  {name:"Ayush Mhatre",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3497.png",stats:{matches:6,runs:178,avg:29.7,sr:151.2,wickets:0,economy:0}},
+  {name:"Urvil Patel",role:"WK",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1486.png",stats:{matches:5,runs:96,avg:24.0,sr:158.4,wickets:0,economy:0}},
+  {name:"Sanju Samson",role:"WK",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/190.png",stats:{matches:177,runs:4704,avg:30.5,sr:138.6,wickets:0,economy:0}},
+  {name:"Karthik Sharma",role:"WK",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4540.png",stats:{matches:3,runs:42,avg:21.0,sr:120.0,wickets:0,economy:0}},
+  {name:"Sarfaraz Khan",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/139.png",stats:{matches:21,runs:421,avg:25.1,sr:128.4,wickets:0,economy:0}},
+  {name:"Shivam Dube",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/211.png",stats:{matches:84,runs:1789,avg:29.3,sr:155.1,wickets:18,economy:9.6}},
+  {name:"Anshul Kamboj",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3106.png",stats:{matches:9,runs:34,avg:11.3,sr:113.3,wickets:11,economy:8.9}},
+  {name:"Ramakrishna Ghosh",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3559.png",stats:{matches:4,runs:18,avg:9.0,sr:105.9,wickets:5,economy:9.4}},
+  {name:"Prashant Veer",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4541.png",stats:{matches:3,runs:22,avg:11.0,sr:110.0,wickets:3,economy:9.8}},
+  {name:"Aman Khan",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/979.png",stats:{matches:11,runs:156,avg:19.5,sr:131.6,wickets:6,economy:9.2}},
+  {name:"Jamie Overton",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1216.png",stats:{matches:16,runs:198,avg:22.0,sr:140.4,wickets:14,economy:9.1}},
+  {name:"Matthew Short",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2032.png",stats:{matches:18,runs:412,avg:25.8,sr:142.1,wickets:9,economy:8.7}},
+  {name:"Zak Foulkes",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/3493.png",stats:{matches:5,runs:28,avg:9.3,sr:108.0,wickets:7,economy:9.0}},
+  {name:"Khaleel Ahmed",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/8.png",stats:{matches:88,runs:24,avg:6.0,sr:60.0,wickets:96,economy:8.9}},
+  {name:"Noor Ahmed",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/975.png",stats:{matches:36,runs:18,avg:6.0,sr:64.3,wickets:48,economy:7.4}},
+  {name:"Mukesh Choudhary",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/970.png",stats:{matches:28,runs:10,avg:5.0,sr:55.6,wickets:31,economy:8.8}},
+  {name:"Spencer Johnson",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1379.png",stats:{matches:7,runs:2,avg:2.0,sr:50.0,wickets:8,economy:9.5}},
+  {name:"Shreyas Gopal",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/192.png",stats:{matches:62,runs:182,avg:14.0,sr:108.9,wickets:54,economy:7.9}},
+  {name:"Gurjapneet Singh",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/2256.png",stats:{matches:12,runs:4,avg:4.0,sr:50.0,wickets:14,economy:8.6}},
+  {name:"Akeal Hosein",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/722.png",stats:{matches:38,runs:62,avg:8.9,sr:98.4,wickets:42,economy:7.6}},
+  {name:"Rahul Chahar",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/171.png",stats:{matches:84,runs:48,avg:6.9,sr:78.7,wickets:78,economy:7.9}},
+  {name:"Matt Henry",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/71.png",stats:{matches:9,runs:6,avg:6.0,sr:60.0,wickets:11,economy:8.3}},
 ];
 
-const squadList=document.getElementById("squadList");
-const zones=[...document.querySelectorAll(".zone")];
-const captainBtn=document.getElementById("captainBtn");
-const xiCount=document.getElementById("xiCount");
+const presets = [
+  {label:"Balanced XI",desc:"Classic 5-3-3 setup",lineup:"2 WK-BAT / 3 BAT / 2 AR / 4 BOWL",indices:[1,0,2,7,8,13,11,9,16,17,23,18]},
+  {label:"Batting Heavy",desc:"Stack the order, dominate powerplay",lineup:"4 BAT / 1 WK-BAT / 3 AR / 3 BOWL",indices:[1,2,3,7,0,8,13,9,16,17,23,18]},
+  {label:"Bowling Attack",desc:"Wicket-taking machine",lineup:"3 BAT / 1 WK / 3 AR / 4 BOWL",indices:[1,2,7,0,8,13,9,16,17,18,23,21]},
+  {label:"Spin-Heavy",desc:"Pitch-friendly spin arsenal",lineup:"3 BAT / 1 WK / 3 AR / 4 SPIN",indices:[1,2,7,0,8,9,13,17,21,23,16,18]},
+  {label:"Power Hitters",desc:"T20 assault mode",lineup:"2 WK-BAT / 3 BAT / 4 AR / 2 BOWL",indices:[1,0,2,3,8,9,13,14,11,16,18,23]},
+  {label:"Thala's Choice",desc:"Dhoni leads this unit",lineup:"3 BAT / 1 WK / 3 AR / 4 BOWL",indices:[0,1,2,7,8,9,13,16,17,18,21,23]}
+];
 
-function createCard(p,idx){
-  const card=document.createElement("div");
-  card.className="selected-player";
-  card.dataset.idx=idx;
-  card.draggable=true;
-  card.innerHTML=`
-    <img src="${p.img||fallbackImg}">
-    <div class="name">${p.name}${p.country==="OS"?" ✈️":""}</div>
-    <div class="role">${p.role}</div>
-  `;
-  card.onclick=()=>{
-    if(!selectingCaptain) return;
-    document.querySelectorAll(".captain-badge").forEach(b=>b.remove());
-    const b=document.createElement("div");
-    b.className="captain-badge";b.textContent="C";
-    card.appendChild(b);
-    selectingCaptain=false;
-    captainBtn.classList.remove("active");
-    saveTeam();
+const squadList = document.getElementById("squadList");
+const zones = [...document.querySelectorAll(".zone")];
+const captainBtn = document.getElementById("captainBtn");
+const vcBtn = document.getElementById("vcBtn");
+const osBadge = document.getElementById("osBadge");
+const tooltip = document.getElementById("playerTooltip");
+
+let touchDragData = null, lastHoveredZone = null;
+
+let toastTimer;
+function toast(msg, duration = 2200) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), duration);
+}
+
+function countOverseas() {
+  let n = 0;
+  document.querySelectorAll(".selected-player").forEach(c => { if (squad[c.dataset.idx]?.country === "OS") n++; });
+  return n;
+}
+
+function updateOsBadge() {
+  const c = countOverseas();
+  osBadge.textContent = "Overseas: " + c + " / 4";
+  osBadge.classList.toggle("over-limit", c > 4);
+}
+
+function updateRoleWarnings() {
+  const bar = document.getElementById("roleWarningBar");
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const n = cards.length;
+  if (n === 0) { bar.innerHTML = ""; return; }
+  const count = { BAT:0, WK:0, AR:0, BOWL:0, OS:0 };
+  cards.forEach(c => { const p = squad[c.dataset.idx]; if (!p) return; count[p.role]++; if (p.country === "OS") count.OS++; });
+  const warns = [];
+  if (n >= 7) {
+    if (count.WK === 0) warns.push({cls:"danger", msg:"No Wicket-Keeper selected!"});
+    else if (count.WK > 2) warns.push({cls:"warn", msg:count.WK + " Keepers — consider reducing"});
+    if (count.BOWL < 3 && n >= 9) warns.push({cls:"warn", msg:"Only " + count.BOWL + " Bowler" + (count.BOWL===1?"":"s") + " — need at least 3"});
+    if (count.BAT + count.WK < 3 && n >= 9) warns.push({cls:"warn", msg:"Too few Batters in top order"});
+  }
+  if (count.OS > 4) warns.push({cls:"danger", msg:count.OS + " Overseas — max 4 allowed!"});
+  if (n === 11 && warns.length === 0) warns.push({cls:"ok", msg:"Valid Playing XI — Whistle Podu!"});
+  bar.innerHTML = warns.map(w => '<div class="role-warn ' + w.cls + '">' + w.msg + '</div>').join("");
+}
+
+function updateCount() {
+  const n = document.querySelectorAll(".selected-player").length;
+  const xiNum = document.getElementById("xiNum");
+  const xiDots = document.getElementById("xiDots");
+  if (xiNum) xiNum.textContent = n;
+  if (xiDots) {
+    xiDots.innerHTML = "";
+    for (let i = 0; i < 12; i++) {
+      const dot = document.createElement("div");
+      dot.className = "xi-dot" + (i < n ? (i === 11 ? " impact" : " filled") : "");
+      xiDots.appendChild(dot);
+    }
+  }
+  updateOsBadge(); updateStats(); updateRoleWarnings();
+  if (n === 11 || n === 12) fireConfetti();
+  else confettiFired = false;
+}
+
+const roleMeta = { BAT:{label:"Batter",color:"#15803d"}, WK:{label:"Wicket-Keeper",color:"#1e40af"}, AR:{label:"All-Rounder",color:"#92400e"}, BOWL:{label:"Bowler",color:"#991b1b"} };
+
+// FIX 1: Guard showTooltip so it never fires on mobile/touch devices
+function showTooltip(p, x, y) {
+  if (isMobile()) return;
+  if (!p) return;
+  const rm = roleMeta[p.role] || {};
+  const hasWickets = p.role === "BOWL" || p.role === "AR";
+  const hasBatStats = p.role === "BAT" || p.role === "WK" || p.role === "AR";
+  tooltip.innerHTML =
+    '<div class="tooltip-name">' + p.name + (p.country === "OS" ? " ✈️" : "") + '</div>' +
+    '<span class="tooltip-role-chip role-' + p.role + '" style="background:rgba(255,255,255,0.1);color:' + rm.color + ';border:1px solid ' + rm.color + '40">' + (rm.label || p.role) + '</span>' +
+    (hasBatStats ?
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Matches</span><span class="tooltip-stat-val">' + p.stats.matches + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Runs</span><span class="tooltip-stat-val">' + p.stats.runs + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Avg</span><span class="tooltip-stat-val">' + p.stats.avg + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">S/R</span><span class="tooltip-stat-val">' + p.stats.sr + '</span></div>' : "") +
+    (hasWickets && p.stats.wickets > 0 ?
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Wickets</span><span class="tooltip-stat-val">' + p.stats.wickets + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Economy</span><span class="tooltip-stat-val">' + p.stats.economy + '</span></div>' : "");
+  const tw = 210, th = 200;
+  let lx = x + 14, ly = y - 20;
+  if (lx + tw > window.innerWidth - 10) lx = x - tw - 10;
+  if (ly + th > window.innerHeight - 10) ly = window.innerHeight - th - 10;
+  if (ly < 10) ly = 10;
+  tooltip.style.left = lx + "px";
+  tooltip.style.top = ly + "px";
+  tooltip.classList.add("visible");
+}
+function hideTooltip() { tooltip.classList.remove("visible"); }
+
+function zoneFromPoint(x, y) {
+  const ghost = touchDragData?.ghost;
+  if (ghost) ghost.style.display = "none";
+  const el = document.elementFromPoint(x, y);
+  if (ghost) ghost.style.display = "";
+  return el?.closest(".zone") || null;
+}
+
+function dropOnZone(z, type, idx, sourceZone, draggingCardEl) {
+  if (type === "squad") {
+    if (z.querySelector(".selected-player")) { toast("Slot is occupied!"); return; }
+    if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
+    const card = createCard(squad[idx], idx);
+    z.appendChild(card);
+    squad[idx].used = true;
+    renderSquad(); updateCount(); saveTeam();
+    autoCollapseDrawer();
+  } else if (type === "card" && draggingCardEl) {
+    const targetCard = z.querySelector(".selected-player");
+    if (targetCard && sourceZone) {
+      sourceZone.appendChild(targetCard);
+      z.appendChild(draggingCardEl);
+    } else if (!targetCard) {
+      z.appendChild(draggingCardEl);
+    }
+    draggingCardEl.style.opacity = "1";
+    updateCount(); saveTeam();
+  }
+}
+
+function renderSquad() {
+  const render = (container, showGroupTitles) => {
+    container.innerHTML = "";
+    const groups = { BAT: [], WK: [], AR: [], BOWL: [] };
+    squad.forEach((p, i) => groups[p.role]?.push({ p, i }));
+    const labels = { BAT: "Batters", WK: "Keepers", AR: "All-Rounders", BOWL: "Bowlers" };
+    Object.entries(groups).forEach(([role, players]) => {
+      if (activeFilter !== "ALL" && activeFilter !== role) return;
+      if (!players.length) return;
+      if (showGroupTitles) {
+        const gt = document.createElement("div");
+        gt.className = "squad-group-title";
+        gt.textContent = labels[role];
+        container.appendChild(gt);
+      }
+      players.forEach(({ p, i }) => {
+        if (activeFilter !== "ALL" && p.role !== activeFilter) return;
+        const d = document.createElement("div");
+        d.className = "player" + (p.used ? " used" : "");
+        d.draggable = !p.used;
+        d.innerHTML = '<span>' + p.name + '</span><span class="player-badges">' + (p.country === "OS" ? '<span class="os-flag">✈️</span>' : "") + '<span class="role-pill role-' + p.role + '">' + p.role + '</span></span>';
+        if (!p.used) {
+          // FIX 1: Only attach mouse tooltip listeners on desktop
+          if (!isMobile()) {
+            d.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+            d.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+            d.addEventListener("mouseleave", hideTooltip);
+          }
+          d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); hideTooltip(); };
+          d.ondragend = () => document.body.classList.remove("is-dragging");
+
+          // FIX 2: Use a hold-timer to distinguish scroll vs drag.
+          // passive:true on touchstart lets the browser scroll naturally.
+          // Only after 180ms hold without vertical movement do we initiate drag.
+          let touchTimer = null;
+          let touchStartX = 0, touchStartY = 0;
+          let touchScrolling = false;
+
+          d.addEventListener("touchstart", e => {
+            if (p.used) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchScrolling = false;
+            touchTimer = setTimeout(() => {
+              if (touchScrolling) return;
+              // Confirmed drag intent — safe to prevent default now via touchmove
+              const touch = e.touches[0];
+              const rect = d.getBoundingClientRect();
+              const ghost = d.cloneNode(true);
+              ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:9px;box-shadow:0 8px 30px rgba(30,58,138,0.5);transform:scale(1.05);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
+              document.body.appendChild(ghost);
+              touchDragData = { type:"squad", idx:i, sourceZone:null, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
+              document.body.classList.add("is-dragging");
+            }, 180);
+          }, { passive: true }); // passive:true = browser can scroll without waiting for JS
+
+          d.addEventListener("touchmove", e => {
+            if (!touchTimer && !touchDragData) return;
+            const dx = Math.abs(e.touches[0].clientX - touchStartX);
+            const dy = Math.abs(e.touches[0].clientY - touchStartY);
+            // Vertical movement before drag started = scroll intent, cancel drag
+            if (!touchDragData && dy > dx && dy > 6) {
+              touchScrolling = true;
+              clearTimeout(touchTimer);
+              touchTimer = null;
+            }
+          }, { passive: true });
+
+          d.addEventListener("touchend", () => {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+          }, { passive: true });
+
+          d.addEventListener("touchcancel", () => {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+          });
+        }
+        container.appendChild(d);
+      });
+    });
   };
-  card.ondragstart=e=>{
-    draggingCard=card;
-    e.dataTransfer.setData("from","field");
+  render(squadList, true);
+  const drawerList = document.getElementById("drawerSquadList");
+  if (drawerList) render(drawerList, true);
+  const available = squad.filter(p => !p.used).length;
+  document.getElementById("squadCount").textContent = available + " available";
+  const dc = document.getElementById("drawerSquadCount");
+  if (dc) dc.textContent = available + " available";
+  const tc = document.getElementById("tabCount");
+  if (tc) tc.textContent = available;
+}
+
+function createCard(p, idx) {
+  const card = document.createElement("div");
+  card.className = "selected-player";
+  card.dataset.idx = idx;
+  card.draggable = true;
+  card.innerHTML =
+    '<div class="card-img-wrap"><img src="' + (p.img || fallbackImg) + '" onerror="this.src=\'' + fallbackImg + '\'"></div>' +
+    '<div class="card-name">' + p.name + (p.country === "OS" ? " ✈️" : "") + '</div>' +
+    '<div class="card-role">' + p.role + '</div>' +
+    '<button class="remove-card" title="Remove">✕</button>';
+
+  refreshBadges(card, p.name);
+
+  // FIX 1: Only attach mouse tooltip on desktop
+  if (!isMobile()) {
+    card.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+    card.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+    card.addEventListener("mouseleave", hideTooltip);
+  }
+
+  card.querySelector(".remove-card").addEventListener("click", e => {
+    e.stopPropagation();
+    hideTooltip();
+    const i = parseInt(card.dataset.idx);
+    card.style.transition = "all 0.3s cubic-bezier(0.4,0,1,1)";
+    card.style.transform = "scale(0.7) translateY(-10px)";
+    card.style.opacity = "0";
+    setTimeout(() => {
+      if (card.parentElement) card.parentElement.innerHTML = "";
+      squad[i].used = false;
+      if (captainName === squad[i].name) captainName = null;
+      if (vcName === squad[i].name) vcName = null;
+      renderSquad(); updateCount(); saveTeam();
+    }, 280);
+  });
+
+  card.addEventListener("click", () => {
+    if (selectingCaptain) {
+      captainName = p.name; selectingCaptain = false;
+      captainBtn.classList.remove("active");
+      setSelectionHint(null); refreshAllBadges(); saveTeam();
+      toast(p.name + " named Captain ⭐");
+    } else if (selectingVC) {
+      vcName = p.name; selectingVC = false;
+      vcBtn.classList.remove("active");
+      setSelectionHint(null); refreshAllBadges(); saveTeam();
+      toast(p.name + " named Vice Captain 🔰");
+    }
+  });
+
+  card.ondragstart = e => {
+    e.dataTransfer.setData("fromField", "1");
+    e.dataTransfer.setData("cardIdx", idx);
+    document.body.classList.add("is-dragging");
+    hideTooltip();
+    setTimeout(() => card.style.opacity = "0.4", 0);
   };
+  card.ondragend = () => { card.style.opacity = "1"; document.body.classList.remove("is-dragging"); };
+
+  let touchStartX = 0, touchStartY = 0, touchMoved = false;
+  card.addEventListener("touchstart", e => {
+    if (e.target.classList.contains("remove-card")) return;
+    if (selectingCaptain || selectingVC) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+      return;
+    }
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = card.getBoundingClientRect();
+    const ghost = card.cloneNode(true);
+    ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:11px;box-shadow:0 10px 35px rgba(30,58,138,0.5);transform:scale(1.06);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
+    document.body.appendChild(ghost);
+    touchDragData = { type:"card", idx, sourceZone:card.closest(".zone"), cardEl:card, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
+    card.style.opacity = "0.3";
+    document.body.classList.add("is-dragging");
+  }, { passive: false });
+
+  card.addEventListener("touchmove", e => {
+    if (selectingCaptain || selectingVC) {
+      const dx = e.touches[0].clientX - touchStartX;
+      const dy = e.touches[0].clientY - touchStartY;
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) touchMoved = true;
+    }
+  }, { passive: true });
+
+  card.addEventListener("touchend", e => {
+    if (e.target.classList.contains("remove-card")) return;
+    if ((selectingCaptain || selectingVC) && !touchMoved) {
+      e.preventDefault();
+      if (selectingCaptain) {
+        captainName = p.name; selectingCaptain = false;
+        captainBtn.classList.remove("active");
+        setSelectionHint(null); refreshAllBadges(); saveTeam();
+        toast(p.name + " named Captain ⭐");
+      } else if (selectingVC) {
+        vcName = p.name; selectingVC = false;
+        vcBtn.classList.remove("active");
+        setSelectionHint(null); refreshAllBadges(); saveTeam();
+        toast(p.name + " named Vice Captain 🔰");
+      }
+    }
+  }, { passive: false });
+
   return card;
 }
 
-function renderSquad(){
-  squadList.innerHTML="";
-  squad.forEach((p,i)=>{
-    const d=document.createElement("div");
-    d.className="player"+(p.used?" used":"");
-    d.textContent=p.name;
-    d.draggable=!p.used;
-    d.ondragstart=e=>{
-      e.dataTransfer.setData("from","squad");
-      e.dataTransfer.setData("idx",i);
-    };
-    squadList.appendChild(d);
-  });
-}
+document.addEventListener("touchmove", e => {
+  if (!touchDragData) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  const { ghost, offsetX, offsetY } = touchDragData;
+  ghost.style.left = (touch.clientX - offsetX) + "px";
+  ghost.style.top  = (touch.clientY - offsetY) + "px";
+  if (isMobile() && touchDragData.type === "squad") {
+    const drawer = document.getElementById("squadDrawer");
+    if (drawer && drawer.classList.contains("open")) {
+      const dr = drawer.getBoundingClientRect();
+      if (touch.clientX > dr.right + 20) closeDrawer();
+    }
+  }
+  const z = zoneFromPoint(touch.clientX, touch.clientY);
+  if (z !== lastHoveredZone) {
+    if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
+    if (z) z.classList.add("drag-over");
+    lastHoveredZone = z;
+  }
+}, { passive: false });
 
-function updateCount(){
-  xiCount.textContent=
-   `Selected: ${document.querySelectorAll(".selected-player").length} / 11 + 1 Impact`;
-}
+document.addEventListener("touchend", e => {
+  if (!touchDragData) return;
+  const touch = e.changedTouches[0];
+  const { type, idx, sourceZone, cardEl, ghost } = touchDragData;
+  ghost.remove();
+  if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
+  document.body.classList.remove("is-dragging");
+  const z = zoneFromPoint(touch.clientX, touch.clientY);
+  if (z) dropOnZone(z, type, idx, sourceZone, cardEl);
+  else if (cardEl) cardEl.style.opacity = "1";
+  lastHoveredZone = null; touchDragData = null;
+});
 
-zones.forEach(z=>{
-  z.ondragover=e=>e.preventDefault();
-  z.ondrop=e=>{
+document.addEventListener("touchcancel", () => {
+  if (!touchDragData) return;
+  touchDragData.ghost.remove();
+  if (touchDragData.cardEl) touchDragData.cardEl.style.opacity = "1";
+  if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
+  document.body.classList.remove("is-dragging");
+  lastHoveredZone = null; touchDragData = null;
+});
+
+zones.forEach(z => {
+  z.ondragover = e => { e.preventDefault(); z.classList.add("drag-over"); };
+  z.ondragleave = e => { if (!z.contains(e.relatedTarget)) z.classList.remove("drag-over"); };
+  z.ondrop = e => {
     e.preventDefault();
-    const from=e.dataTransfer.getData("from");
-    const idx=e.dataTransfer.getData("idx");
-
-    if(from==="squad"){
-      if(z.children.length||document.querySelectorAll(".selected-player").length>=12) return;
-      z.appendChild(createCard(squad[idx],idx));
-      squad[idx].used=true;
+    z.classList.remove("drag-over");
+    document.body.classList.remove("is-dragging");
+    const fromSquadIdx = e.dataTransfer.getData("fromSquad");
+    const isFromField  = e.dataTransfer.getData("fromField") === "1";
+    const cardIdx      = parseInt(e.dataTransfer.getData("cardIdx"));
+    if (fromSquadIdx !== "" && !isFromField) {
+      const idx = parseInt(fromSquadIdx);
+      if (z.querySelector(".selected-player")) return;
+      if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
+      const card = createCard(squad[idx], idx);
+      z.appendChild(card);
+      squad[idx].used = true;
+      renderSquad(); updateCount(); saveTeam(); return;
     }
-
-    if(from==="field"&&draggingCard){
-      if(z.children.length){
-        const temp=z.firstChild;
-        z.replaceChild(draggingCard,temp);
-        temp.parentElement.appendChild(temp);
-      }else z.appendChild(draggingCard);
+    if (isFromField) {
+      const draggingCardEl = [...document.querySelectorAll(".selected-player")].find(c => parseFloat(c.style.opacity) < 0.5);
+      if (!draggingCardEl) return;
+      const srcZone = draggingCardEl.closest(".zone");
+      dropOnZone(z, "card", cardIdx, srcZone, draggingCardEl);
     }
-
-    draggingCard=null;
-    renderSquad();updateCount();saveTeam();
   };
 });
 
-squadList.ondragover=e=>e.preventDefault();
-squadList.ondrop=()=>{
-  if(!draggingCard) return;
-  const idx=draggingCard.dataset.idx;
-  draggingCard.remove();
-  squad[idx].used=false;
-  draggingCard=null;
-  renderSquad();updateCount();saveTeam();
+squadList.ondragover = e => e.preventDefault();
+squadList.ondrop = e => {
+  if (e.dataTransfer.getData("fromField") !== "1") return;
+  const draggingCardEl = [...document.querySelectorAll(".selected-player")].find(c => parseFloat(c.style.opacity) < 0.5);
+  if (!draggingCardEl) return;
+  const idx = parseInt(draggingCardEl.dataset.idx);
+  draggingCardEl.style.transition = "all 0.25s ease";
+  draggingCardEl.style.transform = "scale(0.8)";
+  draggingCardEl.style.opacity = "0";
+  setTimeout(() => {
+    const zone = document.querySelector(".zone .selected-player[data-idx='" + idx + "']")?.closest(".zone");
+    if (zone) zone.innerHTML = "";
+    squad[idx].used = false;
+    if (captainName === squad[idx].name) captainName = null;
+    if (vcName === squad[idx].name) vcName = null;
+    document.body.classList.remove("is-dragging");
+    renderSquad(); updateCount(); saveTeam();
+  }, 220);
 };
 
-captainBtn.onclick=()=>{
-  selectingCaptain=!selectingCaptain;
-  captainBtn.classList.toggle("active");
-};
-
-function saveTeam(){
-  const data=zones.map(z=>{
-    const c=z.querySelector(".selected-player");
-    if(!c) return null;
-    return {idx:c.dataset.idx,captain:!!c.querySelector(".captain-badge")};
+function refreshBadges(card, name) {
+  card.querySelectorAll(".captain-badge,.vc-badge").forEach(b => b.remove());
+  if (name === captainName) {
+    const b = document.createElement("div"); b.className = "captain-badge"; b.textContent = "C"; card.appendChild(b);
+  }
+  if (name === vcName && name !== captainName) {
+    const b = document.createElement("div"); b.className = "vc-badge"; b.textContent = "VC"; card.appendChild(b);
+  }
+}
+function refreshAllBadges() {
+  document.querySelectorAll(".selected-player").forEach(card => {
+    const p = squad[card.dataset.idx];
+    if (p) refreshBadges(card, p.name);
   });
-  localStorage.setItem("cskTeam",JSON.stringify(data));
 }
 
-function loadTeam(){
-  const data=JSON.parse(localStorage.getItem("cskTeam"));
-  if(!data) return;
-  data.forEach((d,i)=>{
-    if(!d) return;
-    const card=createCard(squad[d.idx],d.idx);
-    if(d.captain){
-      const b=document.createElement("div");
-      b.className="captain-badge";b.textContent="C";
-      card.appendChild(b);
+function setSelectionHint(mode) {
+  document.querySelectorAll(".selected-player").forEach(c => {
+    if (mode) {
+      c.style.outline = "2px solid " + (mode === "captain" ? "var(--csk-yellow)" : "#94a3b8");
+      c.style.boxShadow = "0 0 14px " + (mode === "captain" ? "rgba(250,204,21,0.55)" : "rgba(148,163,184,0.4)");
+    } else {
+      c.style.outline = "";
+      c.style.boxShadow = "0 4px 16px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10)";
     }
-    zones[i].appendChild(card);
-    squad[d.idx].used=true;
   });
-  renderSquad();updateCount();
 }
+
+captainBtn.onclick = () => {
+  selectingCaptain = !selectingCaptain; selectingVC = false;
+  captainBtn.classList.toggle("active", selectingCaptain);
+  vcBtn.classList.remove("active");
+  setSelectionHint(selectingCaptain ? "captain" : null);
+  if (selectingCaptain) toast("⭐ TAP any player card to assign Captain", 3500);
+};
+vcBtn.onclick = () => {
+  selectingVC = !selectingVC; selectingCaptain = false;
+  vcBtn.classList.toggle("active", selectingVC);
+  captainBtn.classList.remove("active");
+  setSelectionHint(selectingVC ? "vc" : null);
+  if (selectingVC) toast("🔰 TAP any player card to assign Vice Captain", 3500);
+};
+
+document.getElementById("roleFilters").querySelectorAll(".role-filter").forEach(btn => {
+  btn.onclick = () => {
+    activeFilter = btn.dataset.role;
+    document.querySelectorAll(".role-filter").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderSquad();
+  };
+});
+
+document.getElementById("resetBtn").onclick = () => {
+  if (!confirm("Reset your Playing XI?")) return;
+  document.querySelectorAll(".selected-player").forEach((c, i) => {
+    c.style.transition = "all 0.3s ease " + (i * 30) + "ms";
+    c.style.transform = "scale(0.6) translateY(-15px)";
+    c.style.opacity = "0";
+  });
+  setTimeout(() => {
+    document.querySelectorAll(".zone").forEach(z => z.innerHTML = "");
+    squad.forEach(p => p.used = false);
+    captainName = null; vcName = null;
+    localStorage.removeItem("cskPlayingXI");
+    renderSquad(); updateCount();
+    toast("Team reset ↺");
+  }, 350);
+};
+
+function openSuggest() {
+  const grid = document.getElementById("presetGrid");
+  grid.innerHTML = "";
+  presets.forEach((pr, pi) => {
+    const btn = document.createElement("button");
+    btn.className = "suggest-preset";
+    btn.innerHTML = '<span class="preset-label">' + pr.label + '</span><span class="preset-desc">' + pr.desc + '</span><div class="preset-lineup">' + pr.lineup + '</div>';
+    btn.onclick = () => previewSuggest(pi);
+    grid.appendChild(btn);
+  });
+  document.getElementById("suggestModal").classList.add("open");
+  previewSuggest(0);
+}
+function closeSuggest() { document.getElementById("suggestModal").classList.remove("open"); }
+
+function previewSuggest(pi) {
+  const pr = presets[pi];
+  currentSuggestXI = pr;
+  document.getElementById("previewTitle").textContent = "PREVIEW — " + pr.label.toUpperCase() + " XI";
+  const container = document.getElementById("suggestPreview");
+  container.innerHTML = "";
+  pr.indices.forEach((idx, i) => {
+    const p = squad[idx];
+    if (!p) return;
+    const row = document.createElement("div");
+    row.className = "suggest-player-row";
+    row.innerHTML = '<span class="spr-num">' + (i+1) + '</span><span class="spr-name">' + p.name + '</span><span class="spr-role">' + p.role + '</span>' + (p.country === "OS" ? '<span class="spr-flag">✈️</span>' : "");
+    container.appendChild(row);
+  });
+  document.querySelectorAll(".suggest-preset").forEach((b, j) => {
+    b.style.borderColor = j === pi ? "var(--csk-yellow)" : "";
+    b.style.background = j === pi ? "rgba(250,204,21,0.18)" : "";
+  });
+}
+
+function applySuggest() {
+  if (!currentSuggestXI) return;
+  document.querySelectorAll(".zone").forEach(z => z.innerHTML = "");
+  squad.forEach(p => p.used = false);
+  captainName = null; vcName = null;
+  currentSuggestXI.indices.forEach((idx, pos) => {
+    const p = squad[idx];
+    if (!p) return;
+    const zone = document.querySelector(".zone[data-pos='" + pos + "']");
+    if (!zone) return;
+    const card = createCard(p, idx);
+    zone.appendChild(card);
+    p.used = true;
+  });
+  const dhoniInXI = currentSuggestXI.indices.includes(0);
+  captainName = dhoniInXI ? squad[0].name : squad[currentSuggestXI.indices[0]]?.name;
+  const nonCaptain = currentSuggestXI.indices.find(i => squad[i]?.name !== captainName);
+  vcName = nonCaptain !== undefined ? squad[nonCaptain]?.name : null;
+  refreshAllBadges();
+  renderSquad(); updateCount(); saveTeam();
+  closeSuggest();
+  toast(currentSuggestXI.label + " XI applied!", 2500);
+}
+
+function printXI() {
+  const n = document.querySelectorAll(".selected-player").length;
+  if (!n) { toast("Select players first!", 2000); return; }
+  window.print();
+}
+
+function generateImage() {
+  const n = document.querySelectorAll(".selected-player").length;
+  if (!n) { toast("Select players first to generate image!", 2000); return; }
+  toast("Generating XI image…", 2000);
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const canvas = document.getElementById("xiCanvas");
+  const ctx = canvas.getContext("2d");
+  const COLS = 4, CW = 160, CH = 190, PAD = 16, HEADER = 80, FOOTER_H = 50;
+  const ROWS = Math.ceil(cards.length / COLS);
+  const W = COLS * CW + (COLS + 1) * PAD;
+  const H = HEADER + ROWS * CH + (ROWS + 1) * PAD + FOOTER_H;
+  canvas.width = W; canvas.height = H;
+
+  ctx.fillStyle = "#1e3a8a";
+  ctx.fillRect(0, 0, W, H);
+
+  const hg = ctx.createLinearGradient(0, 0, W, 0);
+  hg.addColorStop(0, "rgba(250,204,21,0.5)");
+  hg.addColorStop(0.5, "rgba(250,204,21,0.25)");
+  hg.addColorStop(1, "rgba(250,204,21,0.5)");
+  ctx.fillStyle = hg;
+  ctx.fillRect(0, 0, W, HEADER);
+
+  ctx.font = "bold 22px 'Bebas Neue', sans-serif";
+  ctx.fillStyle = "#facc15";
+  ctx.textAlign = "center";
+  ctx.fillText("CHENNAI SUPER KINGS", W / 2, 34);
+  ctx.font = "14px 'Barlow Condensed', sans-serif";
+  ctx.fillStyle = "#cbd5e1";
+  ctx.fillText("IPL 2026 — PLAYING XI", W / 2, 56);
+
+  ctx.strokeStyle = "#facc15";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, HEADER - 1); ctx.lineTo(W, HEADER - 1); ctx.stroke();
+
+  const rc = { BAT:"#4ade80", WK:"#60a5fa", AR:"#fbbf24", BOWL:"#f87171" };
+
+  const imgPromises = cards.map((card, i) => {
+    return new Promise(resolve => {
+      const col = i % COLS;
+      const row = Math.floor(i / COLS);
+      const x = PAD + col * (CW + PAD);
+      const y = HEADER + PAD + row * (CH + PAD);
+      const p = squad[card.dataset.idx];
+
+      ctx.fillStyle = "#fff";
+      roundRect(ctx, x, y, CW, CH, 10); ctx.fill();
+
+      ctx.fillStyle = rc[p?.role] || "#888";
+      roundRect(ctx, x, y + CH - 22, CW, 22, [0, 0, 10, 10]); ctx.fill();
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        ctx.save();
+        roundRect(ctx, x + 6, y + 6, CW - 12, CH - 36, 8);
+        ctx.clip();
+        ctx.drawImage(img, x + 6, y + 6, CW - 12, CH - 36);
+        ctx.restore();
+
+        if (p?.name === captainName) {
+          ctx.fillStyle = "#facc15";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#1e3a8a"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("C", x + 15, y + 19);
+        } else if (p?.name === vcName) {
+          ctx.fillStyle = "#94a3b8";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#1e3a8a"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("VC", x + 15, y + 19);
+        }
+        const name = p?.name || "Player";
+        ctx.fillStyle = "#1e3a8a";
+        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "\u2026" : name, x + CW / 2, y + CH - 26);
+        ctx.fillStyle = "#1e3a8a";
+        ctx.font = "bold 9px sans-serif";
+        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
+
+        resolve();
+      };
+      img.onerror = () => {
+        if (p?.name === captainName) {
+          ctx.fillStyle = "#facc15";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#1e3a8a"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("C", x + 15, y + 19);
+        } else if (p?.name === vcName) {
+          ctx.fillStyle = "#94a3b8";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#1e3a8a"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("VC", x + 15, y + 19);
+        }
+        const name = p?.name || "Player";
+        ctx.fillStyle = "#1e3a8a";
+        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "\u2026" : name, x + CW / 2, y + CH - 26);
+        ctx.fillStyle = "#1e3a8a";
+        ctx.font = "bold 9px sans-serif";
+        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
+        resolve();
+      };
+      img.src = p?.img || fallbackImg;
+    });
+  });
+
+  Promise.all(imgPromises).then(() => {
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "11px 'Barlow Condensed', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Whistle Podu! — CSK XI Builder IPL 2026", W / 2, H - 16);
+    document.getElementById("imgModal").classList.add("open");
+  });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  if (typeof r === "number") r = [r, r, r, r];
+  ctx.beginPath();
+  ctx.moveTo(x + r[0], y);
+  ctx.lineTo(x + w - r[1], y); ctx.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+  ctx.lineTo(x + w, y + h - r[2]); ctx.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+  ctx.lineTo(x + r[3], y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+  ctx.lineTo(x, y + r[0]); ctx.quadraticCurveTo(x, y, x + r[0], y);
+  ctx.closePath();
+}
+
+function closeImgModal() { document.getElementById("imgModal").classList.remove("open"); }
+function downloadImage() {
+  const canvas = document.getElementById("xiCanvas");
+  const a = document.createElement("a");
+  a.download = "CSK-XI-IPL2026.png";
+  a.href = canvas.toDataURL("image/png");
+  a.click();
+  toast("Image downloaded!", 2000);
+}
+
+function openShare() {
+  const cards = [...document.querySelectorAll(".selected-player")];
+  if (!cards.length) { toast("Pick some players first! 🏏", 2000); return; }
+  const lines = ["🏏 My CSK Playing XI — IPL 2026\n"];
+  cards.forEach((card, i) => {
+    const p = squad[card.dataset.idx];
+    if (!p) return;
+    lines.push((i+1) + ". " + p.name + (p.name === captainName ? " (C)" : "") + (p.name === vcName ? " (VC)" : "") + " [" + p.role + "]" + (p.country === "OS" ? " ✈️" : ""));
+  });
+  lines.push("\nOverseas: " + countOverseas() + "/4");
+  lines.push("Whistle Podu! 💛💙");
+  const text = lines.join("\n");
+  if (navigator.share) navigator.share({ title:"My CSK XI", text }).catch(()=>{});
+  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast("XI copied to clipboard! 📋", 2500)).catch(() => fallbackShare(text));
+  else fallbackShare(text);
+}
+function fallbackShare(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); toast("XI copied! 📋", 2500); } catch(e) { toast("Could not copy!", 2500); }
+  document.body.removeChild(ta);
+}
+
+function saveTeam() {
+  const slots = [];
+  document.querySelectorAll(".zone").forEach(z => {
+    const card = z.querySelector(".selected-player");
+    slots.push(card ? parseInt(card.dataset.idx) : null);
+  });
+  try { localStorage.setItem("cskPlayingXI", JSON.stringify({ slots, captainName, vcName })); } catch(e) {}
+}
+
+function loadTeam() {
+  try {
+    const raw = localStorage.getItem("cskPlayingXI");
+    if (!raw) return;
+    const { slots, captainName: c, vcName: vc } = JSON.parse(raw);
+    captainName = c || null; vcName = vc || null;
+    slots.forEach((idx, pos) => {
+      if (idx === null || idx === undefined) return;
+      const p = squad[idx];
+      if (!p || p.used) return;
+      const zone = document.querySelector(".zone[data-pos='" + pos + "']");
+      if (!zone) return;
+      const card = createCard(p, idx);
+      zone.appendChild(card);
+      p.used = true;
+    });
+    renderSquad(); updateCount();
+  } catch(e) { localStorage.removeItem("cskPlayingXI"); }
+}
+
+let confettiFired = false;
+function fireConfetti() {
+  if (confettiFired) return; confettiFired = true;
+  const colors = ['#facc15','#fff7c2','#1e3a8a','#fff','#fbbf24','#cbd5e1'];
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement("div"); c.className = "conf";
+    const size = Math.random()*10+4;
+    c.style.cssText = "left:" + (Math.random()*100) + "vw;top:-20px;width:" + size + "px;height:" + (size*(Math.random()>0.5?1:2.5)) + "px;background:" + colors[Math.floor(Math.random()*colors.length)] + ";--rot:" + ((Math.random()-0.5)*720) + "deg;animation-duration:" + (Math.random()*2+1.5) + "s;animation-delay:" + (Math.random()*0.8) + "s;opacity:0.9;border-radius:" + (Math.random()>0.5?"50%":"2px") + ";";
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3500);
+  }
+  toast("🎉 PLAYING XI COMPLETE! WHISTLE PODU!", 3500);
+}
+
+function updateStats() {
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const count = { BAT:0, WK:0, AR:0, BOWL:0, OS:0 };
+  cards.forEach(card => { const p = squad[card.dataset.idx]; if (!p) return; count[p.role]++; if (p.country === "OS") count.OS++; });
+  const set = (id, val, max) => {
+    const el = document.getElementById("sv"+id);
+    const bar = document.getElementById("sf"+id);
+    if (el) el.textContent = val;
+    if (bar) bar.style.width = Math.min(100, (val/max)*100)+"%";
+  };
+  set("BAT",count.BAT,6); set("WK",count.WK,3); set("AR",count.AR,6); set("BOWL",count.BOWL,6); set("OS",count.OS,4);
+}
+
+// isMobile must be defined before renderSquad/createCard use it
+const isMobile = () => window.innerWidth <= 768;
+
+const squadDrawer  = document.getElementById("squadDrawer");
+const drawerScrim  = document.getElementById("drawerScrim");
+const squadTab     = document.getElementById("squadTab");
+const drawerClose  = document.getElementById("drawerClose");
+
+// FIX 3: Toggle drawer-open class on squadTab so it slides off-screen when drawer is open
+function openDrawer() {
+  if (!isMobile()) return;
+  squadDrawer.classList.add("open");
+  drawerScrim.classList.add("visible");
+  squadTab.classList.add("drawer-open");
+}
+function closeDrawer() {
+  squadDrawer.classList.remove("open");
+  drawerScrim.classList.remove("visible");
+  squadTab.classList.remove("drawer-open");
+}
+
+if (squadTab) squadTab.addEventListener("click", openDrawer);
+if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
+if (drawerScrim) drawerScrim.addEventListener("click", closeDrawer);
+
+document.getElementById("drawerFilters").querySelectorAll(".role-filter").forEach(btn => {
+  btn.addEventListener("click", () => {
+    activeFilter = btn.dataset.role;
+    document.querySelectorAll("#drawerFilters .role-filter, #roleFilters .role-filter").forEach(b => {
+      b.classList.toggle("active", b.dataset.role === activeFilter);
+    });
+    renderSquad();
+  });
+});
+
+autoCollapseDrawer = function() { if (isMobile()) closeDrawer(); };
+
+document.getElementById("suggestModal").addEventListener("click", function(e) { if (e.target === this) closeSuggest(); });
+document.getElementById("imgModal").addEventListener("click", function(e) { if (e.target === this) closeImgModal(); });
 
 renderSquad();
 loadTeam();
-const resetBtn = document.getElementById("resetBtn");
-
-resetBtn.onclick = () => {
-  // Remove all selected players from zones
-  zones.forEach(z => z.innerHTML = "");
-
-  // Reset squad usage
-  squad.forEach(p => p.used = false);
-
-  // Clear captain mode
-  selectingCaptain = false;
-  captainBtn.classList.remove("active");
-
-  // Clear storage
-  localStorage.removeItem("cskTeam");
-
-  // Re-render UI
-  renderSquad();
-  updateCount();
-};
-
 </script>
-
 </body>
 </html>
