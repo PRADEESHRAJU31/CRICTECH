@@ -700,8 +700,12 @@ function renderSquad() {
           d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); hideTooltip(); };
           d.ondragend = () => document.body.classList.remove("is-dragging");
 
-          // FIX 2: Touch drag on squad player rows — use a delay to distinguish tap vs drag,
-          // so that a downward swipe scrolls the drawer rather than starting a drag immediately.
+          // FIX 2 (updated): Touch drag on squad player rows.
+          // Increased hold delay to 350ms and use a small, symmetric movement
+          // threshold on BOTH axes to cancel drag-intent the moment any
+          // scroll-like finger movement is detected. This makes vertical
+          // scrolling of the squad list smooth and reliable, while a genuine
+          // "press and hold still" still starts a drag.
           let touchTimer = null;
           let touchStartX = 0, touchStartY = 0;
           let touchScrolling = false;
@@ -712,7 +716,9 @@ function renderSquad() {
             touchStartY = e.touches[0].clientY;
             touchScrolling = false;
 
-            // Start a short timer — if finger moves vertically before it fires, we treat it as scroll
+            // Hold for 350ms before initiating drag. If the finger moves
+            // beyond the threshold before this fires, touchScrolling becomes
+            // true and the drag is aborted — letting the browser scroll normally.
             touchTimer = setTimeout(() => {
               if (touchScrolling) return; // was a scroll, abort drag
               // Confirmed drag intent — initiate ghost drag
@@ -724,15 +730,17 @@ function renderSquad() {
               document.body.appendChild(ghost);
               touchDragData = { type:"squad", idx:i, sourceZone:null, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
               document.body.classList.add("is-dragging");
-            }, 180); // 180ms hold to start drag
+            }, 350); // increased from 180ms — longer hold avoids accidental drag while scrolling
           }, { passive: true }); // passive:true lets scroll happen naturally
 
           d.addEventListener("touchmove", e => {
             if (!touchTimer && !touchDragData) return;
             const dx = Math.abs(e.touches[0].clientX - touchStartX);
             const dy = Math.abs(e.touches[0].clientY - touchStartY);
-            // If moving mostly vertically before drag started, cancel drag initiation
-            if (!touchDragData && dy > dx && dy > 6) {
+            // Any movement beyond a small threshold (in either direction)
+            // before the hold timer fires means the user is scrolling, not
+            // trying to drag — cancel the pending drag.
+            if (!touchDragData && (dx > 4 || dy > 4)) {
               touchScrolling = true;
               clearTimeout(touchTimer);
               touchTimer = null;
