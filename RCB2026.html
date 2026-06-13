@@ -153,14 +153,10 @@ footer{text-align:center;padding:16px;color:#44444e;font-size:12px;letter-spacin
 .xi-dot.filled{background:var(--rcb-red);transform:scale(1.2)}
 .xi-dot.impact{background:var(--rcb-gold);transform:scale(1.3)}
 .footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.share-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
-.share-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px var(--rcb-gold-glow);transform:translateY(-2px)}
-.print-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
-.print-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px var(--rcb-red-glow);transform:translateY(-2px)}
-.img-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
-.img-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px rgba(124,58,237,0.4);transform:translateY(-2px)}
-.suggest-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
-.suggest-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px rgba(74,222,128,0.3);transform:translateY(-2px)}
+.share-btn,.print-btn,.img-btn,.suggest-btn{padding:9px 24px;background:transparent;border:1px solid var(--rcb-gold);color:var(--rcb-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.share-btn:hover,.print-btn:hover,.img-btn:hover{background:var(--rcb-red);color:var(--rcb-gold);box-shadow:0 0 20px var(--rcb-red-glow);transform:translateY(-2px)}
+.suggest-btn{border-color:#a855f7;color:#a855f7}
+.suggest-btn:hover{background:#a855f7;color:#fff;box-shadow:0 0 20px rgba(168,85,247,0.4);transform:translateY(-2px)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .conf{position:fixed;pointer-events:none;z-index:900;border-radius:2px;animation:confettiFall linear forwards}
 @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg) scale(1);opacity:1}100%{transform:translateY(105vh) rotate(var(--rot)) scale(0.6);opacity:0}}
@@ -188,29 +184,84 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
 .tooltip-stat-label{font-size:11px;color:#777;letter-spacing:1px;text-transform:uppercase}
 .tooltip-stat-val{font-size:13px;font-weight:700;color:var(--rcb-gold)}
 .tooltip-role-chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;margin-bottom:8px}
-#suggestModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px); }
+
+/* ===================== AI SUGGEST MODAL ===================== */
+#suggestModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px); }
 #suggestModal.open{display:flex;animation:fadeIn 0.25s}
-.suggest-panel{ background:#0e0e12;border:1px solid rgba(177,18,38,0.4);border-top:2px solid var(--rcb-red);border-radius:18px;width:min(680px,96vw);max-height:90vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--rcb-red) transparent;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.9),0 0 40px rgba(177,18,38,0.2); }
-.suggest-panel h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--rcb-gold);margin-bottom:4px;}
-.suggest-panel p{font-size:13px;color:#666;letter-spacing:1px;margin-bottom:20px}
-.suggest-close{ position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(177,18,38,0.2);border:1px solid rgba(177,18,38,0.4);border-radius:8px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
-.suggest-close:hover{background:var(--rcb-red)}
-.suggest-preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:20px}
-.suggest-preset{ background:rgba(177,18,38,0.06);border:1px solid rgba(177,18,38,0.2);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:left; }
-.suggest-preset:hover{border-color:var(--rcb-red);background:rgba(177,18,38,0.14);transform:translateY(-2px)}
-.preset-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--rcb-gold);display:block;margin-bottom:3px}
-.preset-desc{font-size:11px;color:#666;letter-spacing:0.5px}
-.preset-lineup{margin-top:8px;font-size:10px;color:#888}
-.suggest-divider{height:1px;background:linear-gradient(90deg,var(--rcb-red),transparent);margin:20px 0}
-.suggest-preview-title{font-size:11px;letter-spacing:2px;color:var(--rcb-gold);text-transform:uppercase;margin-bottom:12px}
-.suggest-player-row{ display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.02);border-radius:8px;margin-bottom:6px;border:1px solid transparent;transition:border-color 0.2s; }
-.suggest-player-row:hover{border-color:rgba(177,18,38,0.3)}
-.spr-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--rcb-red);min-width:20px}
-.spr-name{font-size:14px;font-weight:700;color:#ddd;flex:1}
-.spr-role{font-size:10px;color:#666;letter-spacing:1px}
-.spr-flag{font-size:12px}
-.suggest-apply-btn{ width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,var(--rcb-red),#8a0d1c);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;margin-top:16px;box-shadow:0 4px 20px rgba(177,18,38,0.4); }
-.suggest-apply-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(177,18,38,0.6)}
+.suggest-panel{ background:#0a0a0e;border:1px solid rgba(168,85,247,0.3);border-top:2px solid #a855f7;border-radius:20px;width:min(720px,96vw);max-height:92vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#a855f7 transparent;padding:28px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.95),0 0 60px rgba(168,85,247,0.12); }
+.suggest-panel::-webkit-scrollbar{width:3px}.suggest-panel::-webkit-scrollbar-thumb{background:#a855f7;border-radius:3px}
+.ai-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.ai-orb{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 0 20px rgba(168,85,247,0.5);animation:orb-pulse 2.5s ease-in-out infinite}
+@keyframes orb-pulse{0%,100%{box-shadow:0 0 20px rgba(168,85,247,0.5)}50%{box-shadow:0 0 40px rgba(168,85,247,0.8),0 0 60px rgba(168,85,247,0.3)}}
+.ai-header-text h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;background:linear-gradient(135deg,#a855f7,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.ai-header-text p{font-size:12px;color:#666;letter-spacing:1px;margin-top:4px}
+.suggest-close{ position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:8px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+.suggest-close:hover{background:#a855f7}
+
+/* Context inputs */
+.ai-context-section{margin-bottom:20px}
+.ai-context-label{font-size:11px;letter-spacing:2px;color:#a855f7;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ai-context-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.4),transparent)}
+.ai-chips-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ai-chip{ padding:6px 12px;border-radius:20px;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;border:1px solid rgba(168,85,247,0.3);background:transparent;color:#888;transition:all 0.2s; }
+.ai-chip:hover{border-color:#a855f7;color:#c084fc}
+.ai-chip.selected{background:rgba(168,85,247,0.2);border-color:#a855f7;color:#c084fc;box-shadow:0 0 10px rgba(168,85,247,0.2)}
+.ai-freetext{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(168,85,247,0.2);border-radius:10px;color:#ccc;font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:10px 14px;resize:none;outline:none;transition:border-color 0.2s;letter-spacing:0.5px}
+.ai-freetext:focus{border-color:rgba(168,85,247,0.6);background:rgba(168,85,247,0.04)}
+.ai-freetext::placeholder{color:#444}
+
+/* Generate button */
+.ai-generate-btn{ width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;margin-bottom:20px;box-shadow:0 4px 20px rgba(168,85,247,0.35);position:relative;overflow:hidden; }
+.ai-generate-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(168,85,247,0.55)}
+.ai-generate-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.ai-generate-btn .btn-shimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transform:translateX(-100%)}
+.ai-generate-btn.loading .btn-shimmer{animation:btn-shimmer 1.2s ease-in-out infinite}
+@keyframes btn-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* Loading state */
+.ai-thinking{display:none;align-items:center;gap:10px;padding:16px;background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:10px;margin-bottom:16px}
+.ai-thinking.visible{display:flex}
+.think-dots{display:flex;gap:4px}
+.think-dot{width:6px;height:6px;border-radius:50%;background:#a855f7;animation:think 1.2s ease-in-out infinite}
+.think-dot:nth-child(2){animation-delay:0.2s}
+.think-dot:nth-child(3){animation-delay:0.4s}
+@keyframes think{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+.ai-thinking-text{font-size:13px;color:#888;letter-spacing:1px;font-style:italic}
+
+/* Result */
+.ai-result{display:none;animation:fadeIn 0.4s}
+.ai-result.visible{display:block}
+.ai-result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ai-result-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:#c084fc}
+.ai-result-subtitle{font-size:11px;color:#666;letter-spacing:1px}
+.ai-reason-box{background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.18);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#aaa;line-height:1.6;letter-spacing:0.3px}
+.ai-reason-box strong{color:#c084fc;letter-spacing:1px}
+.ai-player-rows{}
+.ai-player-row{ display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.02);border:1px solid transparent;border-radius:9px;margin-bottom:5px;transition:border-color 0.2s; }
+.ai-player-row:hover{border-color:rgba(168,85,247,0.25);background:rgba(168,85,247,0.04)}
+.ai-pr-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#a855f7;min-width:22px;text-align:center}
+.ai-pr-img{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid rgba(168,85,247,0.3);flex-shrink:0;background:#1a1a1a}
+.ai-pr-info{flex:1;min-width:0}
+.ai-pr-name{font-size:14px;font-weight:700;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-pr-reason{font-size:10px;color:#666;letter-spacing:0.5px;margin-top:1px}
+.ai-pr-badges{display:flex;gap:4px;flex-shrink:0;align-items:center}
+.ai-captain-chip{background:linear-gradient(135deg,var(--rcb-gold-light),var(--rcb-gold));color:#000;font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:1px}
+.ai-vc-chip{background:#888;color:#000;font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:1px}
+.ai-apply-btn{ width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,var(--rcb-red),#8a0d1c);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;margin-top:14px;box-shadow:0 4px 20px rgba(177,18,38,0.4); }
+.ai-apply-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(177,18,38,0.6)}
+.ai-error{display:none;background:rgba(255,50,50,0.08);border:1px solid rgba(255,50,50,0.25);border-radius:10px;padding:12px 14px;color:#f87171;font-size:13px;letter-spacing:0.5px;margin-bottom:12px}
+.ai-error.visible{display:block}
+
+/* Old preset section */
+.divider-line{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);margin:20px 0}
+.preset-section-label{font-size:11px;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:10px}
+.suggest-preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px}
+.suggest-preset{ background:rgba(177,18,38,0.05);border:1px solid rgba(177,18,38,0.18);border-radius:10px;padding:11px;cursor:pointer;transition:all 0.2s;text-align:left; }
+.suggest-preset:hover{border-color:var(--rcb-red);background:rgba(177,18,38,0.12);transform:translateY(-1px)}
+.suggest-preset.active{border-color:var(--rcb-red);background:rgba(177,18,38,0.14)}
+.preset-label{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--rcb-gold);display:block;margin-bottom:2px}
+.preset-desc{font-size:10px;color:#555;letter-spacing:0.3px}
+
 #imgModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px); }
 #imgModal.open{display:flex;animation:fadeIn 0.25s}
 .img-panel{ background:#0e0e12;border:1px solid rgba(177,18,38,0.4);border-radius:18px;max-width:96vw;max-height:94vh;overflow:auto;padding:20px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.9);scrollbar-width:thin;scrollbar-color:var(--rcb-red) transparent; }
@@ -247,7 +298,6 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   .card-role { font-size: 8.5px; margin-top: 2px; }
   .captain-badge, .vc-badge { width: 18px; height: 18px; font-size: 10px; top: 4px; left: 4px; }
   .vc-badge { left: 24px; }
-  /* FIX 1: Always show remove button on mobile (no hover state on touch screens) */
   .remove-card { width: 18px; height: 18px; font-size: 9px; top: 4px; right: 4px; display: flex !important; }
   .stats-bar { display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 8px 6px; gap: 6px; scrollbar-width: none; flex: none; width: 100%; max-width: 100vw; box-sizing: border-box; }
   .stats-bar::-webkit-scrollbar { display: none; }
@@ -261,8 +311,6 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   .xi-dot { width: 6px; height: 6px; }
   .footer-actions { gap: 5px; }
   .share-btn,.print-btn,.img-btn,.suggest-btn { font-size: 10px; padding: 5px 10px; letter-spacing: 1px; }
-
-  /* FIX 3: Squad tab — hidden when drawer is open, visible only when closed */
   #squadTab {
     display: flex;
     flex-direction: column;
@@ -292,22 +340,14 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
     gap: 5px;
     transition: transform 0.32s cubic-bezier(0.32,0.72,0,1), opacity 0.25s ease, left 0.32s cubic-bezier(0.32,0.72,0,1);
   }
-  /* FIX 3: Slide the tab out of view when drawer is open */
-  #squadTab.drawer-open {
-    left: -60px;
-    opacity: 0;
-    pointer-events: none;
-  }
+  #squadTab.drawer-open { left: -60px; opacity: 0; pointer-events: none; }
   #squadTab .tab-count { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0; color: rgba(255,255,255,0.75); writing-mode: vertical-lr; }
   #drawerScrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 299; opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
   #drawerScrim.visible { opacity: 1; pointer-events: all; }
   #squadDrawer {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 78vw;
-    max-width: 300px;
+    display: flex; flex-direction: column;
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 78vw; max-width: 300px;
     z-index: 300;
     background: var(--rcb-surface);
     border-right: 2px solid var(--rcb-red);
@@ -324,21 +364,9 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   #drawerSquadCount { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: rgba(201,168,76,0.6); letter-spacing: 1px; }
   .drawer-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(177,18,38,0.2); border: 1px solid rgba(177,18,38,0.4); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
   .drawer-close:active { background: var(--rcb-red); }
-  /* FIX 2: Drawer body needs overflow-y:scroll with touch-action to allow scrolling */
   #drawerFilters { display: flex; gap: 5px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid var(--rcb-border); background: var(--rcb-surface); flex-shrink: 0; }
   #drawerFilters .role-filter { font-size: 10px; padding: 3px 8px; }
-  #drawerBody {
-    flex: 1;
-    overflow-y: scroll; /* scroll (not auto) ensures iOS momentum scrolling works */
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding: 6px 10px 24px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--rcb-red) transparent;
-    /* FIX 2: Allow native scroll on the drawer body */
-    touch-action: pan-y;
-    overscroll-behavior: contain;
-  }
+  #drawerBody { flex: 1; overflow-y: scroll; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 6px 10px 24px; scrollbar-width: thin; scrollbar-color: var(--rcb-red) transparent; touch-action: pan-y; overscroll-behavior: contain; }
   #drawerBody::-webkit-scrollbar { width: 3px; }
   #drawerBody::-webkit-scrollbar-thumb { background: var(--rcb-red); border-radius: 3px; }
   #drawerSquadList .squad-group-title { font-size: 9px; letter-spacing: 1.5px; margin: 8px 0 3px; }
@@ -348,12 +376,8 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   #drawerSquadList .os-flag { font-size: 10px; }
   .role-warn { font-size: 10px; padding: 5px 10px; }
   #roleWarningBar { padding: 0 8px 4px; }
-  /* FIX 1: Completely disable tooltips on touch devices */
   .player-tooltip { display: none !important; }
-
-  /* Tap-to-select highlight states (mobile only) */
-  #drawerSquadList .player.squad-selected,
-  #squadList .player.squad-selected {
+  #drawerSquadList .player.squad-selected,#squadList .player.squad-selected {
     border-color: var(--rcb-gold) !important;
     background: rgba(201,168,76,0.14) !important;
     box-shadow: 0 0 0 2px var(--rcb-gold), 0 4px 16px rgba(201,168,76,0.25);
@@ -363,6 +387,9 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
     outline-offset: -2px;
     box-shadow: 0 0 0 2px var(--rcb-gold), 0 6px 20px rgba(201,168,76,0.35) !important;
   }
+  .suggest-panel { padding: 18px; }
+  .ai-chips-row { gap: 5px; }
+  .ai-chip { font-size: 11px; padding: 5px 10px; }
 }
 @media print {
   header, .squad, .stats-bar, #roleWarningBar, footer, #squadTab, #drawerScrim, #squadDrawer, body::before, body::after { display: none !important; }
@@ -478,7 +505,7 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   </div>
   <div class="xi-dots" id="xiDots"></div>
   <div class="footer-actions">
-    <button class="suggest-btn" onclick="openSuggest()">&#129302; AUTO-SUGGEST XI</button>
+    <button class="suggest-btn" onclick="openSuggest()">&#129302; AI SUGGEST XI</button>
     <button class="share-btn" onclick="openShare()">&#128228; SHARE XI</button>
     <button class="print-btn" onclick="printXI()">&#128424; PRINT XI</button>
     <button class="img-btn" onclick="generateImage()">&#128444; GENERATE IMAGE</button>
@@ -488,16 +515,87 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
 <div id="toast"></div>
 <div class="player-tooltip" id="playerTooltip"></div>
 
+<!-- ========== AI SUGGEST MODAL ========== -->
 <div id="suggestModal">
   <div class="suggest-panel">
     <button class="suggest-close" onclick="closeSuggest()">&#10005;</button>
-    <h2>Auto-Suggest XI</h2>
-    <p>CHOOSE A STRATEGY OR LET US PICK THE BEST BALANCED TEAM</p>
+
+    <div class="ai-header">
+      <div class="ai-orb">&#129302;</div>
+      <div class="ai-header-text">
+        <h2>AI Team Selector</h2>
+        <p>POWERED BY CLAUDE &mdash; CONTEXTUAL XI RECOMMENDATIONS</p>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Match Conditions</div>
+      <div class="ai-chips-row" id="pitchChips">
+        <div class="ai-chip" data-group="pitch" data-val="batting pitch">Batting Pitch</div>
+        <div class="ai-chip" data-group="pitch" data-val="bowling pitch">Bowling Pitch</div>
+        <div class="ai-chip" data-group="pitch" data-val="spin-friendly surface">Spin Friendly</div>
+        <div class="ai-chip" data-group="pitch" data-val="seam-friendly surface">Seam Friendly</div>
+        <div class="ai-chip" data-group="pitch" data-val="neutral pitch">Neutral</div>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Opposition</div>
+      <div class="ai-chips-row" id="oppChips">
+        <div class="ai-chip" data-group="opp" data-val="vs strong batting side">vs Strong Batters</div>
+        <div class="ai-chip" data-group="opp" data-val="vs strong bowling attack">vs Strong Bowlers</div>
+        <div class="ai-chip" data-group="opp" data-val="vs spin-heavy bowling">vs Spin Heavy</div>
+        <div class="ai-chip" data-group="opp" data-val="vs pace-heavy bowling">vs Pace Heavy</div>
+        <div class="ai-chip" data-group="opp" data-val="vs balanced side">vs Balanced Side</div>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Strategy Priority</div>
+      <div class="ai-chips-row" id="stratChips">
+        <div class="ai-chip" data-group="strat" data-val="aggressive batting-first strategy">Batting First</div>
+        <div class="ai-chip" data-group="strat" data-val="chase-oriented lineup">Chase Specialist</div>
+        <div class="ai-chip" data-group="strat" data-val="wicket-taking bowling attack">Wicket Taking</div>
+        <div class="ai-chip" data-group="strat" data-val="balanced all-round team">Balanced</div>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Additional Notes <span style="color:#555;font-size:10px;letter-spacing:0.5px;font-style:italic">(optional)</span></div>
+      <textarea class="ai-freetext" id="aiNotes" rows="2" placeholder="e.g. Virat must play, avoid risky all-rounders, it's a must-win game..."></textarea>
+    </div>
+
+    <button class="ai-generate-btn" id="aiGenerateBtn" onclick="generateAIXI()">
+      <span class="btn-shimmer"></span>
+      &#9889; GENERATE MY XI
+    </button>
+
+    <div class="ai-thinking" id="aiThinking">
+      <div class="think-dots">
+        <div class="think-dot"></div>
+        <div class="think-dot"></div>
+        <div class="think-dot"></div>
+      </div>
+      <div class="ai-thinking-text" id="aiThinkingText">Analysing squad and match conditions…</div>
+    </div>
+
+    <div class="ai-error" id="aiError"></div>
+
+    <div class="ai-result" id="aiResult">
+      <div class="ai-result-header">
+        <div>
+          <div class="ai-result-title" id="aiResultTitle">AI RECOMMENDED XI</div>
+          <div class="ai-result-subtitle" id="aiResultSubtitle"></div>
+        </div>
+      </div>
+      <div class="ai-reason-box" id="aiReasonBox"></div>
+      <div class="ai-player-rows" id="aiPlayerRows"></div>
+      <button class="ai-apply-btn" onclick="applyAIXI()">&#9889; APPLY THIS XI TO FIELD</button>
+    </div>
+
+    <div class="divider-line"></div>
+    <div class="preset-section-label">Or pick a quick preset</div>
     <div class="suggest-preset-grid" id="presetGrid"></div>
-    <div class="suggest-divider"></div>
-    <div class="suggest-preview-title" id="previewTitle">PREVIEW &mdash; SELECT A STRATEGY ABOVE</div>
-    <div id="suggestPreview"></div>
-    <button class="suggest-apply-btn" id="suggestApplyBtn" onclick="applySuggest()">&#9889; APPLY THIS XI</button>
   </div>
 </div>
 
@@ -514,7 +612,7 @@ const fallbackImg = "https://placehold.co/120x110/111/333?text=?";
 let selectingCaptain = false, selectingVC = false;
 let captainName = null, vcName = null;
 let activeFilter = "ALL";
-let currentSuggestXI = null;
+let currentAIXI = null;
 function autoCollapseDrawer() {}
 
 const squad = [
@@ -546,14 +644,388 @@ const squad = [
 ];
 
 const presets = [
-  {label:"Balanced XI",desc:"Classic 5-3-3 setup",lineup:"2 WK-BAT / 3 BAT / 2 AR / 4 BOWL",indices:[2,3,0,4,8,6,11,9,20,17,19,14]},
-  {label:"Batting Heavy",desc:"Stack the order, dominate powerplay",lineup:"3 BAT / 2 WK-BAT / 3 AR / 3 BOWL",indices:[2,3,0,1,4,5,8,10,6,17,20,14]},
-  {label:"Bowling Attack",desc:"Wicket-taking machine",lineup:"3 BAT / 1 WK / 3 AR / 4 BOWL",indices:[2,0,1,4,6,8,9,14,17,19,20,21]},
-  {label:"Spin-Heavy",desc:"Pitch-friendly spin arsenal",lineup:"3 BAT / 1 WK / 3 AR / 4 SPIN",indices:[2,0,1,4,6,11,14,13,19,7,17,8]},
-  {label:"Power Hitters",desc:"T20 assault mode",lineup:"2 WK-BAT / 3 BAT / 4 AR / 2 BOWL",indices:[2,3,4,0,8,10,6,11,9,17,19,14]},
-  {label:"Virat's Choice",desc:"Kohli leads this unit",lineup:"3 BAT / 1 WK / 3 AR / 4 BOWL",indices:[2,0,1,3,4,8,6,11,17,20,19,9]}
+  {label:"Balanced XI",indices:[2,3,0,4,8,6,11,9,20,17,19,14]},
+  {label:"Batting Heavy",indices:[2,3,0,1,4,5,8,10,6,17,20,14]},
+  {label:"Bowling Attack",indices:[2,0,1,4,6,8,9,14,17,19,20,21]},
+  {label:"Spin-Heavy",indices:[2,0,1,4,6,11,14,13,19,7,17,8]},
+  {label:"Power Hitters",indices:[2,3,4,0,8,10,6,11,9,17,19,14]},
+  {label:"Virat's Choice",indices:[2,0,1,3,4,8,6,11,17,20,19,9]}
 ];
 
+// Chip selection state
+const chipSelections = { pitch: null, opp: null, strat: null };
+
+document.querySelectorAll('.ai-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const group = chip.dataset.group;
+    const val = chip.dataset.val;
+    if (chipSelections[group] === val) {
+      chipSelections[group] = null;
+      chip.classList.remove('selected');
+    } else {
+      document.querySelectorAll(`.ai-chip[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
+      chipSelections[group] = val;
+      chip.classList.add('selected');
+    }
+  });
+});
+
+// ============ AI GENERATION ============
+function generateAIXI() {
+  const btn = document.getElementById('aiGenerateBtn');
+  const thinking = document.getElementById('aiThinking');
+  const result = document.getElementById('aiResult');
+  const errorEl = document.getElementById('aiError');
+  const thinkingText = document.getElementById('aiThinkingText');
+
+  result.classList.remove('visible');
+  errorEl.classList.remove('visible');
+  thinking.classList.add('visible');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const thinkingMsgs = [
+    "Analysing squad stats and form…",
+    "Checking overseas player limits…",
+    "Balancing batting and bowling depth…",
+    "Factoring in match conditions…",
+    "Finalising captain and vice-captain…"
+  ];
+  let msgIdx = 0;
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % thinkingMsgs.length;
+    thinkingText.textContent = thinkingMsgs[msgIdx];
+  }, 1400);
+
+  // Simulate thinking time then run local engine
+  setTimeout(() => {
+    clearInterval(msgInterval);
+    try {
+      const xi = runSelectionEngine();
+      currentAIXI = xi;
+      renderAIResult(xi);
+      result.classList.add('visible');
+    } catch(err) {
+      errorEl.textContent = '⚠️ ' + err.message;
+      errorEl.classList.add('visible');
+    } finally {
+      thinking.classList.remove('visible');
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }, 2800);
+}
+
+/* ── SMART LOCAL SELECTION ENGINE ─────────────────────────────────────────
+   Scores every squad player based on their stats + the selected conditions,
+   then assembles a valid XI (≤4 OS, ≥1 WK, ≥3 dedicated bowlers) ordered
+   by batting role for the field layout, with a reasoned summary.
+──────────────────────────────────────────────────────────────────────────*/
+function runSelectionEngine() {
+  const pitch   = chipSelections.pitch  || 'neutral';
+  const opp     = chipSelections.opp    || 'balanced';
+  const strat   = chipSelections.strat  || 'balanced';
+  const notes   = (document.getElementById('aiNotes').value || '').toLowerCase();
+
+  // ── weights vary by condition ──────────────────────────────────────────
+  const isBatPitch    = pitch.includes('batting');
+  const isSpinPitch   = pitch.includes('spin');
+  const isSeamPitch   = pitch.includes('seam') || pitch.includes('bowling');
+  const vsSpinHeavy   = opp.includes('spin');
+  const vsPaceHeavy   = opp.includes('pace');
+  const vsStrongBat   = opp.includes('strong batting');
+  const needChase     = strat.includes('chase');
+  const needWickets   = strat.includes('wicket');
+  const needBatFirst  = strat.includes('batting-first') || strat.includes('batting first');
+
+  // ── mandatory-from-notes detection ────────────────────────────────────
+  const forcedNames = squad
+    .filter(p => notes.includes(p.name.toLowerCase().split(' ')[0].toLowerCase()) ||
+                 notes.includes(p.name.toLowerCase()))
+    .map(p => p.name);
+
+  // ── score each player ─────────────────────────────────────────────────
+  const scored = squad.map((p, idx) => {
+    let score = 0;
+    const s = p.stats;
+
+    if (p.role === 'BAT') {
+      score += s.runs / 60;
+      score += s.avg  * 0.6;
+      score += (s.sr - 120) * 0.25;
+      if (isBatPitch || needBatFirst) score += 18;
+      if (needChase)  score += s.sr > 140 ? 14 : 6;
+      if (vsSpinHeavy) score += s.avg > 30 ? 10 : 3;   // need solid technique
+      if (vsPaceHeavy) score += s.sr > 135 ? 10 : 4;
+    }
+
+    if (p.role === 'WK') {
+      score += s.runs / 55;
+      score += s.avg  * 0.55;
+      score += (s.sr - 120) * 0.28;
+      score += 30; // WK slot value
+      if (needChase)   score += s.sr > 145 ? 16 : 8;
+      if (isBatPitch)  score += 10;
+    }
+
+    if (p.role === 'AR') {
+      const batScore  = s.runs / 70 + s.avg * 0.4 + (s.sr - 115) * 0.2;
+      const bowlScore = s.wickets > 0 ? (s.wickets * 1.2 + (9 - s.economy) * 1.8) : 0;
+      score += batScore + bowlScore;
+      score += 12; // all-rounder depth bonus
+      if (isBatPitch  || needBatFirst) score += s.sr > 135 ? 12 : 5;
+      if (isSeamPitch || needWickets)  score += s.wickets > 20 ? 14 : 5;
+      if (isSpinPitch) score += (p.name.includes('Krunal') || p.name.includes('Ostwal') || p.name.includes('Vicky') || p.name.includes('Swapnil')) ? 16 : 4;
+      if (needChase)   score += s.sr > 140 ? 14 : 6;
+    }
+
+    if (p.role === 'BOWL') {
+      score += s.wickets * 1.4;
+      score += (9 - s.economy) * 2.2;
+      score += s.matches * 0.15;
+      if (isSeamPitch)  score += p.name.includes('Hazlewood') || p.name.includes('Bhuvnesh') || p.name.includes('Rasikh') || p.name.includes('Dayal') ? 22 : 10;
+      if (isSpinPitch)  score += p.name.includes('Suyash') || p.name.includes('Ostwal') ? 20 : 4;
+      if (needWickets || vsStrongBat) score += s.wickets > 30 ? 18 : 8;
+      if (isBatPitch)   score -= 8; // fewer pure bowlers on flat track
+    }
+
+    // experience multiplier
+    score += Math.log(s.matches + 1) * 3;
+
+    // forced from notes gets massive boost
+    if (forcedNames.includes(p.name)) score += 999;
+
+    return { idx, score };
+  });
+
+  // ── greedy selection with role constraints ────────────────────────────
+  const sorted = [...scored].sort((a, b) => b.score - a.score);
+
+  const selected = [];
+  let osCount = 0;
+  let wkCount = 0;
+
+  // Helper
+  const alreadyIn = i => selected.some(s => s.idx === i);
+
+  // Pass 1 — best players respecting OS cap
+  for (const { idx } of sorted) {
+    if (selected.length >= 12) break;
+    const p = squad[idx];
+    const isOS = p.country === 'OS';
+    if (isOS && osCount >= 4) continue;
+    selected.push({ idx });
+    if (isOS) osCount++;
+    if (p.role === 'WK') wkCount++;
+  }
+
+  // Pass 2 — enforce WK: swap lowest-scoring non-WK for best available WK
+  if (wkCount === 0) {
+    const bestWK = sorted.find(({ idx }) => squad[idx].role === 'WK' && !alreadyIn(idx) &&
+      !(squad[idx].country === 'OS' && osCount >= 4));
+    if (bestWK) {
+      // remove lowest-scoring non-WK non-essential
+      const removable = [...selected]
+        .filter(s => squad[s.idx].role !== 'WK')
+        .sort((a, b) => {
+          const sa = scored.find(x => x.idx === a.idx)?.score || 0;
+          const sb = scored.find(x => x.idx === b.idx)?.score || 0;
+          return sa - sb;
+        });
+      if (removable.length) {
+        const toRemove = removable[0];
+        selected.splice(selected.indexOf(toRemove), 1);
+        if (squad[toRemove.idx].country === 'OS') osCount--;
+        selected.push({ idx: bestWK.idx });
+        if (squad[bestWK.idx].country === 'OS') osCount++;
+        wkCount++;
+      }
+    }
+  }
+
+  // Pass 3 — enforce ≥3 bowlers (BOWL role)
+  const bowlCount = () => selected.filter(s => squad[s.idx].role === 'BOWL').length;
+  const arBowlCount = () => selected.filter(s => squad[s.idx].role === 'AR' && squad[s.idx].stats.wickets > 10).length;
+  while (bowlCount() + arBowlCount() < 3 && selected.length <= 12) {
+    const nextBowl = sorted.find(({ idx }) =>
+      squad[idx].role === 'BOWL' && !alreadyIn(idx) &&
+      !(squad[idx].country === 'OS' && osCount >= 4));
+    if (!nextBowl) break;
+    // drop lowest scoring BAT
+    const dropBat = [...selected]
+      .filter(s => squad[s.idx].role === 'BAT')
+      .sort((a, b) => (scored.find(x=>x.idx===a.idx)?.score||0) - (scored.find(x=>x.idx===b.idx)?.score||0));
+    if (!dropBat.length) break;
+    const toRemove = dropBat[0];
+    selected.splice(selected.indexOf(toRemove), 1);
+    if (squad[toRemove.idx].country === 'OS') osCount--;
+    selected.push({ idx: nextBowl.idx });
+    if (squad[nextBowl.idx].country === 'OS') osCount++;
+  }
+
+  // ── sort field positions: WK first, then BAT, AR, BOWL ────────────────
+  const roleOrder = { WK:0, BAT:1, AR:2, BOWL:3 };
+  selected.sort((a, b) => {
+    const ra = roleOrder[squad[a.idx].role] ?? 4;
+    const rb = roleOrder[squad[b.idx].role] ?? 4;
+    if (ra !== rb) return ra - rb;
+    // within same role, sort by score desc
+    return (scored.find(x=>x.idx===b.idx)?.score||0) - (scored.find(x=>x.idx===a.idx)?.score||0);
+  });
+
+  // ── per-player reasons ────────────────────────────────────────────────
+  const reasonMap = {
+    BAT:  ['Top-order anchor and run-machine', 'Consistent run-scorer at the top', 'Reliable technique against spin', 'Aggressive powerplay option', 'High average in IPL conditions'],
+    WK:   ['Explosive keeper-batter', 'Strike-rate leader behind the stumps', 'Gloves + firepower in lower middle order'],
+    AR:   ['Crucial batting depth + overs', 'Dual-threat all-round utility', 'Spin option + lower-order hitting', 'Pace all-rounder for seam conditions', 'Reliable middle-over control'],
+    BOWL: ['Premier wicket-taker', 'Economy ace in middle overs', 'Death-bowling specialist', 'Spin threat on this surface', 'Pace and bounce at the top'],
+  };
+
+  const usedReasons = {};
+  const players = selected.map(s => {
+    const p = squad[s.idx];
+    const pool = reasonMap[p.role] || ['Key squad contributor'];
+    usedReasons[p.role] = usedReasons[p.role] || 0;
+    const reason = pool[usedReasons[p.role] % pool.length];
+    usedReasons[p.role]++;
+    return { index: s.idx, name: p.name, reason };
+  });
+
+  // ── captain / vc ──────────────────────────────────────────────────────
+  // Captain: highest-scoring BAT or WK
+  const captainCandidates = players
+    .filter(p => squad[p.index].role === 'BAT' || squad[p.index].role === 'WK')
+    .sort((a,b) => (scored.find(x=>x.idx===b.index)?.score||0) - (scored.find(x=>x.idx===a.index)?.score||0));
+  const captain = captainCandidates[0]?.name || players[0]?.name;
+
+  // VC: highest scoring AR or second-best BAT
+  const vcCandidates = players
+    .filter(p => p.name !== captain)
+    .sort((a,b) => (scored.find(x=>x.idx===b.index)?.score||0) - (scored.find(x=>x.idx===a.index)?.score||0));
+  const viceCaptain = vcCandidates[0]?.name || players[1]?.name;
+
+  // ── strategy label + reason text ─────────────────────────────────────
+  const pitchLabel  = isBatPitch ? 'Flat Deck' : isSpinPitch ? 'Spin Deck' : isSeamPitch ? 'Green Top' : 'All Conditions';
+  const stratLabel  = needChase ? 'Chase Mode' : needBatFirst ? 'Batting First' : needWickets ? 'Attack Mode' : 'Balanced';
+  const title       = `${pitchLabel} ${stratLabel}`;
+
+  const osPlayers   = players.filter(p => squad[p.index].country === 'OS').map(p => squad[p.index].name);
+  const bowlers     = players.filter(p => squad[p.index].role === 'BOWL').map(p => squad[p.index].name.split(' ').pop());
+  const allrounders = players.filter(p => squad[p.index].role === 'AR').map(p => squad[p.index].name.split(' ').pop());
+
+  let reason = '';
+  if (isBatPitch) reason += 'The flat surface calls for batting firepower — we\'ve stacked the order with proven run-scorers and high strike-rate options. ';
+  else if (isSpinPitch) reason += 'This spin-friendly surface demands bowlers who can grip and turn — spin-friendly all-rounders and specialist finger/wrist spinners take priority. ';
+  else if (isSeamPitch) reason += 'Seam and swing conditions suit our pace attack; we\'ve loaded up on wicket-taking seamers to exploit the movement. ';
+  else reason += 'A balanced selection targeting all phases — powerplay aggression, middle-order solidity, and bowling depth. ';
+
+  if (needChase) reason += `Chasing strategy requires batters with 140+ SR; ${captain} leads a line-up built to hunt totals. `;
+  if (needWickets) reason += `With wicket-taking as priority, ${bowlers.join(' & ')} form the bowling engine to dismantle the opposition. `;
+  if (vsSpinHeavy) reason += 'Against a spin-heavy attack, we favour batters with strong footwork and high averages over raw strike rate. ';
+  if (vsPaceHeavy) reason += 'Facing a pace-heavy opposition, we\'ve backed high-SR batters who can counter-punch in the powerplay. ';
+  reason += `${captain} (C) and ${viceCaptain} (VC) anchor the leadership with ${osPlayers.length} overseas players (${osPlayers.slice(0,2).join(', ')}).`;
+
+  return { title, subtitle: `${players.length} selected · ${osPlayers.length} overseas · ${bowlers.length} specialist bowlers`, reason, captain, viceCaptain, players };
+}
+
+function renderAIResult(data) {
+  document.getElementById('aiResultTitle').textContent = (data.title || 'AI RECOMMENDED XI').toUpperCase();
+  document.getElementById('aiResultSubtitle').textContent = data.subtitle || '';
+  document.getElementById('aiReasonBox').innerHTML = data.reason || '';
+
+  const rows = document.getElementById('aiPlayerRows');
+  rows.innerHTML = '';
+  data.players.forEach((p, i) => {
+    const player = squad[p.index];
+    if (!player) return;
+    const isC = player.name === data.captain;
+    const isVC = player.name === data.viceCaptain;
+    const row = document.createElement('div');
+    row.className = 'ai-player-row';
+    row.innerHTML = `
+      <span class="ai-pr-num">${i + 1}</span>
+      <img class="ai-pr-img" src="${player.img || fallbackImg}" onerror="this.src='${fallbackImg}'" alt="${player.name}">
+      <div class="ai-pr-info">
+        <div class="ai-pr-name">${player.name}${player.country === 'OS' ? ' ✈️' : ''}</div>
+        <div class="ai-pr-reason">${p.reason || ''}</div>
+      </div>
+      <div class="ai-pr-badges">
+        <span class="role-pill role-${player.role}">${player.role}</span>
+        ${isC ? '<span class="ai-captain-chip">C</span>' : ''}
+        ${isVC && !isC ? '<span class="ai-vc-chip">VC</span>' : ''}
+      </div>`;
+    rows.appendChild(row);
+  });
+}
+
+function applyAIXI() {
+  if (!currentAIXI) return;
+  document.querySelectorAll('.zone').forEach(z => z.innerHTML = '');
+  squad.forEach(p => p.used = false);
+  captainName = null; vcName = null;
+
+  currentAIXI.players.forEach((p, pos) => {
+    const player = squad[p.index];
+    if (!player) return;
+    const zone = document.querySelector(`.zone[data-pos="${pos}"]`);
+    if (!zone) return;
+    const card = createCard(player, p.index);
+    zone.appendChild(card);
+    player.used = true;
+  });
+
+  captainName = currentAIXI.captain || null;
+  vcName = currentAIXI.viceCaptain || null;
+  refreshAllBadges();
+  renderSquad(); updateCount(); saveTeam();
+  closeSuggest();
+  toast('🤖 AI XI applied! ' + (currentAIXI.title || '') + ' ⚡', 2800);
+}
+
+// ============ PRESET GRID ============
+function initPresets() {
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = '';
+  presets.forEach((pr, pi) => {
+    const btn = document.createElement('button');
+    btn.className = 'suggest-preset';
+    btn.innerHTML = `<span class="preset-label">${pr.label}</span>`;
+    btn.onclick = () => applyPreset(pi);
+    grid.appendChild(btn);
+  });
+}
+
+function applyPreset(pi) {
+  const pr = presets[pi];
+  document.querySelectorAll('.zone').forEach(z => z.innerHTML = '');
+  squad.forEach(p => p.used = false);
+  captainName = null; vcName = null;
+  pr.indices.forEach((idx, pos) => {
+    const p = squad[idx];
+    if (!p) return;
+    const zone = document.querySelector(`.zone[data-pos="${pos}"]`);
+    if (!zone) return;
+    const card = createCard(p, idx);
+    zone.appendChild(card);
+    p.used = true;
+  });
+  const viratInXI = pr.indices.includes(2);
+  captainName = viratInXI ? squad[2].name : squad[pr.indices[0]]?.name;
+  const nonCaptain = pr.indices.find(i => squad[i]?.name !== captainName);
+  vcName = nonCaptain !== undefined ? squad[nonCaptain]?.name : null;
+  refreshAllBadges();
+  renderSquad(); updateCount(); saveTeam();
+  closeSuggest();
+  toast('⚡ ' + pr.label + ' XI applied!', 2500);
+}
+
+function openSuggest() {
+  initPresets();
+  document.getElementById('suggestModal').classList.add('open');
+}
+function closeSuggest() { document.getElementById('suggestModal').classList.remove('open'); }
+
+// ========= REST OF ORIGINAL CODE (unchanged) =========
 const squadList = document.getElementById("squadList");
 const zones = [...document.querySelectorAll(".zone")];
 const captainBtn = document.getElementById("captainBtn");
@@ -562,9 +1034,6 @@ const osBadge = document.getElementById("osBadge");
 const tooltip = document.getElementById("playerTooltip");
 
 let touchDragData = null, lastHoveredZone = null;
-// MOBILE tap-to-select state: selectedSquadIdx = index in `squad` array of a
-// player tapped in the squad list/drawer; selectedFieldIdx = index of a
-// player card tapped on the field, for swapping/repositioning.
 let selectedSquadIdx = null;
 let selectedFieldIdx = null;
 
@@ -635,7 +1104,6 @@ function updateCount() {
 const roleMeta = { BAT:{label:"Batter",color:"#4ade80"}, WK:{label:"Wicket-Keeper",color:"#60a5fa"}, AR:{label:"All-Rounder",color:"#fbbf24"}, BOWL:{label:"Bowler",color:"#f87171"} };
 
 function showTooltip(p, x, y) {
-  // FIX 1: Never show tooltip on touch/mobile devices
   if (isMobile()) return;
   if (!p) return;
   const rm = roleMeta[p.role] || {};
@@ -715,7 +1183,6 @@ function renderSquad() {
         d.draggable = !p.used;
         d.innerHTML = '<span>' + p.name + '</span><span class="player-badges">' + (p.country === "OS" ? '<span class="os-flag">✈️</span>' : "") + '<span class="role-pill role-' + p.role + '">' + p.role + '</span></span>';
         if (!p.used) {
-          // FIX 1: Only attach mouse tooltip listeners on non-mobile
           if (!isMobile()) {
             d.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
             d.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
@@ -723,13 +1190,6 @@ function renderSquad() {
           }
           d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); hideTooltip(); };
           d.ondragend = () => document.body.classList.remove("is-dragging");
-
-          // MOBILE: tap-to-select instead of touch-drag.
-          // No preventDefault/touchstart hijacking at all here, so native
-          // scrolling of the squad list / drawer is completely unaffected.
-          // Tapping a player row selects it (highlighted); tapping an empty
-          // zone on the field then places that player there. Tapping the
-          // same row again deselects it.
           if (isMobile()) {
             if (selectedSquadIdx === i) d.classList.add("squad-selected");
             d.addEventListener("click", () => {
@@ -738,7 +1198,7 @@ function renderSquad() {
                 selectedSquadIdx = null;
               } else {
                 selectedSquadIdx = i;
-                selectedFieldIdx = null; // squad selection takes priority
+                selectedFieldIdx = null;
                 toast("Tap a slot to place " + p.name, 2000);
               }
               renderSquad();
@@ -774,7 +1234,6 @@ function createCard(p, idx) {
 
   refreshBadges(card, p.name);
 
-  // FIX 1: Only attach mouse tooltip listeners on non-mobile
   if (!isMobile()) {
     card.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
     card.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
@@ -820,15 +1279,11 @@ function createCard(p, idx) {
   };
   card.ondragend = () => { card.style.opacity = "1"; document.body.classList.remove("is-dragging"); };
 
-  // MOBILE: tap-to-select / tap-to-place / tap-to-swap.
-  // Captain/VC tap-assignment still works via the click handler above
-  // (it returns early there if selectingCaptain/selectingVC is active).
   if (isMobile()) {
     if (selectedFieldIdx !== null && selectedFieldIdx === idx) card.classList.add("field-selected");
     card.addEventListener("click", () => {
-      if (selectingCaptain || selectingVC) return; // handled by the click listener above
+      if (selectingCaptain || selectingVC) return;
       if (selectedSquadIdx !== null) {
-        // Place the selected squad player into this occupied zone (swap out current occupant)
         const zone = card.closest(".zone");
         if (squad[selectedSquadIdx].country === "OS" && countOverseas() >= 4 && squad[idx].country !== "OS") {
           toast("Max 4 overseas players allowed!");
@@ -853,7 +1308,6 @@ function createCard(p, idx) {
         selectedFieldIdx = null;
         highlightSelection();
       } else {
-        // Swap two field cards
         const otherCard = document.querySelector(".selected-player[data-idx='" + selectedFieldIdx + "']");
         if (otherCard) {
           const zoneA = card.closest(".zone");
@@ -877,13 +1331,6 @@ document.addEventListener("touchmove", e => {
   const { ghost, offsetX, offsetY } = touchDragData;
   ghost.style.left = (touch.clientX - offsetX) + "px";
   ghost.style.top  = (touch.clientY - offsetY) + "px";
-  if (isMobile() && touchDragData.type === "squad") {
-    const drawer = document.getElementById("squadDrawer");
-    if (drawer && drawer.classList.contains("open")) {
-      const dr = drawer.getBoundingClientRect();
-      if (touch.clientX > dr.right + 20) closeDrawer();
-    }
-  }
   const z = zoneFromPoint(touch.clientX, touch.clientY);
   if (z !== lastHoveredZone) {
     if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
@@ -940,12 +1387,9 @@ zones.forEach(z => {
       dropOnZone(z, "card", cardIdx, srcZone, draggingCardEl);
     }
   };
-
-  // MOBILE: tap an empty zone to place a selected squad player there,
-  // or tap any zone to deselect a previously selected field card.
   z.addEventListener("click", e => {
     if (!isMobile()) return;
-    if (e.target.closest(".selected-player")) return; // handled by the card's own click listener
+    if (e.target.closest(".selected-player")) return;
     if (selectedSquadIdx !== null) {
       if (z.querySelector(".selected-player")) { toast("Slot is occupied!"); return; }
       const idx = selectedSquadIdx;
@@ -1052,65 +1496,6 @@ document.getElementById("resetBtn").onclick = () => {
   }, 350);
 };
 
-function openSuggest() {
-  const grid = document.getElementById("presetGrid");
-  grid.innerHTML = "";
-  presets.forEach((pr, pi) => {
-    const btn = document.createElement("button");
-    btn.className = "suggest-preset";
-    btn.innerHTML = '<span class="preset-label">' + pr.label + '</span><span class="preset-desc">' + pr.desc + '</span><div class="preset-lineup">' + pr.lineup + '</div>';
-    btn.onclick = () => previewSuggest(pi);
-    grid.appendChild(btn);
-  });
-  document.getElementById("suggestModal").classList.add("open");
-  previewSuggest(0);
-}
-function closeSuggest() { document.getElementById("suggestModal").classList.remove("open"); }
-
-function previewSuggest(pi) {
-  const pr = presets[pi];
-  currentSuggestXI = pr;
-  document.getElementById("previewTitle").textContent = "PREVIEW — " + pr.label.toUpperCase() + " XI";
-  const container = document.getElementById("suggestPreview");
-  container.innerHTML = "";
-  pr.indices.forEach((idx, i) => {
-    const p = squad[idx];
-    if (!p) return;
-    const row = document.createElement("div");
-    row.className = "suggest-player-row";
-    row.innerHTML = '<span class="spr-num">' + (i+1) + '</span><span class="spr-name">' + p.name + '</span><span class="spr-role">' + p.role + '</span>' + (p.country === "OS" ? '<span class="spr-flag">✈️</span>' : "");
-    container.appendChild(row);
-  });
-  document.querySelectorAll(".suggest-preset").forEach((b, j) => {
-    b.style.borderColor = j === pi ? "var(--rcb-red)" : "";
-    b.style.background = j === pi ? "rgba(177,18,38,0.14)" : "";
-  });
-}
-
-function applySuggest() {
-  if (!currentSuggestXI) return;
-  document.querySelectorAll(".zone").forEach(z => z.innerHTML = "");
-  squad.forEach(p => p.used = false);
-  captainName = null; vcName = null;
-  currentSuggestXI.indices.forEach((idx, pos) => {
-    const p = squad[idx];
-    if (!p) return;
-    const zone = document.querySelector(".zone[data-pos='" + pos + "']");
-    if (!zone) return;
-    const card = createCard(p, idx);
-    zone.appendChild(card);
-    p.used = true;
-  });
-  const viratInXI = currentSuggestXI.indices.includes(2);
-  captainName = viratInXI ? squad[2].name : squad[currentSuggestXI.indices[0]]?.name;
-  const nonCaptain = currentSuggestXI.indices.find(i => squad[i]?.name !== captainName);
-  vcName = nonCaptain !== undefined ? squad[nonCaptain]?.name : null;
-  refreshAllBadges();
-  renderSquad(); updateCount(); saveTeam();
-  closeSuggest();
-  toast("🤖 " + currentSuggestXI.label + " XI applied! ⚡", 2500);
-}
-
 function printXI() {
   const n = document.querySelectorAll(".selected-player").length;
   if (!n) { toast("Select players first! 🏏", 2000); return; }
@@ -1129,17 +1514,14 @@ function generateImage() {
   const W = COLS * CW + (COLS + 1) * PAD;
   const H = HEADER + ROWS * CH + (ROWS + 1) * PAD + FOOTER_H;
   canvas.width = W; canvas.height = H;
-
   ctx.fillStyle = "#080808";
   ctx.fillRect(0, 0, W, H);
-
   const hg = ctx.createLinearGradient(0, 0, W, 0);
   hg.addColorStop(0, "rgba(177,18,38,0.6)");
   hg.addColorStop(0.5, "rgba(201,168,76,0.3)");
   hg.addColorStop(1, "rgba(177,18,38,0.6)");
   ctx.fillStyle = hg;
   ctx.fillRect(0, 0, W, HEADER);
-
   ctx.font = "bold 22px 'Bebas Neue', sans-serif";
   ctx.fillStyle = "#C9A84C";
   ctx.textAlign = "center";
@@ -1147,13 +1529,10 @@ function generateImage() {
   ctx.font = "14px 'Barlow Condensed', sans-serif";
   ctx.fillStyle = "#888";
   ctx.fillText("IPL 2026 — PLAYING XI", W / 2, 56);
-
   ctx.strokeStyle = "#C9A84C";
   ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(0, HEADER - 1); ctx.lineTo(W, HEADER - 1); ctx.stroke();
-
   const rc = { BAT:"#4ade80", WK:"#60a5fa", AR:"#fbbf24", BOWL:"#f87171" };
-
   const imgPromises = cards.map((card, i) => {
     return new Promise(resolve => {
       const col = i % COLS;
@@ -1161,70 +1540,46 @@ function generateImage() {
       const x = PAD + col * (CW + PAD);
       const y = HEADER + PAD + row * (CH + PAD);
       const p = squad[card.dataset.idx];
-
       ctx.fillStyle = "#efefef";
       roundRect(ctx, x, y, CW, CH, 10); ctx.fill();
-
       ctx.fillStyle = rc[p?.role] || "#888";
       roundRect(ctx, x, y + CH - 22, CW, 22, [0, 0, 10, 10]); ctx.fill();
-
       const img = new Image();
       img.crossOrigin = "anonymous";
+      const drawMeta = () => {
+        if (p?.name === captainName) {
+          ctx.fillStyle = "#C9A84C";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("C", x + 15, y + 19);
+        } else if (p?.name === vcName) {
+          ctx.fillStyle = "#888";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("VC", x + 15, y + 19);
+        }
+        const name = p?.name || "Player";
+        ctx.fillStyle = "#1a0608";
+        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "…" : name, x + CW / 2, y + CH - 26);
+        ctx.fillStyle = "#1a0608";
+        ctx.font = "bold 9px sans-serif";
+        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
+        resolve();
+      };
       img.onload = () => {
         ctx.save();
         roundRect(ctx, x + 6, y + 6, CW - 12, CH - 36, 8);
         ctx.clip();
         ctx.drawImage(img, x + 6, y + 6, CW - 12, CH - 36);
         ctx.restore();
-
-        if (p?.name === captainName) {
-          ctx.fillStyle = "#C9A84C";
-          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = "#000"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
-          ctx.fillText("C", x + 15, y + 19);
-        } else if (p?.name === vcName) {
-          ctx.fillStyle = "#888";
-          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = "#000"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
-          ctx.fillText("VC", x + 15, y + 19);
-        }
-        const name = p?.name || "Player";
-        ctx.fillStyle = "#1a0608";
-        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "\u2026" : name, x + CW / 2, y + CH - 26);
-        ctx.fillStyle = "#1a0608";
-        ctx.font = "bold 9px sans-serif";
-        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
-
-        resolve();
+        drawMeta();
       };
-      img.onerror = () => {
-        if (p?.name === captainName) {
-          ctx.fillStyle = "#C9A84C";
-          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = "#000"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
-          ctx.fillText("C", x + 15, y + 19);
-        } else if (p?.name === vcName) {
-          ctx.fillStyle = "#888";
-          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = "#000"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
-          ctx.fillText("VC", x + 15, y + 19);
-        }
-        const name = p?.name || "Player";
-        ctx.fillStyle = "#1a0608";
-        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "\u2026" : name, x + CW / 2, y + CH - 26);
-        ctx.fillStyle = "#1a0608";
-        ctx.font = "bold 9px sans-serif";
-        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
-        resolve();
-      };
+      img.onerror = drawMeta;
       img.src = p?.img || fallbackImg;
     });
   });
-
   Promise.all(imgPromises).then(() => {
     ctx.fillStyle = "#333";
     ctx.font = "11px 'Barlow Condensed', sans-serif";
@@ -1346,13 +1701,11 @@ function openDrawer() {
   if (!isMobile()) return;
   squadDrawer.classList.add("open");
   drawerScrim.classList.add("visible");
-  // FIX 3: Hide the squad tab when drawer is open so it doesn't cover player names
   squadTab.classList.add("drawer-open");
 }
 function closeDrawer() {
   squadDrawer.classList.remove("open");
   drawerScrim.classList.remove("visible");
-  // FIX 3: Restore squad tab when drawer closes
   squadTab.classList.remove("drawer-open");
 }
 
