@@ -350,6 +350,19 @@ body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(177,18,38,0
   #roleWarningBar { padding: 0 8px 4px; }
   /* FIX 1: Completely disable tooltips on touch devices */
   .player-tooltip { display: none !important; }
+
+  /* Tap-to-select highlight states (mobile only) */
+  #drawerSquadList .player.squad-selected,
+  #squadList .player.squad-selected {
+    border-color: var(--rcb-gold) !important;
+    background: rgba(201,168,76,0.14) !important;
+    box-shadow: 0 0 0 2px var(--rcb-gold), 0 4px 16px rgba(201,168,76,0.25);
+  }
+  .selected-player.field-selected {
+    outline: 3px solid var(--rcb-gold);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 2px var(--rcb-gold), 0 6px 20px rgba(201,168,76,0.35) !important;
+  }
 }
 @media print {
   header, .squad, .stats-bar, #roleWarningBar, footer, #squadTab, #drawerScrim, #squadDrawer, body::before, body::after { display: none !important; }
@@ -549,6 +562,17 @@ const osBadge = document.getElementById("osBadge");
 const tooltip = document.getElementById("playerTooltip");
 
 let touchDragData = null, lastHoveredZone = null;
+// MOBILE tap-to-select state: selectedSquadIdx = index in `squad` array of a
+// player tapped in the squad list/drawer; selectedFieldIdx = index of a
+// player card tapped on the field, for swapping/repositioning.
+let selectedSquadIdx = null;
+let selectedFieldIdx = null;
+
+function highlightSelection() {
+  document.querySelectorAll(".selected-player").forEach(c => {
+    c.classList.toggle("field-selected", selectedFieldIdx !== null && parseInt(c.dataset.idx) === selectedFieldIdx);
+  });
+}
 
 let toastTimer;
 function toast(msg, duration = 2200) {
@@ -700,62 +724,27 @@ function renderSquad() {
           d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); hideTooltip(); };
           d.ondragend = () => document.body.classList.remove("is-dragging");
 
-          // FIX 2 (updated): Touch drag on squad player rows.
-          // Increased hold delay to 350ms and use a small, symmetric movement
-          // threshold on BOTH axes to cancel drag-intent the moment any
-          // scroll-like finger movement is detected. This makes vertical
-          // scrolling of the squad list smooth and reliable, while a genuine
-          // "press and hold still" still starts a drag.
-          let touchTimer = null;
-          let touchStartX = 0, touchStartY = 0;
-          let touchScrolling = false;
-
-          d.addEventListener("touchstart", e => {
-            if (p.used) return;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            touchScrolling = false;
-
-            // Hold for 350ms before initiating drag. If the finger moves
-            // beyond the threshold before this fires, touchScrolling becomes
-            // true and the drag is aborted — letting the browser scroll normally.
-            touchTimer = setTimeout(() => {
-              if (touchScrolling) return; // was a scroll, abort drag
-              // Confirmed drag intent — initiate ghost drag
-              e.preventDefault();
-              const touch = e.touches[0];
-              const rect = d.getBoundingClientRect();
-              const ghost = d.cloneNode(true);
-              ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:9px;box-shadow:0 8px 30px rgba(177,18,38,0.5);transform:scale(1.05);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
-              document.body.appendChild(ghost);
-              touchDragData = { type:"squad", idx:i, sourceZone:null, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
-              document.body.classList.add("is-dragging");
-            }, 350); // increased from 180ms — longer hold avoids accidental drag while scrolling
-          }, { passive: true }); // passive:true lets scroll happen naturally
-
-          d.addEventListener("touchmove", e => {
-            if (!touchTimer && !touchDragData) return;
-            const dx = Math.abs(e.touches[0].clientX - touchStartX);
-            const dy = Math.abs(e.touches[0].clientY - touchStartY);
-            // Any movement beyond a small threshold (in either direction)
-            // before the hold timer fires means the user is scrolling, not
-            // trying to drag — cancel the pending drag.
-            if (!touchDragData && (dx > 4 || dy > 4)) {
-              touchScrolling = true;
-              clearTimeout(touchTimer);
-              touchTimer = null;
-            }
-          }, { passive: true });
-
-          d.addEventListener("touchend", e => {
-            clearTimeout(touchTimer);
-            touchTimer = null;
-          }, { passive: true });
-
-          d.addEventListener("touchcancel", () => {
-            clearTimeout(touchTimer);
-            touchTimer = null;
-          });
+          // MOBILE: tap-to-select instead of touch-drag.
+          // No preventDefault/touchstart hijacking at all here, so native
+          // scrolling of the squad list / drawer is completely unaffected.
+          // Tapping a player row selects it (highlighted); tapping an empty
+          // zone on the field then places that player there. Tapping the
+          // same row again deselects it.
+          if (isMobile()) {
+            if (selectedSquadIdx === i) d.classList.add("squad-selected");
+            d.addEventListener("click", () => {
+              if (p.used) return;
+              if (selectedSquadIdx === i) {
+                selectedSquadIdx = null;
+              } else {
+                selectedSquadIdx = i;
+                selectedFieldIdx = null; // squad selection takes priority
+                toast("Tap a slot to place " + p.name, 2000);
+              }
+              renderSquad();
+              highlightSelection();
+            });
+          }
         }
         container.appendChild(d);
       });
@@ -831,51 +820,52 @@ function createCard(p, idx) {
   };
   card.ondragend = () => { card.style.opacity = "1"; document.body.classList.remove("is-dragging"); };
 
-  let touchStartX = 0, touchStartY = 0, touchMoved = false;
-  card.addEventListener("touchstart", e => {
-    if (e.target.classList.contains("remove-card")) return;
-    if (selectingCaptain || selectingVC) {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      touchMoved = false;
-      return;
-    }
-    e.preventDefault();
-    const touch = e.touches[0];
-    const rect = card.getBoundingClientRect();
-    const ghost = card.cloneNode(true);
-    ghost.style.cssText = "position:fixed;z-index:9999;pointer-events:none;width:" + rect.width + "px;opacity:0.85;border-radius:11px;box-shadow:0 10px 35px rgba(177,18,38,0.5);transform:scale(1.06);transition:none;left:" + (touch.clientX - rect.width/2) + "px;top:" + (touch.clientY - rect.height/2) + "px;";
-    document.body.appendChild(ghost);
-    touchDragData = { type:"card", idx, sourceZone:card.closest(".zone"), cardEl:card, ghost, offsetX:rect.width/2, offsetY:rect.height/2 };
-    card.style.opacity = "0.3";
-    document.body.classList.add("is-dragging");
-  }, { passive: false });
-
-  card.addEventListener("touchmove", e => {
-    if (selectingCaptain || selectingVC) {
-      const dx = e.touches[0].clientX - touchStartX;
-      const dy = e.touches[0].clientY - touchStartY;
-      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) touchMoved = true;
-    }
-  }, { passive: true });
-
-  card.addEventListener("touchend", e => {
-    if (e.target.classList.contains("remove-card")) return;
-    if ((selectingCaptain || selectingVC) && !touchMoved) {
-      e.preventDefault();
-      if (selectingCaptain) {
-        captainName = p.name; selectingCaptain = false;
-        captainBtn.classList.remove("active");
-        setSelectionHint(null); refreshAllBadges(); saveTeam();
-        toast(p.name + " named Captain ⭐");
-      } else if (selectingVC) {
-        vcName = p.name; selectingVC = false;
-        vcBtn.classList.remove("active");
-        setSelectionHint(null); refreshAllBadges(); saveTeam();
-        toast(p.name + " named Vice Captain 🔰");
+  // MOBILE: tap-to-select / tap-to-place / tap-to-swap.
+  // Captain/VC tap-assignment still works via the click handler above
+  // (it returns early there if selectingCaptain/selectingVC is active).
+  if (isMobile()) {
+    if (selectedFieldIdx !== null && selectedFieldIdx === idx) card.classList.add("field-selected");
+    card.addEventListener("click", () => {
+      if (selectingCaptain || selectingVC) return; // handled by the click listener above
+      if (selectedSquadIdx !== null) {
+        // Place the selected squad player into this occupied zone (swap out current occupant)
+        const zone = card.closest(".zone");
+        if (squad[selectedSquadIdx].country === "OS" && countOverseas() >= 4 && squad[idx].country !== "OS") {
+          toast("Max 4 overseas players allowed!");
+          return;
+        }
+        const oldIdx = parseInt(card.dataset.idx);
+        squad[oldIdx].used = false;
+        if (captainName === squad[oldIdx].name) captainName = null;
+        if (vcName === squad[oldIdx].name) vcName = null;
+        zone.innerHTML = "";
+        const newCard = createCard(squad[selectedSquadIdx], selectedSquadIdx);
+        zone.appendChild(newCard);
+        squad[selectedSquadIdx].used = true;
+        selectedSquadIdx = null;
+        renderSquad(); updateCount(); saveTeam();
+        autoCollapseDrawer();
+      } else if (selectedFieldIdx === null) {
+        selectedFieldIdx = idx;
+        highlightSelection();
+        toast("Tap another player to swap, or tap again to cancel", 2200);
+      } else if (selectedFieldIdx === idx) {
+        selectedFieldIdx = null;
+        highlightSelection();
+      } else {
+        // Swap two field cards
+        const otherCard = document.querySelector(".selected-player[data-idx='" + selectedFieldIdx + "']");
+        if (otherCard) {
+          const zoneA = card.closest(".zone");
+          const zoneB = otherCard.closest(".zone");
+          zoneA.appendChild(otherCard);
+          zoneB.appendChild(card);
+        }
+        selectedFieldIdx = null;
+        renderSquad(); updateCount(); saveTeam();
       }
-    }
-  }, { passive: false });
+    });
+  }
 
   return card;
 }
@@ -950,6 +940,27 @@ zones.forEach(z => {
       dropOnZone(z, "card", cardIdx, srcZone, draggingCardEl);
     }
   };
+
+  // MOBILE: tap an empty zone to place a selected squad player there,
+  // or tap any zone to deselect a previously selected field card.
+  z.addEventListener("click", e => {
+    if (!isMobile()) return;
+    if (e.target.closest(".selected-player")) return; // handled by the card's own click listener
+    if (selectedSquadIdx !== null) {
+      if (z.querySelector(".selected-player")) { toast("Slot is occupied!"); return; }
+      const idx = selectedSquadIdx;
+      if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
+      const card = createCard(squad[idx], idx);
+      z.appendChild(card);
+      squad[idx].used = true;
+      selectedSquadIdx = null;
+      renderSquad(); updateCount(); saveTeam();
+      autoCollapseDrawer();
+    } else if (selectedFieldIdx !== null) {
+      selectedFieldIdx = null;
+      highlightSelection();
+    }
+  });
 });
 
 squadList.ondragover = e => e.preventDefault();
