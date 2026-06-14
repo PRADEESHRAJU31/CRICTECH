@@ -1,395 +1,1752 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>KKR Playing XI Builder</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root{
-  --purple:#2B0A3D;
-  --gold:#D4AF37;
+:root {
+  --kkr-purple: #2B0A3D;
+  --kkr-purple-dark: #1a0626;
+  --kkr-purple-glow: rgba(94,23,143,0.45);
+  --kkr-gold: #D4AF37;
+  --kkr-gold-light: #f0d068;
+  --kkr-gold-glow: rgba(212,175,55,0.35);
+  --kkr-black: #080808;
+  --kkr-surface: #14081c;
+  --kkr-card: #1c0c28;
+  --kkr-border: #2e1640;
+  --kkr-border-bright: #3d1f54;
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.07);
+  --transition-snappy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Barlow Condensed', sans-serif;
+  background: var(--kkr-black);
+  min-height: 100vh;
+  color: #fff;
+  overflow-x: hidden;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 90% 65% at 10% -5%,  rgba(94,23,143,0.50) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 105%, rgba(94,23,143,0.28) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,  rgba(94,23,143,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 70% 20%,  rgba(212,175,55,0.07) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);
+  pointer-events: none; z-index: 0; opacity: 0.3;
+}
+header {
+  position: sticky; top: 0; z-index: 200;
+  background: linear-gradient(180deg, rgba(15,3,22,0.99) 0%, rgba(22,5,32,0.97) 100%);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid rgba(94,23,143,0.35);
+  padding: 0 20px; height: 72px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(94,23,143,0.2);
+}
+header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,transparent 0%,var(--kkr-purple) 10%,var(--kkr-gold) 35%,var(--kkr-gold-light) 50%,var(--kkr-gold) 65%,var(--kkr-purple) 90%,transparent 100%);
+  animation: shimmer-line 3s ease-in-out infinite;
+}
+@keyframes shimmer-line { 0%,100%{opacity:0.6}50%{opacity:1} }
+.header-logo { height: 52px; flex-shrink: 0; filter: drop-shadow(0 0 8px var(--kkr-purple-glow)); animation: logo-in 0.7s var(--transition-snappy) both, logo-pulse 4s ease-in-out 1s infinite; }
+@keyframes logo-in { from{opacity:0;transform:scale(0.6) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0deg)} }
+@keyframes logo-pulse { 0%,100%{filter:drop-shadow(0 0 6px var(--kkr-purple-glow))} 50%{filter:drop-shadow(0 0 16px var(--kkr-purple-glow)) drop-shadow(0 0 30px rgba(94,23,143,0.2))} }
+.header-center { text-align:center; flex:1; animation: slide-down 0.6s var(--transition-snappy) 0.1s both; }
+@keyframes slide-down { from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)} }
+.header-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(18px, 2.5vw, 30px); background: linear-gradient(135deg, var(--kkr-gold) 0%, var(--kkr-gold-light) 40%, var(--kkr-gold) 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 4px; line-height: 1; animation: text-shimmer 4s linear infinite; }
+@keyframes text-shimmer { 0%{background-position:0% center}100%{background-position:200% center} }
+.header-sub { font-size:10px; color:var(--kkr-gold); letter-spacing:3px; text-transform:uppercase; margin-top:3px; }
+.header-badges { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; animation: slide-down 0.6s var(--transition-snappy) 0.2s both; }
+.os-badge { background:var(--glass); border:1px solid var(--kkr-gold); color:var(--kkr-gold); padding:6px 14px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; white-space:nowrap; position:relative; overflow:hidden; transition:all 0.3s var(--transition-smooth); }
+.os-badge.over-limit { border-color:#ff3344; color:#ff3344; animation:danger-flash 0.5s ease-in-out infinite alternate; }
+@keyframes danger-flash { from{box-shadow:0 0 0 rgba(255,51,68,0);background:transparent} to{box-shadow:0 0 16px rgba(255,51,68,0.4);background:rgba(255,51,68,0.08)} }
+.header-btn { padding:6px 13px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; cursor:pointer; transition:all 0.25s var(--transition-smooth); white-space:nowrap; position:relative; overflow:hidden; }
+.header-btn:active { transform:scale(0.95); }
+#captainBtn { background:transparent; color:var(--kkr-gold); border:1px solid var(--kkr-gold); }
+#captainBtn.active { background:var(--kkr-gold); color:#000; box-shadow:0 0 20px var(--kkr-gold-glow),0 4px 12px rgba(0,0,0,0.4); animation:captain-pulse 1s ease-in-out infinite; }
+@keyframes captain-pulse { 0%,100%{box-shadow:0 0 20px var(--kkr-gold-glow),0 4px 12px rgba(0,0,0,0.4)} 50%{box-shadow:0 0 35px rgba(212,175,55,0.7),0 4px 20px rgba(0,0,0,0.5)} }
+#vcBtn { background:transparent; color:var(--kkr-gold); border:1px solid var(--kkr-gold); }
+#vcBtn.active { background:#888; color:#000; border-color:#888; box-shadow:0 0 15px rgba(136,136,136,0.4); }
+#resetBtn { background:transparent; color:var(--kkr-gold); border:1px solid var(--kkr-gold); box-shadow:0 2px 12px rgba(94,23,143,0.3); }
+#resetBtn:hover { box-shadow:0 4px 20px rgba(94,23,143,0.5); transform:translateY(-1px); }
+.main { display:grid; grid-template-columns:255px 1fr; gap:14px; padding:14px; max-width:1400px; width:100%; margin:0 auto; position:relative; z-index:1; flex:1; }
+.squad { background:var(--kkr-surface); border-radius:16px; padding:14px; border:1px solid var(--kkr-border); border-top:2px solid rgba(94,23,143,0.6); position:sticky; top:86px; max-height:calc(100vh - 100px); overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--kkr-purple) transparent; backdrop-filter:blur(10px); box-shadow:inset 0 1px 0 var(--glass-border),0 4px 24px rgba(0,0,0,0.4),0 0 0 1px rgba(94,23,143,0.08); animation:panel-in 0.5s var(--transition-snappy) 0.15s both; }
+@keyframes panel-in { from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)} }
+.squad::-webkit-scrollbar{width:3px}.squad::-webkit-scrollbar-track{background:transparent}.squad::-webkit-scrollbar-thumb{background:var(--kkr-purple);border-radius:3px}
+.squad-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--kkr-border); position:relative; }
+.squad-header::after { content:''; position:absolute; bottom:-1px; left:0; width:60%; height:1px; background:linear-gradient(90deg,var(--kkr-purple),var(--kkr-gold),transparent); }
+.squad-header h3 { font-family:'Bebas Neue',sans-serif; color:var(--kkr-gold); font-size:22px; letter-spacing:3px; text-shadow:0 0 20px var(--kkr-gold-glow); }
+.role-filters { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
+.role-filter { padding:4px 9px; border-radius:6px; font-size:11px; font-family:'Barlow Condensed',sans-serif; font-weight:700; letter-spacing:1px; cursor:pointer; border:1px solid var(--kkr-gold); background:transparent; color:var(--kkr-gold); transition:all 0.2s var(--transition-smooth); }
+.role-filter:hover{color:#fff;background:rgba(94,23,143,0.4);border-color:var(--kkr-purple)}
+.role-filter.active{background:var(--kkr-purple);color:#fff;border-color:var(--kkr-purple);box-shadow:0 0 10px rgba(94,23,143,0.4)}
+.squad-group-title { font-size:10px; font-family:'Barlow Condensed',sans-serif; letter-spacing:2.5px; color:var(--kkr-gold); text-transform:uppercase; margin:10px 0 4px; padding:0 4px; display:flex; align-items:center; gap:6px; }
+.squad-group-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--kkr-gold),transparent)}
+.player { padding:8px 10px; margin:3px 0; background:var(--kkr-card); border:1px solid var(--kkr-border); color:#bbb; border-radius:9px; cursor:grab; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:6px; transition:all 0.2s var(--transition-smooth); position:relative; overflow:hidden; animation:player-in 0.3s var(--transition-snappy) both; touch-action: manipulation; }
+@keyframes player-in{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.player::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kkr-purple);transform:scaleY(0);transition:transform 0.2s var(--transition-smooth);border-radius:0 2px 2px 0}
+.player:hover:not(.used){border-color:rgba(94,23,143,0.5);background:#22102e;color:#fff;transform:translateX(3px);box-shadow:0 4px 16px rgba(94,23,143,0.18),inset 0 0 0 1px rgba(94,23,143,0.12)}
+.player:hover:not(.used)::before{transform:scaleY(1)}
+.player.used{opacity:0.25;cursor:not-allowed;filter:grayscale(0.5)}
+.player-badges{display:flex;gap:3px;flex-shrink:0;align-items:center}
+.role-pill{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;letter-spacing:0.5px;padding:2px 5px;border-radius:4px}
+.role-BAT{background:rgba(30,77,43,0.8);color:#4ade80;border:1px solid rgba(74,222,128,0.2)}
+.role-WK{background:rgba(26,58,92,0.8);color:#60a5fa;border:1px solid rgba(96,165,250,0.2)}
+.role-AR{background:rgba(74,46,0,0.8);color:#fbbf24;border:1px solid rgba(251,191,36,0.2)}
+.role-BOWL{background:rgba(61,21,21,0.8);color:#f87171;border:1px solid rgba(248,113,113,0.2)}
+.os-flag{font-size:11px}
+.field-wrapper{display:flex;flex-direction:column;gap:12px;animation:panel-in-right 0.5s var(--transition-snappy) 0.2s both}
+@keyframes panel-in-right{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.order-section{ background:var(--kkr-surface);border-radius:16px;border:1px solid var(--kkr-border);border-top:2px solid rgba(94,23,143,0.5);overflow:hidden;position:relative;box-shadow:inset 0 1px 0 var(--glass-border),0 4px 20px rgba(0,0,0,0.3);transition:box-shadow 0.3s; }
+.order-section:hover{box-shadow:inset 0 1px 0 var(--glass-border),0 8px 36px rgba(94,23,143,0.18),0 0 0 1px rgba(94,23,143,0.12)}
+.order-label{ padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:var(--kkr-gold);border-bottom:1px solid rgba(94,23,143,0.2);background:linear-gradient(90deg,rgba(94,23,143,0.35) 0%,rgba(94,23,143,0.12) 45%,transparent 100%);position:relative;overflow:hidden; }
+.order-label::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--kkr-gold),var(--kkr-purple))}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px}
+.impact-row .zone:last-child{border-color:rgba(212,175,55,0.25);border-style:dashed;position:relative}
+.impact-row .zone:last-child::after{content:'IMPACT';position:absolute;bottom:7px;right:8px;font-size:10px;font-weight:950;letter-spacing:2px;color:var(--kkr-gold);opacity:0.8}
+.zone{ background:rgba(94,23,143,0.04);border-radius:13px;border:1.5px solid rgba(94,23,143,0.14);min-height:162px;display:flex;align-items:center;justify-content:center;transition:all 0.25s var(--transition-smooth);position:relative;overflow:hidden;touch-action: manipulation; }
+.zone:empty::before{content:'+ Drop here';font-size:10px;color:rgba(94,23,143,0.35);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;transition:color 0.2s}
+.zone:empty:hover::before{color:rgba(94,23,143,0.65)}
+.zone.drag-over{border-color:var(--kkr-purple);background:rgba(94,23,143,0.07);box-shadow:inset 0 0 20px rgba(94,23,143,0.1),0 0 22px rgba(94,23,143,0.2);animation:zone-breathe 0.8s ease-in-out infinite}
+@keyframes zone-breathe{0%,100%{box-shadow:inset 0 0 20px rgba(94,23,143,0.10),0 0 22px rgba(94,23,143,0.18)}50%{box-shadow:inset 0 0 32px rgba(94,23,143,0.18),0 0 38px rgba(94,23,143,0.32)}}
+.selected-player{ width:100%;height:100%;min-height:160px;background:#efefef;border-radius:11px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;cursor:grab;position:relative;transition:all 0.25s var(--transition-smooth);border:none;box-shadow:0 4px 16px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10);overflow:hidden;animation:card-drop 0.45s var(--transition-snappy) both;touch-action: manipulation; }
+@keyframes card-drop{0%{opacity:0;transform:scale(0.7) translateY(-20px)}60%{opacity:1;transform:scale(1.04) translateY(2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.selected-player img{display:block;width:100%;height:110px;object-fit:cover;object-position:center top;border-radius:8px;transition:transform 0.3s var(--transition-smooth)}
+.card-img-wrap{width:100%;height:110px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0}
+.card-name{margin-top:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;text-align:center;color:var(--kkr-purple);line-height:1.25}
+.card-role{font-size:10px;color:var(--kkr-gold);text-align:center;margin-top:2px;letter-spacing:1px;font-weight:700;text-shadow:0 0 1px rgba(0,0,0,0.3)}
+.captain-badge,.vc-badge{ position:absolute;top:5px;left:5px;font-family:'Bebas Neue',sans-serif;font-size:12px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;z-index:4;animation:badge-pop 0.4s var(--transition-snappy); }
+@keyframes badge-pop{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
+.captain-badge{background:linear-gradient(135deg,var(--kkr-gold-light),var(--kkr-gold));color:#000;box-shadow:0 0 12px var(--kkr-gold-glow),0 2px 6px rgba(0,0,0,0.4);animation:badge-pop 0.4s var(--transition-snappy),captain-glow 2s ease-in-out 0.5s infinite}
+@keyframes captain-glow{0%,100%{box-shadow:0 0 12px var(--kkr-gold-glow),0 2px 6px rgba(0,0,0,0.4)}50%{box-shadow:0 0 22px rgba(212,175,55,0.8),0 2px 8px rgba(0,0,0,0.5)}}
+.vc-badge{background:linear-gradient(135deg,#aaa,#777);color:#000;left:30px;box-shadow:0 0 8px rgba(136,136,136,0.4),0 2px 5px rgba(0,0,0,0.4)}
+.remove-card{ position:absolute;top:8px;right:5px;width:20px;height:20px;background:var(--kkr-purple);border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:5;line-height:1;transition:all 0.2s var(--transition-smooth);box-shadow:0 2px 8px rgba(94,23,143,0.5); }
+.selected-player:hover .remove-card{display:flex;animation:remove-appear 0.2s var(--transition-snappy)}
+@keyframes remove-appear{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+.remove-card:hover{background:#7c1fb5;transform:scale(1.2) rotate(90deg);box-shadow:0 0 14px rgba(124,31,181,0.65)}
+footer{text-align:center;padding:16px;color:#44444e;font-size:12px;letter-spacing:1.5px;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px}
+.xi-counter{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#555;letter-spacing:2px}
+.xi-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--kkr-gold);line-height:1}
+.xi-label{font-size:12px;text-transform:uppercase}
+.xi-dots{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;justify-content:center}
+.xi-dot{width:8px;height:8px;border-radius:50%;background:var(--kkr-border);transition:background 0.3s,transform 0.3s var(--transition-snappy)}
+.xi-dot.filled{background:var(--kkr-purple);transform:scale(1.2)}
+.xi-dot.impact{background:var(--kkr-gold);transform:scale(1.3)}
+.footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.share-btn,.print-btn,.img-btn,.suggest-btn{padding:9px 24px;background:transparent;border:1px solid var(--kkr-gold);color:var(--kkr-gold);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;transition:all 0.25s var(--transition-smooth)}
+.share-btn:hover,.print-btn:hover,.img-btn:hover{background:var(--kkr-purple);color:var(--kkr-gold);box-shadow:0 0 20px var(--kkr-purple-glow);transform:translateY(-2px)}
+.suggest-btn{border-color:#a855f7;color:#a855f7}
+.suggest-btn:hover{background:#a855f7;color:#fff;box-shadow:0 0 20px rgba(168,85,247,0.4);transform:translateY(-2px)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.conf{position:fixed;pointer-events:none;z-index:900;border-radius:2px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg) scale(1);opacity:1}100%{transform:translateY(105vh) rotate(var(--rot)) scale(0.6);opacity:0}}
+.stats-bar{position:relative;z-index:10;max-width:1440px;margin:0 auto;padding:0 16px 0;display:flex;gap:10px;flex-wrap:wrap;animation:fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.35s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.stat-pill{background:linear-gradient(135deg,rgba(20,20,20,0.95),rgba(14,14,14,0.98));border:1px solid rgba(255,255,255,0.06);border-radius:30px;padding:7px 16px;display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;color:#888;transition:all 0.3s}
+.stat-pill .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--kkr-gold);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.stat-pill .stat-bar{width:50px;height:4px;background:#1a1a1a;border-radius:4px;overflow:hidden}
+.stat-pill .stat-fill{height:100%;border-radius:4px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+#toast{ position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px) scale(0.9);background:var(--kkr-card);border:1px solid rgba(212,175,55,0.4);color:var(--kkr-gold);padding:10px 22px;border-radius:12px;font-weight:700;font-size:13px;letter-spacing:1px;opacity:0;transition:all 0.3s var(--transition-snappy);pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(212,175,55,0.1),inset 0 1px 0 rgba(255,255,255,0.05);backdrop-filter:blur(12px); }
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+body.is-dragging .zone:not(:has(.selected-player)){border-color:rgba(94,23,143,0.3);animation:zone-ready 1s ease-in-out infinite}
+@keyframes zone-ready{0%,100%{border-color:rgba(94,23,143,0.18);background:rgba(94,23,143,0.02)}50%{border-color:rgba(94,23,143,0.42);background:rgba(94,23,143,0.05)}}
+#roleWarningBar{ position:relative;z-index:10;max-width:1440px;margin:0 auto;padding:0 16px 6px;display:flex;gap:8px;flex-wrap:wrap;min-height:0; }
+.role-warn{ display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;animation:warn-pop 0.3s var(--transition-snappy); }
+@keyframes warn-pop{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.role-warn.warn{background:rgba(255,100,0,0.12);border:1px solid rgba(255,100,0,0.35);color:#ff9944}
+.role-warn.danger{background:rgba(255,30,50,0.12);border:1px solid rgba(255,30,50,0.35);color:#ff6677}
+.role-warn.ok{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+.player-tooltip{ position:fixed;z-index:8000;pointer-events:none;background:#170a20;border:1px solid rgba(94,23,143,0.5);border-radius:12px;padding:12px;width:200px;box-shadow:0 12px 40px rgba(0,0,0,0.8),0 0 0 1px rgba(212,175,55,0.1);opacity:0;transition:opacity 0.18s;font-family:'Barlow Condensed',sans-serif; }
+.player-tooltip.visible{opacity:1}
+.tooltip-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:0.5px}
+.tooltip-stat-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.tooltip-stat-row:last-child{border-bottom:none}
+.tooltip-stat-label{font-size:11px;color:#777;letter-spacing:1px;text-transform:uppercase}
+.tooltip-stat-val{font-size:13px;font-weight:700;color:var(--kkr-gold)}
+.tooltip-role-chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;margin-bottom:8px}
 
-body{
-  margin:0;
-  font-family:Arial;
-  background:var(--purple);
-  color:var(--gold);
-}
+/* ===================== AI SUGGEST MODAL ===================== */
+#suggestModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px); }
+#suggestModal.open{display:flex;animation:fadeIn 0.25s}
+.suggest-panel{ background:#0a0510;border:1px solid rgba(168,85,247,0.3);border-top:2px solid #a855f7;border-radius:20px;width:min(720px,96vw);max-height:92vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#a855f7 transparent;padding:28px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.95),0 0 60px rgba(168,85,247,0.12); }
+.suggest-panel::-webkit-scrollbar{width:3px}.suggest-panel::-webkit-scrollbar-thumb{background:#a855f7;border-radius:3px}
+.ai-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.ai-orb{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 0 20px rgba(168,85,247,0.5);animation:orb-pulse 2.5s ease-in-out infinite}
+@keyframes orb-pulse{0%,100%{box-shadow:0 0 20px rgba(168,85,247,0.5)}50%{box-shadow:0 0 40px rgba(168,85,247,0.8),0 0 60px rgba(168,85,247,0.3)}}
+.ai-header-text h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;background:linear-gradient(135deg,#a855f7,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.ai-header-text p{font-size:12px;color:#666;letter-spacing:1px;margin-top:4px}
+.suggest-close{ position:absolute;top:14px;right:14px;width:32px;height:32px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:8px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+.suggest-close:hover{background:#a855f7}
 
-header{
-  background:var(--gold);
-  padding:18px;
-  text-align:center;
-  font-size:26px;
-  font-weight:800;
-  color:var(--purple);
-  position:relative;
-}
-#kkrLogo{
-  position:absolute;
-  top:10px;
-  left:16px;
-  height:48px;
-  opacity:.85;
-}
-.header-actions{
-  position:absolute;
-  right:20px;
-  top:50%;
-  transform:translateY(-50%);
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
+/* Context inputs */
+.ai-context-section{margin-bottom:20px}
+.ai-context-label{font-size:11px;letter-spacing:2px;color:#a855f7;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ai-context-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(168,85,247,0.4),transparent)}
+.ai-chips-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ai-chip{ padding:6px 12px;border-radius:20px;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;border:1px solid rgba(168,85,247,0.3);background:transparent;color:#888;transition:all 0.2s; }
+.ai-chip:hover{border-color:#a855f7;color:#c084fc}
+.ai-chip.selected{background:rgba(168,85,247,0.2);border-color:#a855f7;color:#c084fc;box-shadow:0 0 10px rgba(168,85,247,0.2)}
+.ai-freetext{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(168,85,247,0.2);border-radius:10px;color:#ccc;font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:10px 14px;resize:none;outline:none;transition:border-color 0.2s;letter-spacing:0.5px}
+.ai-freetext:focus{border-color:rgba(168,85,247,0.6);background:rgba(168,85,247,0.04)}
+.ai-freetext::placeholder{color:#444}
 
+/* Generate button */
+.ai-generate-btn{ width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;margin-bottom:20px;box-shadow:0 4px 20px rgba(168,85,247,0.35);position:relative;overflow:hidden; }
+.ai-generate-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(168,85,247,0.55)}
+.ai-generate-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.ai-generate-btn .btn-shimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transform:translateX(-100%)}
+.ai-generate-btn.loading .btn-shimmer{animation:btn-shimmer 1.2s ease-in-out infinite}
+@keyframes btn-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
-#resetBtn,
-#captainBtn{
-  padding:6px 14px;
-  border:none;
-  border-radius:8px;
-  font-weight:800;
-  cursor:pointer;
-}
+/* Loading state */
+.ai-thinking{display:none;align-items:center;gap:10px;padding:16px;background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:10px;margin-bottom:16px}
+.ai-thinking.visible{display:flex}
+.think-dots{display:flex;gap:4px}
+.think-dot{width:6px;height:6px;border-radius:50%;background:#a855f7;animation:think 1.2s ease-in-out infinite}
+.think-dot:nth-child(2){animation-delay:0.2s}
+.think-dot:nth-child(3){animation-delay:0.4s}
+@keyframes think{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+.ai-thinking-text{font-size:13px;color:#888;letter-spacing:1px;font-style:italic}
 
+/* Result */
+.ai-result{display:none;animation:fadeIn 0.4s}
+.ai-result.visible{display:block}
+.ai-result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ai-result-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:#c084fc}
+.ai-result-subtitle{font-size:11px;color:#666;letter-spacing:1px}
+.ai-reason-box{background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.18);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#aaa;line-height:1.6;letter-spacing:0.3px}
+.ai-reason-box strong{color:#c084fc;letter-spacing:1px}
+.ai-player-rows{}
+.ai-player-row{ display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.02);border:1px solid transparent;border-radius:9px;margin-bottom:5px;transition:border-color 0.2s; }
+.ai-player-row:hover{border-color:rgba(168,85,247,0.25);background:rgba(168,85,247,0.04)}
+.ai-pr-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#a855f7;min-width:22px;text-align:center}
+.ai-pr-img{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid rgba(168,85,247,0.3);flex-shrink:0;background:#1a1a1a}
+.ai-pr-info{flex:1;min-width:0}
+.ai-pr-name{font-size:14px;font-weight:700;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-pr-reason{font-size:10px;color:#666;letter-spacing:0.5px;margin-top:1px}
+.ai-pr-badges{display:flex;gap:4px;flex-shrink:0;align-items:center}
+.ai-captain-chip{background:linear-gradient(135deg,var(--kkr-gold-light),var(--kkr-gold));color:#000;font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:1px}
+.ai-vc-chip{background:#888;color:#000;font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px;letter-spacing:1px}
+.ai-apply-btn{ width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,var(--kkr-purple),#1a0626);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;margin-top:14px;box-shadow:0 4px 20px rgba(94,23,143,0.4); }
+.ai-apply-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(94,23,143,0.6)}
+.ai-error{display:none;background:rgba(255,50,50,0.08);border:1px solid rgba(255,50,50,0.25);border-radius:10px;padding:12px 14px;color:#f87171;font-size:13px;letter-spacing:0.5px;margin-bottom:12px}
+.ai-error.visible{display:block}
 
-#captainBtn,#resetBtn{
-  background:var(--purple);
-  color:var(--gold);
-}
+/* Old preset section */
+.divider-line{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);margin:20px 0}
+.preset-section-label{font-size:11px;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:10px}
+.suggest-preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px}
+.suggest-preset{ background:rgba(94,23,143,0.05);border:1px solid rgba(94,23,143,0.18);border-radius:10px;padding:11px;cursor:pointer;transition:all 0.2s;text-align:left; }
+.suggest-preset:hover{border-color:var(--kkr-purple);background:rgba(94,23,143,0.12);transform:translateY(-1px)}
+.suggest-preset.active{border-color:var(--kkr-purple);background:rgba(94,23,143,0.14)}
+.preset-label{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--kkr-gold);display:block;margin-bottom:2px}
+.preset-desc{font-size:10px;color:#555;letter-spacing:0.3px}
 
-#resetBtn:hover,
-#captainBtn:hover{
-  opacity:.9;
+#imgModal{ position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px); }
+#imgModal.open{display:flex;animation:fadeIn 0.25s}
+.img-panel{ background:#0e0712;border:1px solid rgba(94,23,143,0.4);border-radius:18px;max-width:96vw;max-height:94vh;overflow:auto;padding:20px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.9);scrollbar-width:thin;scrollbar-color:var(--kkr-purple) transparent; }
+.img-close{ position:absolute;top:12px;right:12px;width:30px;height:30px;background:rgba(94,23,143,0.2);border:1px solid rgba(94,23,143,0.4);border-radius:8px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:background 0.2s; }
+.img-close:hover{background:var(--kkr-purple)}
+.img-panel canvas{display:block;border-radius:10px;max-width:100%}
+.img-dl-btn{ display:block;width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--kkr-gold),var(--kkr-gold-light));border:none;border-radius:10px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.2s; }
+.img-dl-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(212,175,55,0.5)}
+#drawerScrim  { display: none; }
+#squadDrawer  { display: none; }
+#squadTab     { display: none; }
+@media (max-width: 768px) {
+  body { min-height: unset; height: auto; }
+  header { padding: 6px 10px; height: auto; min-height: 56px; gap: 6px; flex-wrap: wrap; align-items: center; overflow: visible; }
+  .header-logo   { height: 40px; flex-shrink: 0; order: 0; }
+  .header-center { flex: 1; min-width: 0; text-align: left; order: 1; }
+  .header-sub    { display: none; }
+  .header-title  { font-size: 16px; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header-badges { width: 100%; display: flex; flex-wrap: wrap; gap: 5px; padding: 0 0 4px; order: 2; justify-content: flex-start; }
+  .os-badge   { font-size: 10px; padding: 3px 8px; }
+  .header-btn { font-size: 10px; padding: 3px 8px; letter-spacing: 0.3px; }
+  .main { display: block; padding: 6px 8px 8px; position: relative; z-index: 1; flex: none; }
+  .squad { display: none !important; }
+  .field-wrapper { width: 100%; display: flex; flex-direction: column; gap: 6px; overflow: visible; max-height: none; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 8px 8px; }
+  .order-label { font-size: 11px; letter-spacing: 2px; padding: 5px 10px; }
+  .order-section { border-radius: 12px; }
+  .zone { min-height: 0; height: 155px; border-radius: 10px; overflow: hidden; }
+  .zone:empty::before { font-size: 9px; }
+  .selected-player { height: 100%; min-height: unset; padding: 6px 5px 5px; border-radius: 9px; }
+  .card-img-wrap { height: 86px; border-radius: 7px; }
+  .selected-player img { height: 86px; border-radius: 7px; }
+  .card-name { font-size: 10.5px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; line-height: 1.2; }
+  .card-role { font-size: 8.5px; margin-top: 2px; }
+  .captain-badge, .vc-badge { width: 18px; height: 18px; font-size: 10px; top: 4px; left: 4px; }
+  .vc-badge { left: 24px; }
+  .remove-card { width: 18px; height: 18px; font-size: 9px; top: 4px; right: 4px; display: flex !important; }
+  .stats-bar { display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 8px 6px; gap: 6px; scrollbar-width: none; flex: none; width: 100%; max-width: 100vw; box-sizing: border-box; }
+  .stats-bar::-webkit-scrollbar { display: none; }
+  .stat-pill { flex-shrink: 0; font-size: 11px; padding: 5px 10px; gap: 5px; white-space: nowrap; }
+  .stat-pill .stat-bar { width: 24px; }
+  footer { padding: 6px 8px 10px; gap: 4px; flex: none; }
+  .xi-counter { gap: 5px; }
+  .xi-num { font-size: 16px; }
+  .xi-label { font-size: 9px; }
+  .xi-dots { gap: 3px; margin-top: 1px; }
+  .xi-dot { width: 6px; height: 6px; }
+  .footer-actions { gap: 5px; }
+  .share-btn,.print-btn,.img-btn,.suggest-btn { font-size: 10px; padding: 5px 10px; letter-spacing: 1px; }
+  #squadTab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    left: 0;
+    top: 50%;
+    margin-top: -52px;
+    z-index: 310;
+    background: var(--kkr-purple);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    padding: 16px 7px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    box-shadow: 3px 0 16px rgba(94,23,143,0.5);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-right: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    gap: 5px;
+    transition: transform 0.32s cubic-bezier(0.32,0.72,0,1), opacity 0.25s ease, left 0.32s cubic-bezier(0.32,0.72,0,1);
+  }
+  #squadTab.drawer-open { left: -60px; opacity: 0; pointer-events: none; }
+  #squadTab .tab-count { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0; color: rgba(255,255,255,0.75); writing-mode: vertical-lr; }
+  #drawerScrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 299; opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
+  #drawerScrim.visible { opacity: 1; pointer-events: none; }
+  #squadDrawer {
+    display: flex; flex-direction: column;
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 78vw; max-width: 300px;
+    z-index: 300;
+    background: var(--kkr-surface);
+    border-right: 2px solid var(--kkr-purple);
+    box-shadow: 6px 0 40px rgba(94,23,143,0.35);
+    transform: translateX(-100%);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+  }
+  #squadDrawer.open { transform: translateX(0); }
+  #drawerHandle { flex-shrink: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: linear-gradient(90deg, rgba(94,23,143,0.4) 0%, rgba(94,23,143,0.1) 100%); border-bottom: 1px solid rgba(94,23,143,0.3); cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
+  #drawerHandle::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--kkr-purple), var(--kkr-gold), transparent); }
+  .drawer-handle-left { display: flex; flex-direction: column; gap: 1px; }
+  .drawer-squad-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--kkr-gold); text-shadow: 0 0 12px var(--kkr-gold-glow); line-height: 1; }
+  #drawerSquadCount { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: rgba(212,175,55,0.6); letter-spacing: 1px; }
+  .drawer-close { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: rgba(94,23,143,0.2); border: 1px solid rgba(94,23,143,0.4); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+  .drawer-close:active { background: var(--kkr-purple); }
+  #drawerFilters { display: flex; gap: 5px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid var(--kkr-border); background: var(--kkr-surface); flex-shrink: 0; }
+  #drawerFilters .role-filter { font-size: 10px; padding: 3px 8px; }
+  #drawerBody { flex: 1; overflow-y: scroll; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 6px 10px 24px; scrollbar-width: thin; scrollbar-color: var(--kkr-purple) transparent; touch-action: pan-y; overscroll-behavior: contain; }
+  #drawerBody::-webkit-scrollbar { width: 3px; }
+  #drawerBody::-webkit-scrollbar-thumb { background: var(--kkr-purple); border-radius: 3px; }
+  #drawerSquadList .squad-group-title { font-size: 9px; letter-spacing: 1.5px; margin: 8px 0 3px; }
+  #drawerSquadList .player { font-size: 12px; padding: 8px 10px; border-radius: 8px; min-height: 44px; }
+  #drawerSquadList .player > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+  #drawerSquadList .role-pill { font-size: 8px; padding: 2px 5px; }
+  #drawerSquadList .os-flag { font-size: 10px; }
+  .role-warn { font-size: 10px; padding: 5px 10px; }
+  #roleWarningBar { padding: 0 8px 4px; }
+  .player-tooltip { display: none !important; }
+  #drawerSquadList .player.squad-selected,#squadList .player.squad-selected {
+    border-color: var(--kkr-gold) !important;
+    background: rgba(212,175,55,0.14) !important;
+    box-shadow: 0 0 0 2px var(--kkr-gold), 0 4px 16px rgba(212,175,55,0.25);
+  }
+  .selected-player.field-selected {
+    outline: 3px solid var(--kkr-gold);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 2px var(--kkr-gold), 0 6px 20px rgba(212,175,55,0.35) !important;
+  }
+  .suggest-panel { padding: 18px; }
+  .ai-chips-row { gap: 5px; }
+  .ai-chip { font-size: 11px; padding: 5px 10px; }
 }
-
-.main{
-  display:grid;
-  grid-template-columns:300px 1fr;
-  gap:20px;
-  padding:20px;
+@media print {
+  header, .squad, .stats-bar, #roleWarningBar, footer, #squadTab, #drawerScrim, #squadDrawer, body::before, body::after { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .main { display: block !important; padding: 10px !important; max-width: 100% !important; }
+  .field-wrapper { display: block !important; }
+  .order-section { background: #fff !important; border: 1px solid #ccc !important; margin-bottom: 12px; break-inside: avoid; }
+  .order-label { color: #2B0A3D !important; background: none !important; border-bottom: 1px solid #eee !important; }
+  .row { grid-template-columns: repeat(4, 1fr) !important; }
+  .zone { border: 1px dashed #ccc !important; min-height: 140px !important; background: #fafafa !important; }
+  .selected-player { box-shadow: none !important; }
+  .remove-card { display: none !important; }
+  .captain-badge, .vc-badge { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
-
-.squad{
-  background:var(--gold);
-  border-radius:14px;
-  padding:14px;
-  min-height:520px;
-  overflow-y:auto;
-}
-.squad h3{text-align:center;margin-top:0;color:var(--purple)}
-.player{
-  padding:8px;
-  margin:6px 0;
-  background:var(--purple);
-  border-radius:8px;
-  cursor:grab;
-}
-
-.player.used{
-  opacity:.35;
-  cursor:not-allowed;
-}
-
-.field{
-  display:grid;
-  grid-template-rows:repeat(3,1fr);
-  gap:20px;
-}
-
-.row{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:14px;
-}
-
-.row-title{
-  grid-column:1/-1;
-  text-align:center;
-  color:var(--gold);
-  font-weight:bold;
-  margin-bottom:4px;
-}
-
-.zone{
-  background:#1A0B23;border-radius:14px;
-  min-height:170px;
-  display:flex;align-items:center;justify-content:center;
-  border:5px solid var(--gold);padding:10px
-}
-
-.zone.impact{
-  border:5px dashed var(--gold);
-}
-
-.selected-player{
-  background:#E5E7EB;border-radius:12px;
-  padding:12px;width:100%;height:100%;
-  box-sizing:border-box;position:relative;
-  cursor:grab
-}
-
-.selected-player > *{position:relative;z-index:1}
-
-.selected-player img{
-  width:100%;height:120px;
-  object-fit:cover;object-position:center top;
-  border-radius:8px
-}
-.selected-player .name{
-  margin-top:8px;
-  font-weight:700;
-  text-align:center;
-  letter-spacing:.6px;
-  transition:transform .2s,color .2s
-}
-.selected-player .role{
-  font-size:12px;
-  text-align:center;
-  margin-top:4px;
-  color:#000000;
-  transition:opacity .2s
-}
-.selected-player:hover .name{
-  transform:scale(1.05);
-  color:var(--purple)
-}
-.selected-player:hover .role{opacity:.85}
-.captain-badge{
-  position:absolute;top:6px;left:6px;
-  background:var(--purple);color:#fff;
-  font-weight:bold;font-size:12px;
-  padding:4px 8px;border-radius:6px
-}
-
-footer{
-  text-align:center;
-  padding:14px;
-  font-size:13px;
-  opacity:.9;
-}
-#xiCount{font-weight:bold}
 </style>
 </head>
-
 <body>
 <header>
-  <img id="kkrLogo" src="https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png" alt="KKR Logo">
-  KOLKATA KNIGHT RIDERS PLAYING XII
-  <div class="header-actions">
-      <button id="captainBtn">SELECT CAPTAIN</button>
-      <button id="resetBtn">RESET TEAM</button>
+  <img class="header-logo" src="https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png" alt="KKR">
+  <div class="header-center">
+    <div class="header-title">Kolkata Knight Riders <span style="font-size:clamp(14px,1.8vw,22px);letter-spacing:2px;" title="IPL Champions">&#9733;&#9733;&#9733;</span></div>
+    <div class="header-sub">Playing XI Builder &mdash; IPL 2026</div>
+  </div>
+  <div class="header-badges">
+    <div class="os-badge" id="osBadge">Overseas: 0 / 4</div>
+    <button class="header-btn" id="captainBtn">&#11088; Captain</button>
+    <button class="header-btn" id="vcBtn">&#128304; Vice Captain</button>
+    <button class="header-btn" id="resetBtn">&#8634; Reset</button>
   </div>
 </header>
 
-
-
 <div class="main">
-
-<div class="squad">
-<h3 style="text-align:center">KKR Squad</h3>
-<div id="squadList"></div>
+  <div class="squad">
+    <div class="squad-header">
+      <h3>Squad</h3>
+      <span id="squadCount" style="color:var(--kkr-gold);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;">25 players</span>
+    </div>
+    <div class="role-filters" id="roleFilters">
+      <div class="role-filter active" data-role="ALL">ALL</div>
+      <div class="role-filter" data-role="BAT">BAT</div>
+      <div class="role-filter" data-role="WK">WK</div>
+      <div class="role-filter" data-role="AR">AR</div>
+      <div class="role-filter" data-role="BOWL">BOWL</div>
+    </div>
+    <div id="squadList"></div>
+  </div>
+  <div class="field-wrapper">
+    <div class="order-section">
+      <div class="order-label">Top Order</div>
+      <div class="row" id="row-top">
+        <div class="zone" data-pos="0"></div>
+        <div class="zone" data-pos="1"></div>
+        <div class="zone" data-pos="2"></div>
+        <div class="zone" data-pos="3"></div>
+      </div>
+    </div>
+    <div class="order-section">
+      <div class="order-label">Middle Order</div>
+      <div class="row" id="row-mid">
+        <div class="zone" data-pos="4"></div>
+        <div class="zone" data-pos="5"></div>
+        <div class="zone" data-pos="6"></div>
+        <div class="zone" data-pos="7"></div>
+      </div>
+    </div>
+    <div class="order-section">
+      <div class="order-label">Lower Order + Impact Player</div>
+      <div class="row impact-row" id="row-low">
+        <div class="zone" data-pos="8"></div>
+        <div class="zone" data-pos="9"></div>
+        <div class="zone" data-pos="10"></div>
+        <div class="zone" data-pos="11" title="Impact Player slot"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="field">
-<div class="row">
-<div class="row-title">TOP ORDER</div>
-<div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone"></div>
+<button id="squadTab" aria-label="Open squad">SQUAD<span class="tab-count" id="tabCount">25</span></button>
+<div id="drawerScrim"></div>
+<div id="squadDrawer">
+  <div id="drawerHandle">
+    <div class="drawer-handle-left">
+      <span class="drawer-squad-title">Squad</span>
+      <span id="drawerSquadCount">25 available</span>
+    </div>
+    <div class="drawer-close" id="drawerClose">&#10005;</div>
+  </div>
+  <div id="drawerFilters">
+    <div class="role-filter active" data-role="ALL">ALL</div>
+    <div class="role-filter" data-role="BAT">BAT</div>
+    <div class="role-filter" data-role="WK">WK</div>
+    <div class="role-filter" data-role="AR">AR</div>
+    <div class="role-filter" data-role="BOWL">BOWL</div>
+  </div>
+  <div id="drawerBody"><div id="drawerSquadList"></div></div>
 </div>
 
-<div class="row">
-<div class="row-title">MIDDLE ORDER</div>
-<div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone"></div>
-</div>
+<div id="roleWarningBar"></div>
 
-<div class="row">
-<div class="row-title">LOWER ORDER + IMPACT</div>
-<div class="zone"></div><div class="zone"></div><div class="zone"></div><div class="zone impact"></div>
-</div>
-</div>
-
+<div class="stats-bar" id="statsBar">
+  <div class="stat-pill"><span>BATTERS</span><div class="stat-bar"><div class="stat-fill" id="sfBAT" style="background:#4ade80;width:0%"></div></div><span class="stat-val" id="svBAT">0</span></div>
+  <div class="stat-pill"><span>WK</span><div class="stat-bar"><div class="stat-fill" id="sfWK" style="background:#60a5fa;width:0%"></div></div><span class="stat-val" id="svWK">0</span></div>
+  <div class="stat-pill"><span>ALL-ROUNDERS</span><div class="stat-bar"><div class="stat-fill" id="sfAR" style="background:#fbbf24;width:0%"></div></div><span class="stat-val" id="svAR">0</span></div>
+  <div class="stat-pill"><span>BOWLERS</span><div class="stat-bar"><div class="stat-fill" id="sfBOWL" style="background:#f87171;width:0%"></div></div><span class="stat-val" id="svBOWL">0</span></div>
+  <div class="stat-pill"><span>OVERSEAS</span><div class="stat-bar"><div class="stat-fill" id="sfOS" style="background:#D4AF37;width:0%"></div></div><span class="stat-val" id="svOS">0</span></div>
 </div>
 
 <footer>
-<div id="count">Selected: 0 / 11 + 1 Impact</div>
+  <div class="xi-counter">
+    <span class="xi-label">SELECTED</span>
+    <span class="xi-num" id="xiNum">0</span>
+    <span class="xi-label">/ 11 + 1</span>
+  </div>
+  <div class="xi-dots" id="xiDots"></div>
+  <div class="footer-actions">
+    <button class="suggest-btn" onclick="openSuggest()">&#129302; AI SUGGEST XI</button>
+    <button class="share-btn" onclick="openShare()">&#128228; SHARE XI</button>
+    <button class="print-btn" onclick="printXI()">&#128424; PRINT XI</button>
+    <button class="img-btn" onclick="generateImage()">&#128444; GENERATE IMAGE</button>
+  </div>
 </footer>
 
+<div id="toast"></div>
+<div class="player-tooltip" id="playerTooltip"></div>
+
+<!-- ========== AI SUGGEST MODAL ========== -->
+<div id="suggestModal">
+  <div class="suggest-panel">
+    <button class="suggest-close" onclick="closeSuggest()">&#10005;</button>
+
+    <div class="ai-header">
+      <div class="ai-orb">&#129302;</div>
+      <div class="ai-header-text">
+        <h2>AI Team Selector</h2>
+        <p>POWERED BY CLAUDE &mdash; CONTEXTUAL XI RECOMMENDATIONS</p>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Match Conditions</div>
+      <div class="ai-chips-row" id="pitchChips">
+        <div class="ai-chip" data-group="pitch" data-val="batting pitch">Batting Pitch</div>
+        <div class="ai-chip" data-group="pitch" data-val="bowling pitch">Bowling Pitch</div>
+        <div class="ai-chip" data-group="pitch" data-val="spin-friendly surface">Spin Friendly</div>
+        <div class="ai-chip" data-group="pitch" data-val="seam-friendly surface">Seam Friendly</div>
+        <div class="ai-chip" data-group="pitch" data-val="neutral pitch">Neutral</div>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Opposition</div>
+      <div class="ai-chips-row" id="oppChips">
+        <div class="ai-chip" data-group="opp" data-val="vs strong batting side">vs Strong Batters</div>
+        <div class="ai-chip" data-group="opp" data-val="vs strong bowling attack">vs Strong Bowlers</div>
+        <div class="ai-chip" data-group="opp" data-val="vs spin-heavy bowling">vs Spin Heavy</div>
+        <div class="ai-chip" data-group="opp" data-val="vs pace-heavy bowling">vs Pace Heavy</div>
+        <div class="ai-chip" data-group="opp" data-val="vs balanced side">vs Balanced Side</div>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Strategy Priority</div>
+      <div class="ai-chips-row" id="stratChips">
+        <div class="ai-chip" data-group="strat" data-val="aggressive batting-first strategy">Batting First</div>
+        <div class="ai-chip" data-group="strat" data-val="chase-oriented lineup">Chase Specialist</div>
+        <div class="ai-chip" data-group="strat" data-val="wicket-taking bowling attack">Wicket Taking</div>
+        <div class="ai-chip" data-group="strat" data-val="balanced all-round team">Balanced</div>
+      </div>
+    </div>
+
+    <div class="ai-context-section">
+      <div class="ai-context-label">Additional Notes <span style="color:#555;font-size:10px;letter-spacing:0.5px;font-style:italic">(optional)</span></div>
+      <textarea class="ai-freetext" id="aiNotes" rows="2" placeholder="e.g. Narine must play, avoid risky all-rounders, it's a must-win game..."></textarea>
+    </div>
+
+    <button class="ai-generate-btn" id="aiGenerateBtn" onclick="generateAIXI()">
+      <span class="btn-shimmer"></span>
+      &#9889; GENERATE MY XI
+    </button>
+
+    <div class="ai-thinking" id="aiThinking">
+      <div class="think-dots">
+        <div class="think-dot"></div>
+        <div class="think-dot"></div>
+        <div class="think-dot"></div>
+      </div>
+      <div class="ai-thinking-text" id="aiThinkingText">Analysing squad and match conditions…</div>
+    </div>
+
+    <div class="ai-error" id="aiError"></div>
+
+    <div class="ai-result" id="aiResult">
+      <div class="ai-result-header">
+        <div>
+          <div class="ai-result-title" id="aiResultTitle">AI RECOMMENDED XI</div>
+          <div class="ai-result-subtitle" id="aiResultSubtitle"></div>
+        </div>
+      </div>
+      <div class="ai-reason-box" id="aiReasonBox"></div>
+      <div class="ai-player-rows" id="aiPlayerRows"></div>
+      <button class="ai-apply-btn" onclick="applyAIXI()">&#9889; APPLY THIS XI TO FIELD</button>
+    </div>
+
+    <div class="divider-line"></div>
+    <div class="preset-section-label">Or pick a quick preset</div>
+    <div class="suggest-preset-grid" id="presetGrid"></div>
+  </div>
+</div>
+
+<div id="imgModal">
+  <div class="img-panel">
+    <button class="img-close" onclick="closeImgModal()">&#10005;</button>
+    <canvas id="xiCanvas"></canvas>
+    <button class="img-dl-btn" onclick="downloadImage()">&#8681; DOWNLOAD XI IMAGE</button>
+  </div>
+</div>
+
 <script>
-const fallbackImg="https://via.placeholder.com/120";
-let draggingCard=null;
-let selectingCaptain=false;
-const squad=[
-{name:"AJINKYA RAHANE",role:"BATTER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/44.png"},
-{name:"RINKU SINGH",role:"BATTER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/152.png"},
-{name:"ANGKRISH RAGHUVANSHI",role:"BATTER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/787.png"},
-{name:"MANISH PANDEY",role:"BATTER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/16.png"},
-{name:"ROWMAN POWELL",role:"BATTER",os:true,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/329.png"},
-{name:"ANKUL ROY",role:"ALL-ROUNDER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/160.png"},
-{name:"RAMANDEEP SINGH",role:"ALL-ROUNDER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/991.png"},
-{name:"VAIBHAV ARORA",role:"BOWLER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/583.png"},
-{name:"NAVDEEP SAINI",role:"BOWLER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/207.png"},
-{name:"SUNIL NARINE",role:"BOWLER",os:true,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/156.png"},
-{name:"VARUN CHAKRAVARTHY",role:"BOWLER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/140.png"},
-{name:"CAMERON GREEN",role:"BATTER",os:true,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/550.png"},
-{name:"FINN ALLEN",role:"WK-BATTER",os:true,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/595.png"},
-{name:"TEJASVI SINGH",role:"WK-BATTER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4281.png"},
-{name:"RAHUL TRIPATHI",role:"BATTER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/188.png"},
-{name:"TIM SEIFERT",role:"WK-BATTER",os:true,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/82.png"},
-{name:"SARTHAK RANJAN",role:"ALL-ROUNDER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4203.png"},
-{name:"DAKSH KARMA",role:"ALL-ROUNDER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4548.png"},
-{name:"RACHIN RAVINDRA",role:"ALL-ROUNDER",os:true,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/724.png"},
-{name:"MATHEESHA PATHIRANA",role:"BOWLER",os:true,img:"https://www.wisden.com/static-assets/images/players/73830.png?v=23.61"},
-{name:"KARTHIK TYAGI",role:"BOWLER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/536.png"},
-{name:"PRASHANT SOLANKI",role:"BOWLER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/972.png"},
-{name:"BLESSING MUZARABANI",role:"BOWLER",os:true,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/827.png"},
-{name:"SAURABH DUBEY",role:"BOWLER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1010.png"},
-{name:"UMRAN MALIK",role:"BOWLER",os:false,img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/637.png"}
+const fallbackImg = "https://placehold.co/120x110/111/333?text=?";
+let selectingCaptain = false, selectingVC = false;
+let captainName = null, vcName = null;
+let activeFilter = "ALL";
+let currentAIXI = null;
+function autoCollapseDrawer() {}
+
+const squad = [
+  {name:"Ajinkya Rahane",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/44.png",stats:{matches:178,runs:4642,avg:31.0,sr:120.6,wickets:0,economy:0}},
+  {name:"Rinku Singh",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/152.png",stats:{matches:71,runs:1571,avg:33.4,sr:147.4,wickets:0,economy:0}},
+  {name:"Angkrish Raghuvanshi",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/787.png",stats:{matches:23,runs:586,avg:26.6,sr:147.2,wickets:0,economy:0}},
+  {name:"Manish Pandey",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/16.png",stats:{matches:171,runs:3413,avg:29.9,sr:120.9,wickets:0,economy:0}},
+  {name:"Rovman Powell",role:"BAT",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/329.png",stats:{matches:38,runs:704,avg:23.5,sr:148.7,wickets:0,economy:0}},
+  {name:"Rahul Tripathi",role:"BAT",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/188.png",stats:{matches:120,runs:2750,avg:26.7,sr:142.9,wickets:0,economy:0}},
+  {name:"Cameron Green",role:"BAT",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/550.png",stats:{matches:32,runs:712,avg:28.5,sr:144.6,wickets:18,economy:9.0}},
+  {name:"Finn Allen",role:"WK",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/595.png",stats:{matches:14,runs:398,avg:30.6,sr:165.8,wickets:0,economy:0}},
+  {name:"Tim Seifert",role:"WK",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/82.png",stats:{matches:18,runs:412,avg:27.5,sr:158.2,wickets:0,economy:0}},
+  {name:"Tejasvi Singh",role:"WK",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4281.png",stats:{matches:4,runs:62,avg:20.7,sr:135.0,wickets:0,economy:0}},
+  {name:"Ankul Roy",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/160.png",stats:{matches:6,runs:88,avg:17.6,sr:128.4,wickets:5,economy:8.7}},
+  {name:"Ramandeep Singh",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/991.png",stats:{matches:24,runs:312,avg:24.0,sr:158.4,wickets:8,economy:9.6}},
+  {name:"Sarthak Ranjan",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4203.png",stats:{matches:3,runs:40,avg:13.3,sr:110.0,wickets:3,economy:9.1}},
+  {name:"Daksh Karma",role:"AR",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/4548.png",stats:{matches:2,runs:18,avg:9.0,sr:105.9,wickets:2,economy:9.4}},
+  {name:"Rachin Ravindra",role:"AR",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/724.png",stats:{matches:18,runs:486,avg:34.7,sr:138.3,wickets:9,economy:8.2}},
+  {name:"Sunil Narine",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/156.png",stats:{matches:182,runs:1622,avg:13.5,sr:166.0,wickets:198,economy:6.6}},
+  {name:"Varun Chakravarthy",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/140.png",stats:{matches:88,runs:42,avg:6.0,sr:60.0,wickets:108,economy:7.5}},
+  {name:"Vaibhav Arora",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/583.png",stats:{matches:30,runs:38,avg:9.5,sr:90.5,wickets:34,economy:8.7}},
+  {name:"Navdeep Saini",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/207.png",stats:{matches:57,runs:24,avg:6.0,sr:66.7,wickets:57,economy:8.6}},
+  {name:"Matheesha Pathirana",role:"BOWL",country:"OS",img:"https://www.wisden.com/static-assets/images/players/73830.png?v=23.61",stats:{matches:34,runs:6,avg:3.0,sr:50.0,wickets:48,economy:8.0}},
+  {name:"Karthik Tyagi",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/536.png",stats:{matches:15,runs:8,avg:4.0,sr:57.1,wickets:14,economy:9.3}},
+  {name:"Prashant Solanki",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/972.png",stats:{matches:12,runs:4,avg:4.0,sr:50.0,wickets:11,economy:9.6}},
+  {name:"Blessing Muzarabani",role:"BOWL",country:"OS",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/827.png",stats:{matches:9,runs:2,avg:2.0,sr:40.0,wickets:10,economy:8.9}},
+  {name:"Saurabh Dubey",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/1010.png",stats:{matches:5,runs:0,avg:0,sr:0,wickets:5,economy:9.8}},
+  {name:"Umran Malik",role:"BOWL",country:"IND",img:"https://documents.iplt20.com/ipl/IPLHeadshot2026/637.png",stats:{matches:31,runs:6,avg:6.0,sr:54.5,wickets:38,economy:9.1}},
 ];
-const squadList=document.getElementById("squadList");
-const zones=[...document.querySelectorAll(".zone")];
-const captainBtn=document.getElementById("captainBtn");
-const xiCount=document.getElementById("xiCount");
 
-function createCard(p,idx){
-  const card=document.createElement("div");
-  card.className="selected-player";
-  card.dataset.idx=idx;
-  card.draggable=true;
-  card.innerHTML=`
-    <img src="${p.img||fallbackImg}">
-    <div class="name">${p.name}${p.os ? " ✈️" : ""}</div>
+const presets = [
+  {label:"Balanced XI",indices:[1,7,0,3,5,11,14,6,15,16,18]},
+  {label:"Batting Heavy",indices:[1,7,0,2,3,14,11,6,15,16,17]},
+  {label:"Bowling Attack",indices:[1,7,0,3,11,15,16,17,19,20,23]},
+  {label:"Spin-Heavy",indices:[1,7,0,3,11,15,16,21,18,14,6]},
+  {label:"Power Hitters",indices:[1,7,2,0,3,11,14,6,15,16,18]},
+  {label:"Narine's Choice",indices:[1,7,0,3,5,11,14,6,15,16,20]}
+];
 
-    <div class="role">${p.role}</div>
-  `;
-  card.onclick=()=>{
-    if(!selectingCaptain) return;
-    document.querySelectorAll(".captain-badge").forEach(b=>b.remove());
-    const b=document.createElement("div");
-    b.className="captain-badge";b.textContent="C";
-    card.appendChild(b);
-    selectingCaptain=false;
-    captainBtn.classList.remove("active");
-    saveTeam();
+// Chip selection state
+const chipSelections = { pitch: null, opp: null, strat: null };
+
+document.querySelectorAll('.ai-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const group = chip.dataset.group;
+    const val = chip.dataset.val;
+    if (chipSelections[group] === val) {
+      chipSelections[group] = null;
+      chip.classList.remove('selected');
+    } else {
+      document.querySelectorAll(`.ai-chip[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
+      chipSelections[group] = val;
+      chip.classList.add('selected');
+    }
+  });
+});
+
+// ============ AI GENERATION ============
+function generateAIXI() {
+  const btn = document.getElementById('aiGenerateBtn');
+  const thinking = document.getElementById('aiThinking');
+  const result = document.getElementById('aiResult');
+  const errorEl = document.getElementById('aiError');
+  const thinkingText = document.getElementById('aiThinkingText');
+
+  result.classList.remove('visible');
+  errorEl.classList.remove('visible');
+  thinking.classList.add('visible');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const thinkingMsgs = [
+    "Analysing squad stats and form…",
+    "Checking overseas player limits…",
+    "Balancing batting and bowling depth…",
+    "Factoring in match conditions…",
+    "Finalising captain and vice-captain…"
+  ];
+  let msgIdx = 0;
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % thinkingMsgs.length;
+    thinkingText.textContent = thinkingMsgs[msgIdx];
+  }, 1400);
+
+  // Simulate thinking time then run local engine
+  setTimeout(() => {
+    clearInterval(msgInterval);
+    try {
+      const xi = runSelectionEngine();
+      currentAIXI = xi;
+      renderAIResult(xi);
+      result.classList.add('visible');
+    } catch(err) {
+      errorEl.textContent = '⚠️ ' + err.message;
+      errorEl.classList.add('visible');
+    } finally {
+      thinking.classList.remove('visible');
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }, 2800);
+}
+
+/* ── SMART LOCAL SELECTION ENGINE ─────────────────────────────────────────
+   Scores every squad player based on their stats + the selected conditions,
+   then assembles a valid XI (≤4 OS, ≥1 WK, ≥3 dedicated bowlers) ordered
+   by batting role for the field layout, with a reasoned summary.
+──────────────────────────────────────────────────────────────────────────*/
+function runSelectionEngine() {
+  const pitch   = chipSelections.pitch  || 'neutral';
+  const opp     = chipSelections.opp    || 'balanced';
+  const strat   = chipSelections.strat  || 'balanced';
+  const notes   = (document.getElementById('aiNotes').value || '').toLowerCase();
+
+  // ── weights vary by condition ──────────────────────────────────────────
+  const isBatPitch    = pitch.includes('batting');
+  const isSpinPitch   = pitch.includes('spin');
+  const isSeamPitch   = pitch.includes('seam') || pitch.includes('bowling');
+  const vsSpinHeavy   = opp.includes('spin');
+  const vsPaceHeavy   = opp.includes('pace');
+  const vsStrongBat   = opp.includes('strong batting');
+  const needChase     = strat.includes('chase');
+  const needWickets   = strat.includes('wicket');
+  const needBatFirst  = strat.includes('batting-first') || strat.includes('batting first');
+
+  // ── mandatory-from-notes detection ────────────────────────────────────
+  const forcedNames = squad
+    .filter(p => notes.includes(p.name.toLowerCase().split(' ')[0].toLowerCase()) ||
+                 notes.includes(p.name.toLowerCase()))
+    .map(p => p.name);
+
+  // ── score each player ─────────────────────────────────────────────────
+  const scored = squad.map((p, idx) => {
+    let score = 0;
+    const s = p.stats;
+
+    if (p.role === 'BAT') {
+      score += s.runs / 60;
+      score += s.avg  * 0.6;
+      score += (s.sr - 120) * 0.25;
+      if (isBatPitch || needBatFirst) score += 18;
+      if (needChase)  score += s.sr > 140 ? 14 : 6;
+      if (vsSpinHeavy) score += s.avg > 30 ? 10 : 3;   // need solid technique
+      if (vsPaceHeavy) score += s.sr > 135 ? 10 : 4;
+    }
+
+    if (p.role === 'WK') {
+      score += s.runs / 55;
+      score += s.avg  * 0.55;
+      score += (s.sr - 120) * 0.28;
+      score += 30; // WK slot value
+      if (needChase)   score += s.sr > 145 ? 16 : 8;
+      if (isBatPitch)  score += 10;
+    }
+
+    if (p.role === 'AR') {
+      const batScore  = s.runs / 70 + s.avg * 0.4 + (s.sr - 115) * 0.2;
+      const bowlScore = s.wickets > 0 ? (s.wickets * 1.2 + (9 - s.economy) * 1.8) : 0;
+      score += batScore + bowlScore;
+      score += 12; // all-rounder depth bonus
+      if (isBatPitch  || needBatFirst) score += s.sr > 135 ? 12 : 5;
+      if (isSeamPitch || needWickets)  score += s.wickets > 20 ? 14 : 5;
+      if (isSpinPitch) score += (p.name.includes('Narine') || p.name.includes('Rachin') || p.name.includes('Ramandeep')) ? 16 : 4;
+      if (needChase)   score += s.sr > 140 ? 14 : 6;
+    }
+
+    if (p.role === 'BOWL') {
+      score += s.wickets * 1.4;
+      score += (9 - s.economy) * 2.2;
+      score += s.matches * 0.15;
+      if (isSeamPitch)  score += p.name.includes('Pathirana') || p.name.includes('Arora') || p.name.includes('Saini') || p.name.includes('Malik') ? 22 : 10;
+      if (isSpinPitch)  score += p.name.includes('Chakravarthy') || p.name.includes('Narine') ? 20 : 4;
+      if (needWickets || vsStrongBat) score += s.wickets > 30 ? 18 : 8;
+      if (isBatPitch)   score -= 8; // fewer pure bowlers on flat track
+    }
+
+    // experience multiplier
+    score += Math.log(s.matches + 1) * 3;
+
+    // forced from notes gets massive boost
+    if (forcedNames.includes(p.name)) score += 999;
+
+    return { idx, score };
+  });
+
+  // ── greedy selection with role constraints ────────────────────────────
+  const sorted = [...scored].sort((a, b) => b.score - a.score);
+
+  const selected = [];
+  let osCount = 0;
+  let wkCount = 0;
+
+  // Helper
+  const alreadyIn = i => selected.some(s => s.idx === i);
+
+  // Pass 1 — best players respecting OS cap
+  for (const { idx } of sorted) {
+    if (selected.length >= 12) break;
+    const p = squad[idx];
+    const isOS = p.country === 'OS';
+    if (isOS && osCount >= 4) continue;
+    selected.push({ idx });
+    if (isOS) osCount++;
+    if (p.role === 'WK') wkCount++;
+  }
+
+  // Pass 2 — enforce WK: swap lowest-scoring non-WK for best available WK
+  if (wkCount === 0) {
+    const bestWK = sorted.find(({ idx }) => squad[idx].role === 'WK' && !alreadyIn(idx) &&
+      !(squad[idx].country === 'OS' && osCount >= 4));
+    if (bestWK) {
+      // remove lowest-scoring non-WK non-essential
+      const removable = [...selected]
+        .filter(s => squad[s.idx].role !== 'WK')
+        .sort((a, b) => {
+          const sa = scored.find(x => x.idx === a.idx)?.score || 0;
+          const sb = scored.find(x => x.idx === b.idx)?.score || 0;
+          return sa - sb;
+        });
+      if (removable.length) {
+        const toRemove = removable[0];
+        selected.splice(selected.indexOf(toRemove), 1);
+        if (squad[toRemove.idx].country === 'OS') osCount--;
+        selected.push({ idx: bestWK.idx });
+        if (squad[bestWK.idx].country === 'OS') osCount++;
+        wkCount++;
+      }
+    }
+  }
+
+  // Pass 3 — enforce ≥3 bowlers (BOWL role)
+  const bowlCount = () => selected.filter(s => squad[s.idx].role === 'BOWL').length;
+  const arBowlCount = () => selected.filter(s => squad[s.idx].role === 'AR' && squad[s.idx].stats.wickets > 10).length;
+  while (bowlCount() + arBowlCount() < 3 && selected.length <= 12) {
+    const nextBowl = sorted.find(({ idx }) =>
+      squad[idx].role === 'BOWL' && !alreadyIn(idx) &&
+      !(squad[idx].country === 'OS' && osCount >= 4));
+    if (!nextBowl) break;
+    // drop lowest scoring BAT
+    const dropBat = [...selected]
+      .filter(s => squad[s.idx].role === 'BAT')
+      .sort((a, b) => (scored.find(x=>x.idx===a.idx)?.score||0) - (scored.find(x=>x.idx===b.idx)?.score||0));
+    if (!dropBat.length) break;
+    const toRemove = dropBat[0];
+    selected.splice(selected.indexOf(toRemove), 1);
+    if (squad[toRemove.idx].country === 'OS') osCount--;
+    selected.push({ idx: nextBowl.idx });
+    if (squad[nextBowl.idx].country === 'OS') osCount++;
+  }
+
+  // ── sort field positions: WK first, then BAT, AR, BOWL ────────────────
+  const roleOrder = { WK:0, BAT:1, AR:2, BOWL:3 };
+  selected.sort((a, b) => {
+    const ra = roleOrder[squad[a.idx].role] ?? 4;
+    const rb = roleOrder[squad[b.idx].role] ?? 4;
+    if (ra !== rb) return ra - rb;
+    // within same role, sort by score desc
+    return (scored.find(x=>x.idx===b.idx)?.score||0) - (scored.find(x=>x.idx===a.idx)?.score||0);
+  });
+
+  // ── per-player reasons ────────────────────────────────────────────────
+  const reasonMap = {
+    BAT:  ['Top-order anchor and run-machine', 'Consistent run-scorer at the top', 'Reliable technique against spin', 'Aggressive powerplay option', 'High average in IPL conditions'],
+    WK:   ['Explosive keeper-batter', 'Strike-rate leader behind the stumps', 'Gloves + firepower in lower middle order'],
+    AR:   ['Crucial batting depth + overs', 'Dual-threat all-round utility', 'Spin option + lower-order hitting', 'Pace all-rounder for seam conditions', 'Reliable middle-over control'],
+    BOWL: ['Premier wicket-taker', 'Economy ace in middle overs', 'Death-bowling specialist', 'Spin threat on this surface', 'Pace and bounce at the top'],
   };
-  card.ondragstart=e=>{
-    draggingCard=card;
-    e.dataTransfer.setData("from","field");
+
+  const usedReasons = {};
+  const players = selected.map(s => {
+    const p = squad[s.idx];
+    const pool = reasonMap[p.role] || ['Key squad contributor'];
+    usedReasons[p.role] = usedReasons[p.role] || 0;
+    const reason = pool[usedReasons[p.role] % pool.length];
+    usedReasons[p.role]++;
+    return { index: s.idx, name: p.name, reason };
+  });
+
+  // ── captain / vc ──────────────────────────────────────────────────────
+  // Captain: highest-scoring BAT or WK
+  const captainCandidates = players
+    .filter(p => squad[p.index].role === 'BAT' || squad[p.index].role === 'WK')
+    .sort((a,b) => (scored.find(x=>x.idx===b.index)?.score||0) - (scored.find(x=>x.idx===a.index)?.score||0));
+  let captain = captainCandidates[0]?.name || players[0]?.name;
+
+  // Prefer Narine as captain if in XI (skipper bonus)
+  const narineInXI = players.find(p => squad[p.index].name === 'Sunil Narine');
+  if (narineInXI) captain = narineInXI.name;
+
+  // VC: highest scoring AR or second-best BAT
+  const vcCandidates = players
+    .filter(p => p.name !== captain)
+    .sort((a,b) => (scored.find(x=>x.idx===b.index)?.score||0) - (scored.find(x=>x.idx===a.index)?.score||0));
+  const viceCaptain = vcCandidates[0]?.name || players[1]?.name;
+
+  // ── strategy label + reason text ─────────────────────────────────────
+  const pitchLabel  = isBatPitch ? 'Flat Deck' : isSpinPitch ? 'Spin Deck' : isSeamPitch ? 'Green Top' : 'All Conditions';
+  const stratLabel  = needChase ? 'Chase Mode' : needBatFirst ? 'Batting First' : needWickets ? 'Attack Mode' : 'Balanced';
+  const title       = `${pitchLabel} ${stratLabel}`;
+
+  const osPlayers   = players.filter(p => squad[p.index].country === 'OS').map(p => squad[p.index].name);
+  const bowlers     = players.filter(p => squad[p.index].role === 'BOWL').map(p => squad[p.index].name.split(' ').pop());
+  const allrounders = players.filter(p => squad[p.index].role === 'AR').map(p => squad[p.index].name.split(' ').pop());
+
+  let reason = '';
+  if (isBatPitch) reason += 'The flat surface calls for batting firepower — we\'ve stacked the order with proven run-scorers and high strike-rate options. ';
+  else if (isSpinPitch) reason += 'This spin-friendly surface demands bowlers who can grip and turn — Eden\'s slow tracks favour Narine and Chakravarthy front and centre. ';
+  else if (isSeamPitch) reason += 'Seam and swing conditions suit our pace attack; we\'ve loaded up on wicket-taking seamers to exploit the movement. ';
+  else reason += 'A balanced selection targeting all phases — powerplay aggression, middle-order solidity, and bowling depth. ';
+
+  if (needChase) reason += `Chasing strategy requires batters with 140+ SR; ${captain} leads a line-up built to hunt totals. `;
+  if (needWickets) reason += `With wicket-taking as priority, ${bowlers.join(' & ')} form the bowling engine to dismantle the opposition. `;
+  if (vsSpinHeavy) reason += 'Against a spin-heavy attack, we favour batters with strong footwork and high averages over raw strike rate. ';
+  if (vsPaceHeavy) reason += 'Facing a pace-heavy opposition, we\'ve backed high-SR batters who can counter-punch in the powerplay. ';
+  reason += `${captain} (C) and ${viceCaptain} (VC) anchor the leadership with ${osPlayers.length} overseas players (${osPlayers.slice(0,2).join(', ')}).`;
+
+  return { title, subtitle: `${players.length} selected · ${osPlayers.length} overseas · ${bowlers.length} specialist bowlers`, reason, captain, viceCaptain, players };
+}
+
+function renderAIResult(data) {
+  document.getElementById('aiResultTitle').textContent = (data.title || 'AI RECOMMENDED XI').toUpperCase();
+  document.getElementById('aiResultSubtitle').textContent = data.subtitle || '';
+  document.getElementById('aiReasonBox').innerHTML = data.reason || '';
+
+  const rows = document.getElementById('aiPlayerRows');
+  rows.innerHTML = '';
+  data.players.forEach((p, i) => {
+    const player = squad[p.index];
+    if (!player) return;
+    const isC = player.name === data.captain;
+    const isVC = player.name === data.viceCaptain;
+    const row = document.createElement('div');
+    row.className = 'ai-player-row';
+    row.innerHTML = `
+      <span class="ai-pr-num">${i + 1}</span>
+      <img class="ai-pr-img" src="${player.img || fallbackImg}" onerror="this.src='${fallbackImg}'" alt="${player.name}">
+      <div class="ai-pr-info">
+        <div class="ai-pr-name">${player.name}${player.country === 'OS' ? ' ✈️' : ''}</div>
+        <div class="ai-pr-reason">${p.reason || ''}</div>
+      </div>
+      <div class="ai-pr-badges">
+        <span class="role-pill role-${player.role}">${player.role}</span>
+        ${isC ? '<span class="ai-captain-chip">C</span>' : ''}
+        ${isVC && !isC ? '<span class="ai-vc-chip">VC</span>' : ''}
+      </div>`;
+    rows.appendChild(row);
+  });
+}
+
+function applyAIXI() {
+  if (!currentAIXI) return;
+  document.querySelectorAll('.zone').forEach(z => z.innerHTML = '');
+  squad.forEach(p => p.used = false);
+  captainName = null; vcName = null;
+  selectedSquadIdx = null; selectedFieldIdx = null;
+  selectingCaptain = false; selectingVC = false;
+  captainBtn.classList.remove('active'); vcBtn.classList.remove('active');
+  setSelectionHint(null);
+
+  currentAIXI.players.forEach((p, pos) => {
+    const player = squad[p.index];
+    if (!player) return;
+    const zone = document.querySelector(`.zone[data-pos="${pos}"]`);
+    if (!zone) return;
+    const card = createCard(player, p.index);
+    zone.appendChild(card);
+    player.used = true;
+  });
+
+  captainName = currentAIXI.captain || null;
+  vcName = currentAIXI.viceCaptain || null;
+  refreshAllBadges();
+  renderSquad(); updateCount(); saveTeam();
+  closeSuggest();
+  toast('🤖 AI XI applied! ' + (currentAIXI.title || '') + ' ⚡', 2800);
+}
+
+// ============ PRESET GRID ============
+function initPresets() {
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = '';
+  presets.forEach((pr, pi) => {
+    const btn = document.createElement('button');
+    btn.className = 'suggest-preset';
+    btn.innerHTML = `<span class="preset-label">${pr.label}</span>`;
+    btn.onclick = () => applyPreset(pi);
+    grid.appendChild(btn);
+  });
+}
+
+function applyPreset(pi) {
+  const pr = presets[pi];
+  document.querySelectorAll('.zone').forEach(z => z.innerHTML = '');
+  squad.forEach(p => p.used = false);
+  captainName = null; vcName = null;
+  selectedSquadIdx = null; selectedFieldIdx = null;
+  selectingCaptain = false; selectingVC = false;
+  captainBtn.classList.remove('active'); vcBtn.classList.remove('active');
+  setSelectionHint(null);
+  pr.indices.forEach((idx, pos) => {
+    const p = squad[idx];
+    if (!p) return;
+    const zone = document.querySelector(`.zone[data-pos="${pos}"]`);
+    if (!zone) return;
+    const card = createCard(p, idx);
+    zone.appendChild(card);
+    p.used = true;
+  });
+  const narineInXI = pr.indices.includes(15);
+  captainName = narineInXI ? squad[15].name : squad[pr.indices[0]]?.name;
+  const nonCaptain = pr.indices.find(i => squad[i]?.name !== captainName);
+  vcName = nonCaptain !== undefined ? squad[nonCaptain]?.name : null;
+  refreshAllBadges();
+  renderSquad(); updateCount(); saveTeam();
+  closeSuggest();
+  toast('⚡ ' + pr.label + ' XI applied!', 2500);
+}
+
+function openSuggest() {
+  initPresets();
+  document.getElementById('suggestModal').classList.add('open');
+}
+function closeSuggest() { document.getElementById('suggestModal').classList.remove('open'); }
+
+// ========= REST OF ORIGINAL CODE (unchanged) =========
+const squadList = document.getElementById("squadList");
+const zones = [...document.querySelectorAll(".zone")];
+const captainBtn = document.getElementById("captainBtn");
+const vcBtn = document.getElementById("vcBtn");
+const osBadge = document.getElementById("osBadge");
+const tooltip = document.getElementById("playerTooltip");
+
+let touchDragData = null, lastHoveredZone = null;
+let selectedSquadIdx = null;
+let selectedFieldIdx = null;
+
+function highlightSelection() {
+  document.querySelectorAll(".selected-player").forEach(c => {
+    c.classList.toggle("field-selected", selectedFieldIdx !== null && parseInt(c.dataset.idx) === selectedFieldIdx);
+  });
+}
+
+let toastTimer;
+function toast(msg, duration = 2200) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), duration);
+}
+
+function countOverseas() {
+  let n = 0;
+  document.querySelectorAll(".selected-player").forEach(c => { if (squad[c.dataset.idx]?.country === "OS") n++; });
+  return n;
+}
+
+function updateOsBadge() {
+  const c = countOverseas();
+  osBadge.textContent = "Overseas: " + c + " / 4";
+  osBadge.classList.toggle("over-limit", c > 4);
+}
+
+function updateRoleWarnings() {
+  const bar = document.getElementById("roleWarningBar");
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const n = cards.length;
+  if (n === 0) { bar.innerHTML = ""; return; }
+  const count = { BAT:0, WK:0, AR:0, BOWL:0, OS:0 };
+  cards.forEach(c => { const p = squad[c.dataset.idx]; if (!p) return; count[p.role]++; if (p.country === "OS") count.OS++; });
+  const warns = [];
+  if (n >= 7) {
+    if (count.WK === 0) warns.push({cls:"danger", msg:"No Wicket-Keeper selected!"});
+    else if (count.WK > 2) warns.push({cls:"warn", msg:count.WK + " Keepers — consider reducing"});
+    if (count.BOWL < 3 && n >= 9) warns.push({cls:"warn", msg:"Only " + count.BOWL + " Bowler" + (count.BOWL===1?"":"s") + " — need at least 3"});
+    if (count.BAT + count.WK < 3 && n >= 9) warns.push({cls:"warn", msg:"Too few Batters in top order"});
+  }
+  if (count.OS > 4) warns.push({cls:"danger", msg:count.OS + " Overseas — max 4 allowed!"});
+  if (n === 11 && warns.length === 0) warns.push({cls:"ok", msg:"Valid Playing XI — Korbo Lorbo Jeetbo!"});
+  bar.innerHTML = warns.map(w => '<div class="role-warn ' + w.cls + '">' + w.msg + '</div>').join("");
+}
+
+function updateCount() {
+  const n = document.querySelectorAll(".selected-player").length;
+  const xiNum = document.getElementById("xiNum");
+  const xiDots = document.getElementById("xiDots");
+  if (xiNum) xiNum.textContent = n;
+  if (xiDots) {
+    xiDots.innerHTML = "";
+    for (let i = 0; i < 12; i++) {
+      const dot = document.createElement("div");
+      dot.className = "xi-dot" + (i < n ? (i === 11 ? " impact" : " filled") : "");
+      xiDots.appendChild(dot);
+    }
+  }
+  updateOsBadge(); updateStats(); updateRoleWarnings();
+  if (n === 11 || n === 12) fireConfetti();
+  else confettiFired = false;
+}
+
+const roleMeta = { BAT:{label:"Batter",color:"#4ade80"}, WK:{label:"Wicket-Keeper",color:"#60a5fa"}, AR:{label:"All-Rounder",color:"#fbbf24"}, BOWL:{label:"Bowler",color:"#f87171"} };
+
+function showTooltip(p, x, y) {
+  if (isMobile()) return;
+  if (!p) return;
+  const rm = roleMeta[p.role] || {};
+  const hasWickets = p.role === "BOWL" || p.role === "AR";
+  const hasBatStats = p.role === "BAT" || p.role === "WK" || p.role === "AR";
+  tooltip.innerHTML =
+    '<div class="tooltip-name">' + p.name + (p.country === "OS" ? " ✈️" : "") + '</div>' +
+    '<span class="tooltip-role-chip role-' + p.role + '" style="background:rgba(0,0,0,0.4);color:' + rm.color + ';border:1px solid ' + rm.color + '40">' + (rm.label || p.role) + '</span>' +
+    (hasBatStats ?
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Matches</span><span class="tooltip-stat-val">' + p.stats.matches + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Runs</span><span class="tooltip-stat-val">' + p.stats.runs + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Avg</span><span class="tooltip-stat-val">' + p.stats.avg + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">S/R</span><span class="tooltip-stat-val">' + p.stats.sr + '</span></div>' : "") +
+    (hasWickets && p.stats.wickets > 0 ?
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Wickets</span><span class="tooltip-stat-val">' + p.stats.wickets + '</span></div>' +
+      '<div class="tooltip-stat-row"><span class="tooltip-stat-label">Economy</span><span class="tooltip-stat-val">' + p.stats.economy + '</span></div>' : "");
+  const tw = 210, th = 200;
+  let lx = x + 14, ly = y - 20;
+  if (lx + tw > window.innerWidth - 10) lx = x - tw - 10;
+  if (ly + th > window.innerHeight - 10) ly = window.innerHeight - th - 10;
+  if (ly < 10) ly = 10;
+  tooltip.style.left = lx + "px";
+  tooltip.style.top = ly + "px";
+  tooltip.classList.add("visible");
+}
+function hideTooltip() { tooltip.classList.remove("visible"); }
+
+function zoneFromPoint(x, y) {
+  const ghost = touchDragData?.ghost;
+  if (ghost) ghost.style.display = "none";
+  const el = document.elementFromPoint(x, y);
+  if (ghost) ghost.style.display = "";
+  return el?.closest(".zone") || null;
+}
+
+function dropOnZone(z, type, idx, sourceZone, draggingCardEl) {
+  if (type === "squad") {
+    if (z.querySelector(".selected-player")) { toast("Slot is occupied!"); return; }
+    if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
+    const card = createCard(squad[idx], idx);
+    z.appendChild(card);
+    squad[idx].used = true;
+    renderSquad(); updateCount(); saveTeam();
+    autoCollapseDrawer();
+  } else if (type === "card" && draggingCardEl) {
+    const targetCard = z.querySelector(".selected-player");
+    if (targetCard && sourceZone) {
+      sourceZone.appendChild(targetCard);
+      z.appendChild(draggingCardEl);
+    } else if (!targetCard) {
+      z.appendChild(draggingCardEl);
+    }
+    draggingCardEl.style.opacity = "1";
+    updateCount(); saveTeam();
+  }
+}
+
+function renderSquad() {
+  const render = (container, showGroupTitles) => {
+    container.innerHTML = "";
+    const groups = { BAT: [], WK: [], AR: [], BOWL: [] };
+    squad.forEach((p, i) => groups[p.role]?.push({ p, i }));
+    const labels = { BAT: "Batters", WK: "Keepers", AR: "All-Rounders", BOWL: "Bowlers" };
+    Object.entries(groups).forEach(([role, players]) => {
+      if (activeFilter !== "ALL" && activeFilter !== role) return;
+      if (!players.length) return;
+      if (showGroupTitles) {
+        const gt = document.createElement("div");
+        gt.className = "squad-group-title";
+        gt.textContent = labels[role];
+        container.appendChild(gt);
+      }
+      players.forEach(({ p, i }) => {
+        if (activeFilter !== "ALL" && p.role !== activeFilter) return;
+        const d = document.createElement("div");
+        d.className = "player" + (p.used ? " used" : "");
+        d.draggable = !p.used && !isMobile();
+        d.innerHTML = '<span>' + p.name + '</span><span class="player-badges">' + (p.country === "OS" ? '<span class="os-flag">✈️</span>' : "") + '<span class="role-pill role-' + p.role + '">' + p.role + '</span></span>';
+        if (!p.used) {
+          if (!isMobile()) {
+            d.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+            d.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+            d.addEventListener("mouseleave", hideTooltip);
+          }
+          d.ondragstart = e => { e.dataTransfer.setData("fromSquad", i); document.body.classList.add("is-dragging"); hideTooltip(); };
+          d.ondragend = () => document.body.classList.remove("is-dragging");
+          if (isMobile()) {
+            if (selectedSquadIdx === i) d.classList.add("squad-selected");
+            d.addEventListener("click", () => {
+              if (p.used) return;
+              if (selectedSquadIdx === i) {
+                selectedSquadIdx = null;
+              } else {
+                selectedSquadIdx = i;
+                selectedFieldIdx = null;
+                toast("Tap a slot to place " + p.name, 2000);
+              }
+              renderSquad();
+              highlightSelection();
+            });
+          }
+        }
+        container.appendChild(d);
+      });
+    });
   };
+  render(squadList, true);
+  const drawerList = document.getElementById("drawerSquadList");
+  if (drawerList) render(drawerList, true);
+  const available = squad.filter(p => !p.used).length;
+  document.getElementById("squadCount").textContent = available + " available";
+  const dc = document.getElementById("drawerSquadCount");
+  if (dc) dc.textContent = available + " available";
+  const tc = document.getElementById("tabCount");
+  if (tc) tc.textContent = available;
+}
+
+function createCard(p, idx) {
+  const card = document.createElement("div");
+  card.className = "selected-player";
+  card.dataset.idx = idx;
+  card.draggable = !isMobile();
+  card.innerHTML =
+    '<div class="card-img-wrap"><img src="' + (p.img || fallbackImg) + '" onerror="this.src=\'' + fallbackImg + '\'"></div>' +
+    '<div class="card-name">' + p.name + (p.country === "OS" ? " ✈️" : "") + '</div>' +
+    '<div class="card-role">' + p.role + '</div>' +
+    '<button class="remove-card" title="Remove">✕</button>';
+
+  refreshBadges(card, p.name);
+
+  if (!isMobile()) {
+    card.addEventListener("mouseenter", e => showTooltip(p, e.clientX, e.clientY));
+    card.addEventListener("mousemove", e => showTooltip(p, e.clientX, e.clientY));
+    card.addEventListener("mouseleave", hideTooltip);
+  }
+
+  card.querySelector(".remove-card").addEventListener("click", e => {
+    e.stopPropagation();
+    hideTooltip();
+    const i = parseInt(card.dataset.idx);
+    card.style.transition = "all 0.3s cubic-bezier(0.4,0,1,1)";
+    card.style.transform = "scale(0.7) translateY(-10px)";
+    card.style.opacity = "0";
+    setTimeout(() => {
+      if (card.parentElement) card.parentElement.innerHTML = "";
+      squad[i].used = false;
+      if (captainName === squad[i].name) captainName = null;
+      if (vcName === squad[i].name) vcName = null;
+      renderSquad(); updateCount(); saveTeam();
+    }, 280);
+  });
+
+  card.addEventListener("click", () => {
+    if (selectingCaptain) {
+      captainName = p.name; selectingCaptain = false;
+      captainBtn.classList.remove("active");
+      setSelectionHint(null); refreshAllBadges(); saveTeam();
+      toast(p.name + " named Captain ⭐");
+    } else if (selectingVC) {
+      vcName = p.name; selectingVC = false;
+      vcBtn.classList.remove("active");
+      setSelectionHint(null); refreshAllBadges(); saveTeam();
+      toast(p.name + " named Vice Captain 🔰");
+    }
+  });
+
+  card.ondragstart = e => {
+    e.dataTransfer.setData("fromField", "1");
+    e.dataTransfer.setData("cardIdx", idx);
+    document.body.classList.add("is-dragging");
+    hideTooltip();
+    setTimeout(() => card.style.opacity = "0.4", 0);
+  };
+  card.ondragend = () => { card.style.opacity = "1"; document.body.classList.remove("is-dragging"); };
+
+  if (isMobile()) {
+    if (selectedFieldIdx !== null && selectedFieldIdx === idx) card.classList.add("field-selected");
+    card.addEventListener("click", () => {
+      if (selectingCaptain || selectingVC) return;
+      if (selectedSquadIdx !== null) {
+        const zone = card.closest(".zone");
+        if (squad[selectedSquadIdx].country === "OS" && countOverseas() >= 4 && squad[idx].country !== "OS") {
+          toast("Max 4 overseas players allowed!");
+          return;
+        }
+        const oldIdx = parseInt(card.dataset.idx);
+        squad[oldIdx].used = false;
+        if (captainName === squad[oldIdx].name) captainName = null;
+        if (vcName === squad[oldIdx].name) vcName = null;
+        zone.innerHTML = "";
+        const newCard = createCard(squad[selectedSquadIdx], selectedSquadIdx);
+        zone.appendChild(newCard);
+        squad[selectedSquadIdx].used = true;
+        selectedSquadIdx = null;
+        closeDrawer();
+        renderSquad(); updateCount(); saveTeam();
+      } else if (selectedFieldIdx === null) {
+        selectedFieldIdx = idx;
+        highlightSelection();
+        toast("Tap another player to swap, or tap again to cancel", 2200);
+      } else if (selectedFieldIdx === idx) {
+        selectedFieldIdx = null;
+        highlightSelection();
+      } else {
+        const otherCard = document.querySelector(".selected-player[data-idx='" + selectedFieldIdx + "']");
+        if (otherCard) {
+          const zoneA = card.closest(".zone");
+          const zoneB = otherCard.closest(".zone");
+          zoneA.appendChild(otherCard);
+          zoneB.appendChild(card);
+        }
+        selectedFieldIdx = null;
+        highlightSelection();
+        renderSquad(); updateCount(); saveTeam();
+      }
+    });
+  }
+
   return card;
 }
 
-function renderSquad(){
-  squadList.innerHTML="";
-  squad.forEach((p,i)=>{
-    const d=document.createElement("div");
-    d.className="player"+(p.used?" used":"");
-    d.textContent=p.name;
-    d.draggable=!p.used;
-    d.ondragstart=e=>{
-      e.dataTransfer.setData("from","squad");
-      e.dataTransfer.setData("idx",i);
-    };
-    squadList.appendChild(d);
+document.addEventListener("touchmove", e => {
+  if (!touchDragData) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  const { ghost, offsetX, offsetY } = touchDragData;
+  ghost.style.left = (touch.clientX - offsetX) + "px";
+  ghost.style.top  = (touch.clientY - offsetY) + "px";
+  const z = zoneFromPoint(touch.clientX, touch.clientY);
+  if (z !== lastHoveredZone) {
+    if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
+    if (z) z.classList.add("drag-over");
+    lastHoveredZone = z;
+  }
+}, { passive: false });
+
+document.addEventListener("touchend", e => {
+  if (!touchDragData) return;
+  const touch = e.changedTouches[0];
+  const { type, idx, sourceZone, cardEl, ghost } = touchDragData;
+  ghost.remove();
+  if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
+  document.body.classList.remove("is-dragging");
+  const z = zoneFromPoint(touch.clientX, touch.clientY);
+  if (z) dropOnZone(z, type, idx, sourceZone, cardEl);
+  else if (cardEl) cardEl.style.opacity = "1";
+  lastHoveredZone = null; touchDragData = null;
+});
+
+document.addEventListener("touchcancel", () => {
+  if (!touchDragData) return;
+  touchDragData.ghost.remove();
+  if (touchDragData.cardEl) touchDragData.cardEl.style.opacity = "1";
+  if (lastHoveredZone) lastHoveredZone.classList.remove("drag-over");
+  document.body.classList.remove("is-dragging");
+  lastHoveredZone = null; touchDragData = null;
+});
+
+zones.forEach(z => {
+  z.ondragover = e => { e.preventDefault(); z.classList.add("drag-over"); };
+  z.ondragleave = e => { if (!z.contains(e.relatedTarget)) z.classList.remove("drag-over"); };
+  z.ondrop = e => {
+    e.preventDefault();
+    z.classList.remove("drag-over");
+    document.body.classList.remove("is-dragging");
+    const fromSquadIdx = e.dataTransfer.getData("fromSquad");
+    const isFromField  = e.dataTransfer.getData("fromField") === "1";
+    const cardIdx      = parseInt(e.dataTransfer.getData("cardIdx"));
+    if (fromSquadIdx !== "" && !isFromField) {
+      const idx = parseInt(fromSquadIdx);
+      if (z.querySelector(".selected-player")) return;
+      if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
+      const card = createCard(squad[idx], idx);
+      z.appendChild(card);
+      squad[idx].used = true;
+      renderSquad(); updateCount(); saveTeam(); return;
+    }
+    if (isFromField) {
+      const draggingCardEl = [...document.querySelectorAll(".selected-player")].find(c => parseFloat(c.style.opacity) < 0.5);
+      if (!draggingCardEl) return;
+      const srcZone = draggingCardEl.closest(".zone");
+      dropOnZone(z, "card", cardIdx, srcZone, draggingCardEl);
+    }
+  };
+  z.addEventListener("click", e => {
+    if (!isMobile()) return;
+    if (e.target.closest(".selected-player")) return;
+    if (selectedSquadIdx !== null) {
+      if (z.querySelector(".selected-player")) { toast("Slot is occupied!"); return; }
+      const idx = selectedSquadIdx;
+      if (squad[idx].country === "OS" && countOverseas() >= 4) { toast("Max 4 overseas players allowed!"); return; }
+      const card = createCard(squad[idx], idx);
+      z.appendChild(card);
+      squad[idx].used = true;
+      selectedSquadIdx = null;
+      closeDrawer();
+      renderSquad(); updateCount(); saveTeam();
+    } else if (selectedFieldIdx !== null) {
+      selectedFieldIdx = null;
+      highlightSelection();
+    }
+  });
+});
+
+squadList.ondragover = e => e.preventDefault();
+squadList.ondrop = e => {
+  if (e.dataTransfer.getData("fromField") !== "1") return;
+  const draggingCardEl = [...document.querySelectorAll(".selected-player")].find(c => parseFloat(c.style.opacity) < 0.5);
+  if (!draggingCardEl) return;
+  const idx = parseInt(draggingCardEl.dataset.idx);
+  draggingCardEl.style.transition = "all 0.25s ease";
+  draggingCardEl.style.transform = "scale(0.8)";
+  draggingCardEl.style.opacity = "0";
+  setTimeout(() => {
+    const zone = document.querySelector(".zone .selected-player[data-idx='" + idx + "']")?.closest(".zone");
+    if (zone) zone.innerHTML = "";
+    squad[idx].used = false;
+    if (captainName === squad[idx].name) captainName = null;
+    if (vcName === squad[idx].name) vcName = null;
+    document.body.classList.remove("is-dragging");
+    renderSquad(); updateCount(); saveTeam();
+  }, 220);
+};
+
+function refreshBadges(card, name) {
+  card.querySelectorAll(".captain-badge,.vc-badge").forEach(b => b.remove());
+  if (name === captainName) {
+    const b = document.createElement("div"); b.className = "captain-badge"; b.textContent = "C"; card.appendChild(b);
+  }
+  if (name === vcName && name !== captainName) {
+    const b = document.createElement("div"); b.className = "vc-badge"; b.textContent = "VC"; card.appendChild(b);
+  }
+}
+function refreshAllBadges() {
+  document.querySelectorAll(".selected-player").forEach(card => {
+    const p = squad[card.dataset.idx];
+    if (p) refreshBadges(card, p.name);
   });
 }
 
-function updateCount(){
-  xiCount.textContent=
-   `Selected: ${document.querySelectorAll(".selected-player").length} / 11 + 1 Impact`;
+function setSelectionHint(mode) {
+  document.querySelectorAll(".selected-player").forEach(c => {
+    if (mode) {
+      c.style.outline = "2px solid " + (mode === "captain" ? "var(--kkr-gold)" : "#aaa");
+      c.style.boxShadow = "0 0 14px " + (mode === "captain" ? "rgba(212,175,55,0.55)" : "rgba(136,136,136,0.4)");
+    } else {
+      c.style.outline = "";
+      c.style.boxShadow = "0 4px 16px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10)";
+    }
+  });
 }
 
-zones.forEach(z=>{
-  z.ondragover=e=>e.preventDefault();
-  z.ondrop=e=>{
-    e.preventDefault();
-    const from=e.dataTransfer.getData("from");
-    const idx=e.dataTransfer.getData("idx");
+captainBtn.onclick = () => {
+  selectingCaptain = !selectingCaptain; selectingVC = false;
+  captainBtn.classList.toggle("active", selectingCaptain);
+  vcBtn.classList.remove("active");
+  setSelectionHint(selectingCaptain ? "captain" : null);
+  if (selectingCaptain) toast("⭐ TAP any player card to assign Captain", 3500);
+};
+vcBtn.onclick = () => {
+  selectingVC = !selectingVC; selectingCaptain = false;
+  vcBtn.classList.toggle("active", selectingVC);
+  captainBtn.classList.remove("active");
+  setSelectionHint(selectingVC ? "vc" : null);
+  if (selectingVC) toast("🔰 TAP any player card to assign Vice Captain", 3500);
+};
 
-    if(from==="squad"){
-      if(z.children.length||document.querySelectorAll(".selected-player").length>=12) return;
-      z.appendChild(createCard(squad[idx],idx));
-      squad[idx].used=true;
-    }
-
-    if(from==="field"&&draggingCard){
-      if(z.children.length){
-        const temp=z.firstChild;
-        z.replaceChild(draggingCard,temp);
-        temp.parentElement.appendChild(temp);
-      }else z.appendChild(draggingCard);
-    }
-
-    draggingCard=null;
-    renderSquad();updateCount();saveTeam();
+document.getElementById("roleFilters").querySelectorAll(".role-filter").forEach(btn => {
+  btn.onclick = () => {
+    activeFilter = btn.dataset.role;
+    document.querySelectorAll(".role-filter").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderSquad();
   };
 });
 
-squadList.ondragover=e=>e.preventDefault();
-squadList.ondrop=()=>{
-  if(!draggingCard) return;
-  const idx=draggingCard.dataset.idx;
-  draggingCard.remove();
-  squad[idx].used=false;
-  draggingCard=null;
-  renderSquad();updateCount();saveTeam();
+document.getElementById("resetBtn").onclick = () => {
+  if (!confirm("Reset your Playing XI?")) return;
+  document.querySelectorAll(".selected-player").forEach((c, i) => {
+    c.style.transition = "all 0.3s ease " + (i * 30) + "ms";
+    c.style.transform = "scale(0.6) translateY(-15px)";
+    c.style.opacity = "0";
+  });
+  setTimeout(() => {
+    document.querySelectorAll(".zone").forEach(z => z.innerHTML = "");
+    squad.forEach(p => p.used = false);
+    captainName = null; vcName = null;
+    selectedSquadIdx = null; selectedFieldIdx = null;
+    selectingCaptain = false; selectingVC = false;
+    captainBtn.classList.remove("active"); vcBtn.classList.remove("active");
+    setSelectionHint(null);
+    localStorage.removeItem("kkrPlayingXI");
+    renderSquad(); updateCount();
+    toast("Team reset ↺");
+  }, 350);
 };
 
-captainBtn.onclick=()=>{
-  selectingCaptain=!selectingCaptain;
-  captainBtn.classList.toggle("active");
-};
-
-function saveTeam(){
-  const data=zones.map(z=>{
-    const c=z.querySelector(".selected-player");
-    if(!c) return null;
-    return {idx:c.dataset.idx,captain:!!c.querySelector(".captain-badge")};
-  });
-  localStorage.setItem("kkrTeam",JSON.stringify(data));
+function printXI() {
+  const n = document.querySelectorAll(".selected-player").length;
+  if (!n) { toast("Select players first! 🏏", 2000); return; }
+  window.print();
 }
 
-function loadTeam(){
-  const data=JSON.parse(localStorage.getItem("kkrTeam"));
-  if(!data) return;
-  data.forEach((d,i)=>{
-    if(!d) return;
-    const card=createCard(squad[d.idx],d.idx);
-    if(d.captain){
-      const b=document.createElement("div");
-      b.className="captain-badge";b.textContent="C";
-      card.appendChild(b);
-    }
-    zones[i].appendChild(card);
-    squad[d.idx].used=true;
+function generateImage() {
+  const n = document.querySelectorAll(".selected-player").length;
+  if (!n) { toast("Select players first to generate image! 🏏", 2000); return; }
+  toast("Generating XI image… 🖼️", 2000);
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const canvas = document.getElementById("xiCanvas");
+  const ctx = canvas.getContext("2d");
+  const COLS = 4, CW = 160, CH = 190, PAD = 16, HEADER = 80, FOOTER_H = 50;
+  const ROWS = Math.ceil(cards.length / COLS);
+  const W = COLS * CW + (COLS + 1) * PAD;
+  const H = HEADER + ROWS * CH + (ROWS + 1) * PAD + FOOTER_H;
+  canvas.width = W; canvas.height = H;
+  ctx.fillStyle = "#080808";
+  ctx.fillRect(0, 0, W, H);
+  const hg = ctx.createLinearGradient(0, 0, W, 0);
+  hg.addColorStop(0, "rgba(94,23,143,0.6)");
+  hg.addColorStop(0.5, "rgba(212,175,55,0.3)");
+  hg.addColorStop(1, "rgba(94,23,143,0.6)");
+  ctx.fillStyle = hg;
+  ctx.fillRect(0, 0, W, HEADER);
+  ctx.font = "bold 22px 'Bebas Neue', sans-serif";
+  ctx.fillStyle = "#D4AF37";
+  ctx.textAlign = "center";
+  ctx.fillText("KOLKATA KNIGHT RIDERS", W / 2, 34);
+  ctx.font = "14px 'Barlow Condensed', sans-serif";
+  ctx.fillStyle = "#888";
+  ctx.fillText("IPL 2026 — PLAYING XI", W / 2, 56);
+  ctx.strokeStyle = "#D4AF37";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, HEADER - 1); ctx.lineTo(W, HEADER - 1); ctx.stroke();
+  const rc = { BAT:"#4ade80", WK:"#60a5fa", AR:"#fbbf24", BOWL:"#f87171" };
+  const imgPromises = cards.map((card, i) => {
+    return new Promise(resolve => {
+      const col = i % COLS;
+      const row = Math.floor(i / COLS);
+      const x = PAD + col * (CW + PAD);
+      const y = HEADER + PAD + row * (CH + PAD);
+      const p = squad[card.dataset.idx];
+      ctx.fillStyle = "#efefef";
+      roundRect(ctx, x, y, CW, CH, 10); ctx.fill();
+      ctx.fillStyle = rc[p?.role] || "#888";
+      roundRect(ctx, x, y + CH - 22, CW, 22, [0, 0, 10, 10]); ctx.fill();
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      const drawMeta = () => {
+        if (p?.name === captainName) {
+          ctx.fillStyle = "#D4AF37";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("C", x + 15, y + 19);
+        } else if (p?.name === vcName) {
+          ctx.fillStyle = "#888";
+          ctx.beginPath(); ctx.arc(x + 15, y + 15, 11, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#000"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("VC", x + 15, y + 19);
+        }
+        const name = p?.name || "Player";
+        ctx.fillStyle = "#1a0626";
+        ctx.font = "bold 11px 'Barlow Condensed', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(name.length > 16 ? name.slice(0, 15) + "…" : name, x + CW / 2, y + CH - 26);
+        ctx.fillStyle = "#1a0626";
+        ctx.font = "bold 9px sans-serif";
+        ctx.fillText(p?.role || "", x + CW / 2, y + CH - 7);
+        resolve();
+      };
+      img.onload = () => {
+        ctx.save();
+        roundRect(ctx, x + 6, y + 6, CW - 12, CH - 36, 8);
+        ctx.clip();
+        ctx.drawImage(img, x + 6, y + 6, CW - 12, CH - 36);
+        ctx.restore();
+        drawMeta();
+      };
+      img.onerror = drawMeta;
+      img.src = p?.img || fallbackImg;
+    });
   });
-  renderSquad();updateCount();
+  Promise.all(imgPromises).then(() => {
+    ctx.fillStyle = "#333";
+    ctx.font = "11px 'Barlow Condensed', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Korbo Lorbo Jeetbo! — KKR XI Builder IPL 2026", W / 2, H - 16);
+    document.getElementById("imgModal").classList.add("open");
+  });
 }
+
+function roundRect(ctx, x, y, w, h, r) {
+  if (typeof r === "number") r = [r, r, r, r];
+  ctx.beginPath();
+  ctx.moveTo(x + r[0], y);
+  ctx.lineTo(x + w - r[1], y); ctx.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+  ctx.lineTo(x + w, y + h - r[2]); ctx.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+  ctx.lineTo(x + r[3], y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+  ctx.lineTo(x, y + r[0]); ctx.quadraticCurveTo(x, y, x + r[0], y);
+  ctx.closePath();
+}
+
+function closeImgModal() { document.getElementById("imgModal").classList.remove("open"); }
+function downloadImage() {
+  const canvas = document.getElementById("xiCanvas");
+  const a = document.createElement("a");
+  a.download = "KKR-XI-IPL2026.png";
+  a.href = canvas.toDataURL("image/png");
+  a.click();
+  toast("Image downloaded! 📥", 2000);
+}
+
+function openShare() {
+  const cards = [...document.querySelectorAll(".selected-player")];
+  if (!cards.length) { toast("Pick some players first! 🏏", 2000); return; }
+  const lines = ["🏏 My KKR Playing XI — IPL 2026\n"];
+  cards.forEach((card, i) => {
+    const p = squad[card.dataset.idx];
+    if (!p) return;
+    lines.push((i+1) + ". " + p.name + (p.name === captainName ? " (C)" : "") + (p.name === vcName ? " (VC)" : "") + " [" + p.role + "]" + (p.country === "OS" ? " ✈️" : ""));
+  });
+  lines.push("\nOverseas: " + countOverseas() + "/4");
+  lines.push("Korbo Lorbo Jeetbo! 💜💛");
+  const text = lines.join("\n");
+  if (navigator.share) navigator.share({ title:"My KKR XI", text }).catch(()=>{});
+  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast("XI copied to clipboard! 📋", 2500)).catch(() => fallbackShare(text));
+  else fallbackShare(text);
+}
+function fallbackShare(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); toast("XI copied! 📋", 2500); } catch(e) { toast("Could not copy!", 2500); }
+  document.body.removeChild(ta);
+}
+
+function saveTeam() {
+  const slots = [];
+  document.querySelectorAll(".zone").forEach(z => {
+    const card = z.querySelector(".selected-player");
+    slots.push(card ? parseInt(card.dataset.idx) : null);
+  });
+  try { localStorage.setItem("kkrPlayingXI", JSON.stringify({ slots, captainName, vcName })); } catch(e) {}
+}
+
+function loadTeam() {
+  try {
+    const raw = localStorage.getItem("kkrPlayingXI");
+    if (!raw) return;
+    const { slots, captainName: c, vcName: vc } = JSON.parse(raw);
+    captainName = c || null; vcName = vc || null;
+    slots.forEach((idx, pos) => {
+      if (idx === null || idx === undefined) return;
+      const p = squad[idx];
+      if (!p || p.used) return;
+      const zone = document.querySelector(".zone[data-pos='" + pos + "']");
+      if (!zone) return;
+      const card = createCard(p, idx);
+      zone.appendChild(card);
+      p.used = true;
+    });
+    renderSquad(); updateCount();
+  } catch(e) { localStorage.removeItem("kkrPlayingXI"); }
+}
+
+let confettiFired = false;
+function fireConfetti() {
+  if (confettiFired) return; confettiFired = true;
+  const colors = ['#D4AF37','#f0d068','#5E178F','#fff','#a855f7','#c084fc'];
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement("div"); c.className = "conf";
+    const size = Math.random()*10+4;
+    c.style.cssText = "left:" + (Math.random()*100) + "vw;top:-20px;width:" + size + "px;height:" + (size*(Math.random()>0.5?1:2.5)) + "px;background:" + colors[Math.floor(Math.random()*colors.length)] + ";--rot:" + ((Math.random()-0.5)*720) + "deg;animation-duration:" + (Math.random()*2+1.5) + "s;animation-delay:" + (Math.random()*0.8) + "s;opacity:0.9;border-radius:" + (Math.random()>0.5?"50%":"2px") + ";";
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3500);
+  }
+  toast("🎉 PLAYING XI COMPLETE! KORBO LORBO JEETBO!", 3500);
+}
+
+function updateStats() {
+  const cards = [...document.querySelectorAll(".selected-player")];
+  const count = { BAT:0, WK:0, AR:0, BOWL:0, OS:0 };
+  cards.forEach(card => { const p = squad[card.dataset.idx]; if (!p) return; count[p.role]++; if (p.country === "OS") count.OS++; });
+  const set = (id, val, max) => {
+    const el = document.getElementById("sv"+id);
+    const bar = document.getElementById("sf"+id);
+    if (el) el.textContent = val;
+    if (bar) bar.style.width = Math.min(100, (val/max)*100)+"%";
+  };
+  set("BAT",count.BAT,6); set("WK",count.WK,3); set("AR",count.AR,6); set("BOWL",count.BOWL,6); set("OS",count.OS,4);
+}
+
+const isMobile = () => window.innerWidth <= 768;
+
+const squadDrawer  = document.getElementById("squadDrawer");
+const drawerScrim  = document.getElementById("drawerScrim");
+const squadTab     = document.getElementById("squadTab");
+const drawerClose  = document.getElementById("drawerClose");
+
+function openDrawer() {
+  if (!isMobile()) return;
+  squadDrawer.classList.add("open");
+  drawerScrim.classList.add("visible");
+  squadTab.classList.add("drawer-open");
+}
+function closeDrawer() {
+  squadDrawer.classList.remove("open");
+  drawerScrim.classList.remove("visible");
+  squadTab.classList.remove("drawer-open");
+}
+
+if (squadTab) squadTab.addEventListener("click", openDrawer);
+if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
+// scrim has pointer-events:none so drawer close is via close button or squadTab only
+
+document.getElementById("drawerFilters").querySelectorAll(".role-filter").forEach(btn => {
+  btn.addEventListener("click", () => {
+    activeFilter = btn.dataset.role;
+    document.querySelectorAll("#drawerFilters .role-filter, #roleFilters .role-filter").forEach(b => {
+      b.classList.toggle("active", b.dataset.role === activeFilter);
+    });
+    renderSquad();
+  });
+});
+
+autoCollapseDrawer = function() { if (isMobile()) closeDrawer(); };
+
+document.getElementById("suggestModal").addEventListener("click", function(e) { if (e.target === this) closeSuggest(); });
+document.getElementById("imgModal").addEventListener("click", function(e) { if (e.target === this) closeImgModal(); });
 
 renderSquad();
 loadTeam();
-const resetBtn = document.getElementById("resetBtn");
-
-resetBtn.onclick = () => {
-  // Remove all selected players from zones
-  zones.forEach(z => z.innerHTML = "");
-
-  // Reset squad usage
-  squad.forEach(p => p.used = false);
-
-  // Clear captain mode
-  selectingCaptain = false;
-  captainBtn.classList.remove("active");
-
-  // Clear storage
-  localStorage.removeItem("kkrTeam");
-
-  // Re-render UI
-  renderSquad();
-  updateCount();
-};
-
 </script>
-
 </body>
 </html>
